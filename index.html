@@ -970,6 +970,15 @@ const CONFIG = {
   defaultModel: 'claude-sonnet-4-6'
 };
 
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // ========== STATE ==========
 const state = {
   DossierCode: '',
@@ -1076,12 +1085,7 @@ async function handleFiles(files) {
   showBuildex();
   updateStatusFiles();
 
-  if (CONFIG.apiUrl) {
-    await processFilesViaAPI(files);
-  } else {
-    setStatus('error', 'Geen API URL geconfigureerd. Stel in via console: setApiUrl("https://...")');
-    showToast('API URL niet ingesteld — gebruik setApiUrl("url")', 'error');
-  }
+  await processFilesViaAPI(files);
 }
 
 async function processFilesViaAPI(files) {
@@ -1089,18 +1093,21 @@ async function processFilesViaAPI(files) {
   showLoading(true, `Analyseren met Claude ${modelLabel}...`);
   setStatus('loading', `Bestanden versturen naar Claude API (${selectedModel})...`);
 
-  const formData = new FormData();
-  for (const file of files) {
-    formData.append('files', file);
-  }
-  formData.append('model', selectedModel);
+  const filesData = await Promise.all(Array.from(files).map(async (file) => ({
+    name: file.name,
+    data: await fileToBase64(file)
+  })));
 
   const startTime = performance.now();
+  const endpoint = CONFIG.apiUrl
+    ? `${CONFIG.apiUrl}/api/parse`
+    : '/.netlify/functions/parse';
 
   try {
-    const response = await fetch(`${CONFIG.apiUrl}/api/parse`, {
+    const response = await fetch(endpoint, {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: filesData, model: selectedModel })
     });
 
     if (!response.ok) {
@@ -1556,11 +1563,8 @@ function setApiUrl(url) {
   showToast('API URL opgeslagen', 'success');
 }
 
-// Show config instructions on load if no API URL
-if (!CONFIG.apiUrl) {
-  console.log('%c Charlie Dossier Intake v2.0', 'color:#1C054F;font-size:16px;font-weight:bold');
-  console.log('%c Stel de API URL in met: setApiUrl("https://your-railway-app.railway.app")', 'color:#3899DD;font-size:12px');
-}
+console.log('%c Charlie Dossier Intake v2.0', 'color:#1C054F;font-size:16px;font-weight:bold');
+console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 </script>
 </body>
 </html>

@@ -1,0 +1,11 @@
+{
+  "name": "charlie-baloise-intake",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Charlie Dossier Intake — Claude-powered document parsing for Baloise insurance claims",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "msgreader": "^1.0.1",
+    "pdf-parse": "^1.1.1"
+  }
+}
