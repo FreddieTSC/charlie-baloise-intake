@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charlie — Dossier Intake Baloise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ced-navy: #1C054F;
+  --ced-blue: #3899DD;
+  --ced-blue-hover: #2D7DBE;
+  --ced-blue-light: #6BB6E8;
+  --ced-blue-deep: #1C5C8A;
+  --ced-green: #86BC34;
+  --ced-purple: #56238E;
+  --cream: #FAEEDA;
+  --buildex-yellow: #FFF8DC;
+  --buildex-gray: #E8E8E8;
+  --buildex-toolbar: #F0F0F0;
+  --buildex-border: #C0C0C0;
+  --buildex-section: #D4D4D4;
+  --text-dark: #1C054F;
+  --text-body: #333;
+  --text-label: #444;
+  --text-muted: #888;
+  --bg-white: #FFFFFF;
+  --shadow-sm: 0 1px 3px rgba(28,5,79,0.08);
+  --shadow-md: 0 4px 12px rgba(28,5,79,0.1);
+}
+
+html { font-size: 13px; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #F4F6F9;
+  color: var(--text-body);
+  min-height: 100vh;
+}
+
+/* ========== COMPACT HEADER ========== */
+.app-header {
+  background: var(--bg-white);
+  border-bottom: 3px solid var(--ced-navy);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: nowrap;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.header-brand svg { height: 32px; }
+.header-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--ced-blue-deep);
+  white-space: nowrap;
+}
+
+/* ========== INLINE DROP ZONE ========== */
+.intake-zone {
+  flex: 1;
+  min-width: 160px;
+  background: var(--cream);
+  border: 2px dashed var(--buildex-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 42px;
+}
+.intake-zone:hover { border-color: var(--ced-blue); background: #FDF6E3; }
+.intake-zone.drag-over { border-color: var(--ced-blue); background: #EBF5FB; }
+.intake-zone.processing { border-color: var(--ced-purple); background: #F3E8FF; }
+.drop-icon { font-size: 18px; opacity: 0.6; }
+.drop-label { font-weight: 600; color: var(--ced-blue-deep); font-size: 12px; white-space: nowrap; }
+.drop-hint { font-size: 9px; color: var(--text-muted); white-space: nowrap; }
+.file-input { display: none; }
+
+/* ========== MODEL SELECTOR ========== */
+.model-selector {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.model-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 10px;
+  border: 2px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-white);
+  gap: 1px;
+}
+.model-option:hover { border-color: #CBD5E0; background: #F8FAFC; }
+.model-option input { display: none; }
+.model-option.selected { border-color: var(--ced-blue); background: #EBF5FB; }
+.model-option.selected.haiku { border-color: var(--ced-green); background: #F0FFF0; }
+.model-option.selected.opus { border-color: var(--ced-purple); background: #F3E8FF; }
+.model-name { font-size: 10px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
+.model-cost { font-size: 8px; font-weight: 600; letter-spacing: 0.4px; }
+.model-cost.low { color: var(--ced-green); }
+.model-cost.medium { color: var(--ced-blue); }
+.model-cost.high { color: var(--ced-purple); }
+
+.btn-reset {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--buildex-border);
+  cursor: pointer;
+  background: var(--bg-white);
+  color: var(--text-body);
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-reset:hover { background: #F0F0F0; border-color: var(--ced-blue); }
+
+/* ========== LOADING OVERLAY ========== */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 5, 79, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.loading-overlay.active { display: flex; }
+.loading-box {
+  background: white;
+  border-radius: 12px;
+  padding: 32px 48px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E2E8F0;
+  border-top-color: var(--ced-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.loading-model { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ========== STATUS BAR ========== */
+.status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ced-navy);
+  color: #fff;
+  padding: 6px 24px;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+}
+.status-bar .status-left { display: flex; gap: 20px; }
+.status-indicator { display: flex; align-items: center; gap: 6px; }
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.status-dot.loaded { background: var(--ced-green); }
+.status-dot.error { background: #E53E3E; }
+
+/* ========== BUTTONS ========== */
+.btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: 1px solid var(--buildex-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s;
+  background: var(--bg-white);
+  color: var(--text-body);
+}
+.btn:hover { background: #F0F0F0; border-color: var(--ced-blue); }
+.btn-primary {
+  background: var(--ced-blue);
+  color: #fff;
+  border-color: var(--ced-blue);
+}
+.btn-primary:hover { background: var(--ced-blue-hover); }
+.btn-success {
+  background: var(--ced-green);
+  color: #fff;
+  border-color: var(--ced-green);
+}
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ========== BUILDEX CONTAINER ========== */
+.buildex-wrapper {
+  margin: 16px 24px 60px;
+  background: var(--bg-white);
+  border: 1px solid var(--buildex-border);
+  border-radius: 3px;
+  box-shadow: var(--shadow-md);
+  display: none;
+}
+.buildex-wrapper.visible { display: block; }
+.buildex-header {
+  background: linear-gradient(to bottom, #F8F8F8, #E8E8E8);
+  border-bottom: 1px solid var(--buildex-border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dossier-title { font-weight: 700; font-size: 15px; color: var(--text-dark); }
+.dossier-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dossier-meta span { display: flex; align-items: center; gap: 4px; }
+.meta-label { color: var(--text-label); font-weight: 600; }
+
+/* Tabs */
+.buildex-tabs {
+  display: flex;
+  background: var(--buildex-toolbar);
+  border-bottom: 1px solid var(--buildex-border);
+  padding: 0 8px;
+}
+.buildex-tab {
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-label);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.1s;
+  user-select: none;
+}
+.buildex-tab:hover { background: #E0E0E0; }
+.buildex-tab.active {
+  background: var(--bg-white);
+  border-color: var(--buildex-border);
+  color: var(--ced-blue-deep);
+  font-weight: 600;
+}
+.tab-content { display: none; padding: 16px; }
+.tab-content.active { display: block; }
+
+/* ========== FORM GRID ========== */
+.form-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.form-section {
+  border: 1px solid var(--buildex-section);
+  border-radius: 3px;
+  margin-bottom: 14px;
+}
+.section-header {
+  background: linear-gradient(to bottom, #F4F4F4, #E6E6E6);
+  border-bottom: 1px solid var(--buildex-section);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-body { padding: 10px 12px; }
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+.form-row:last-child { margin-bottom: 0; }
+.form-label {
+  width: 130px;
+  min-width: 130px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-label);
+  text-align: right;
+  padding-right: 8px;
+}
+.form-label.wide { width: 160px; min-width: 160px; }
+.form-input {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 4px 8px;
+  border: 1px solid #CCC;
+  border-radius: 2px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+}
+.form-input:focus { outline: 1px solid var(--ced-blue); border-color: var(--ced-blue); }
+.form-input.readonly { background: var(--buildex-yellow); cursor: default; }
+.form-input.small { max-width: 120px; }
+.form-input.medium { max-width: 200px; }
+select.form-input { padding: 3px 6px; }
+textarea.form-input { resize: vertical; min-height: 60px; }
+
+/* Derde partij cards */
+.derde-card {
+  border: 1px solid var(--buildex-section);
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.derde-header {
+  background: #F0F0F0;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--buildex-section);
+}
+.derde-body { padding: 8px 12px; }
+.btn-remove-derde {
+  background: none;
+  border: none;
+  color: #E53E3E;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+
+/* ========== DOCUMENTEN TAB ========== */
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.doc-table thead th {
+  background: var(--ced-navy);
+  color: #fff;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.doc-table thead th:first-child { border-radius: 4px 0 0 0; }
+.doc-table thead th:last-child { border-radius: 0 4px 0 0; }
+.doc-table tbody tr { border-bottom: 1px solid #EEE; }
+.doc-table tbody tr:nth-child(even) { background: #FAFAFA; }
+.doc-table tbody tr:hover { background: #F0F5FF; }
+.doc-table td { padding: 7px 12px; }
+.doc-type-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.doc-type-badge.pdf { background: #FEE2E2; color: #B91C1C; }
+.doc-type-badge.msg { background: #DBEAFE; color: #1D4ED8; }
+.doc-type-badge.txt { background: #E5E7EB; color: #374151; }
+.no-docs {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+/* ========== JSON TAB ========== */
+.json-output {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  width: 100%;
+  min-height: 500px;
+  padding: 16px;
+  border: 1px solid var(--buildex-border);
+  border-radius: 4px;
+  background: #1E1E2E;
+  color: #CDD6F4;
+  resize: vertical;
+  line-height: 1.5;
+}
+.json-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ========== NOTAS TAB ========== */
+.notas-list { list-style: none; }
+.notas-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #F0F0F0;
+  font-size: 12px;
+}
+.notas-list li::before {
+  content: '';
+  display: block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ced-blue);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.nota-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.nota-input-row input { flex: 1; }
+
+.summary-box {
+  background: var(--buildex-yellow);
+  border: 1px solid #E8DFB8;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-body);
+  min-height: 80px;
+  white-space: pre-wrap;
+}
+
+/* ========== API RESPONSE INFO ========== */
+.api-info {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  display: none;
+  font-size: 11px;
+  color: var(--text-muted);
+  gap: 16px;
+}
+.api-info.visible { display: flex; align-items: center; }
+.api-info .api-model { font-weight: 600; color: var(--ced-purple); }
+.api-info .api-tokens { color: var(--ced-blue); }
+.api-info .api-time { color: var(--ced-green); }
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed;
+  bottom: 50px;
+  right: 24px;
+  background: var(--ced-navy);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 200;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: var(--ced-green); }
+.toast.error { background: #E53E3E; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .form-columns { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .app-header { flex-wrap: wrap; gap: 8px; }
+  .intake-zone { min-width: 100%; order: 3; }
+  .model-selector { order: 2; }
+  .btn-reset { order: 4; }
+}
+@media print {
+  .app-header, .status-bar, .btn, .json-actions, .nota-input-row { display: none; }
+  .buildex-wrapper { margin: 0; box-shadow: none; border: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== COMPACT HEADER ===== -->
+<header class="app-header">
+  <div class="header-brand">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" role="img" aria-label="Charlie" style="height: 38px;">
+      <rect x="20" y="30" width="60" height="60" rx="14" fill="#1C054F"/>
+      <text x="50" y="78" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="42" fill="#FAEEDA">C<tspan fill="#3899DD">.</tspan></text>
+      <text x="105" y="86" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="68" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e</text>
+    </svg>
+    <span class="header-subtitle">Baloise Intake</span>
+  </div>
+
+  <div class="intake-zone" id="intakeZone" onclick="document.getElementById('fileInput').click()">
+    <span class="drop-icon">&#128194;</span>
+    <span class="drop-label">Sleep .msg of PDF hier</span>
+    <span class="drop-hint">Baloise opdracht</span>
+    <input type="file" class="file-input" id="fileInput" accept=".pdf,.msg,.eml,.txt" multiple>
+  </div>
+
+  <div class="model-selector" id="modelSelector">
+    <label class="model-option haiku" data-model="claude-haiku-4-5-20251001">
+      <input type="radio" name="model" value="claude-haiku-4-5-20251001">
+      <span class="model-name">Haiku</span>
+      <span class="model-cost low">LOW COST</span>
+    </label>
+    <label class="model-option sonnet selected" data-model="claude-sonnet-4-6">
+      <input type="radio" name="model" value="claude-sonnet-4-6" checked>
+      <span class="model-name">Sonnet</span>
+      <span class="model-cost medium">MEDIUM COST</span>
+    </label>
+    <label class="model-option opus" data-model="claude-opus-4-7">
+      <input type="radio" name="model" value="claude-opus-4-7">
+      <span class="model-name">Opus</span>
+      <span class="model-cost high">HIGH COST</span>
+    </label>
+  </div>
+
+  <button class="btn-reset" onclick="resetApp()" title="Nieuw dossier">&#x21bb; Reset</button>
+</header>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Analyseren met Claude...</div>
+    <div class="loading-model" id="loadingModel">claude-sonnet-4-6</div>
+  </div>
+</div>
+
+<!-- ===== BUILDEX FORM ===== -->
+<div class="buildex-wrapper" id="buildexForm">
+
+  <div class="buildex-header">
+    <div>
+      <span class="dossier-title" id="headerDossierCode">—</span>
+    </div>
+    <div class="dossier-meta">
+      <span><span class="meta-label">Ontvangst:</span> <span id="headerDatumOntvangst">—</span></span>
+      <span><span class="meta-label">Status:</span> Ontvangst</span>
+      <span><span class="meta-label">Locatie:</span> <span id="headerLocatie">—</span></span>
+      <span><span class="meta-label">Maatschappij:</span> BALOISE</span>
+      <span><span class="meta-label">Schadelijder:</span> <span id="headerSchadelijder">—</span></span>
+    </div>
+  </div>
+
+  <!-- API response info bar -->
+  <div class="api-info" id="apiInfo">
+    <span>Model: <span class="api-model" id="apiModel">—</span></span>
+    <span>Tokens: <span class="api-tokens" id="apiTokens">—</span></span>
+    <span>Tijd: <span class="api-time" id="apiTime">—</span></span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="buildex-tabs">
+    <div class="buildex-tab active" data-tab="0">Overzicht</div>
+    <div class="buildex-tab" data-tab="1">Schadegegevens</div>
+    <div class="buildex-tab" data-tab="2">Media</div>
+    <div class="buildex-tab" data-tab="3">Notas</div>
+    <div class="buildex-tab" data-tab="4">JSON Output</div>
+  </div>
+
+  <!-- ===== TAB 0: OVERZICHT ===== -->
+  <div class="tab-content active" id="tab0">
+    <div class="form-columns">
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128203; Dossiergegevens</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Dossiernummer</span>
+              <input type="text" class="form-input readonly small" id="fDossierCode" readonly>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Kantoor</span>
+              <select class="form-input medium" id="fKantoor">
+                <option value="Premium Noord - ANTWERPEN">Premium Noord - ANTWERPEN</option>
+                <option value="Premium Zuid - BRUSSEL">Premium Zuid - BRUSSEL</option>
+                <option value="LEXA - MECHELEN">LEXA - MECHELEN</option>
+                <option value="BODEX - GENT">BODEX - GENT</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Expert</span>
+              <input type="text" class="form-input" id="fExpert" placeholder="Toe te wijzen">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Beheerder</span>
+              <input type="text" class="form-input" id="fBeheerder" placeholder="Toe te wijzen">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Netwerk</span>
+              <select class="form-input small" id="fNetwerk">
+                <option value="Schade" selected>Schade</option>
+                <option value="Technisch">Technisch</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Extern platform</span>
+              <input type="text" class="form-input readonly small" id="fExternPlatform" value="Baloise" readonly>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Datum ontvangst</span>
+              <input type="date" class="form-input small" id="fDatumOntvangst">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#127970; Maatschappij</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Naam</span>
+              <input type="text" class="form-input readonly" id="fMaatschappijNaam" value="BALOISE" readonly>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Referte</span>
+              <input type="text" class="form-input" id="fMaatschappijReferte">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Contactpersoon</span>
+              <input type="text" class="form-input" id="fMaatschappijContact">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Email</span>
+              <input type="email" class="form-input" id="fMaatschappijEmail">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#129309; Makelaar</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Naam</span>
+              <input type="text" class="form-input" id="fMakelaarNaam">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Code</span>
+              <input type="text" class="form-input small" id="fMakelaarCode">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Referte</span>
+              <input type="text" class="form-input" id="fMakelaarReferte">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Straat + nr</span>
+              <input type="text" class="form-input" id="fMakelaarStraat">
+              <input type="text" class="form-input" id="fMakelaarNr" style="max-width:60px;" placeholder="Nr">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Postcode + plaats</span>
+              <input type="text" class="form-input" id="fMakelaarPostcode" style="max-width:70px;" placeholder="Postcode">
+              <input type="text" class="form-input" id="fMakelaarWoonplaats" placeholder="Woonplaats">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128100; Schadelijder (Verzekeringsnemer)</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Naam</span>
+              <input type="text" class="form-input" id="fSchadelijderNaam">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Voornaam</span>
+              <input type="text" class="form-input" id="fSchadelijderVoornaam">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Polisnummer</span>
+              <input type="text" class="form-input small" id="fSchadelijderPolis">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Taal</span>
+              <select class="form-input small" id="fSchadelijderTaal">
+                <option value="">—</option>
+                <option value="NLD">NLD</option>
+                <option value="FRA">FRA</option>
+                <option value="DEU">DEU</option>
+                <option value="ENG">ENG</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Straat + nr</span>
+              <input type="text" class="form-input" id="fSLStraat">
+              <input type="text" class="form-input" id="fSLNr" style="max-width:60px;" placeholder="Nr">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Postcode + plaats</span>
+              <input type="text" class="form-input" id="fSLPostcode" style="max-width:70px;" placeholder="Postcode">
+              <input type="text" class="form-input" id="fSLWoonplaats" placeholder="Woonplaats">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Land</span>
+              <input type="text" class="form-input small" id="fSLLand" value="BE">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Telefoon</span>
+              <input type="text" class="form-input" id="fSLTelefoon">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Email</span>
+              <input type="email" class="form-input" id="fSLEmail">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">
+            &#128101; Betrokken Derden
+            <button class="btn btn-sm" onclick="addDerde()" style="margin-left:auto;">+ Derde toevoegen</button>
+          </div>
+          <div class="section-body" id="derdenContainer">
+            <div class="no-docs" id="noDerden">Geen betrokken derden gedetecteerd</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 1: SCHADEGEGEVENS ===== -->
+  <div class="tab-content" id="tab1">
+    <div class="form-columns">
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128197; Schadegeval</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label wide">Datum schadegeval</span>
+              <input type="date" class="form-input small" id="fDatumSchade">
+            </div>
+            <div class="form-row">
+              <span class="form-label wide">Datum eerste contact</span>
+              <input type="date" class="form-input small" id="fDatumEersteContact">
+            </div>
+            <div class="form-row">
+              <span class="form-label wide">Datum gepland</span>
+              <input type="date" class="form-input small" id="fDatumGepland">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#127968; Locatie schade</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Straat + nr</span>
+              <input type="text" class="form-input" id="fLocStraat">
+              <input type="text" class="form-input" id="fLocNr" style="max-width:60px;" placeholder="Nr">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Postcode + plaats</span>
+              <input type="text" class="form-input" id="fLocPostcode" style="max-width:70px;" placeholder="Postcode">
+              <input type="text" class="form-input" id="fLocWoonplaats" placeholder="Woonplaats">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Land</span>
+              <input type="text" class="form-input small" id="fLocLand" value="BE">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#128176; Bedragen</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Schadebedrag</span>
+              <input type="number" step="0.01" class="form-input small" id="fSchadebedrag" placeholder="0.00">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Claim</span>
+              <input type="number" step="0.01" class="form-input small" id="fClaim" placeholder="0.00">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Vrijstelling</span>
+              <input type="number" step="0.01" class="form-input small" id="fVrijstelling" placeholder="0.00">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Kapitaal gebouw</span>
+              <input type="number" step="0.01" class="form-input small" id="fKapitaalGebouw" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128293; Schadetype</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Hoofdcategorie</span>
+              <select class="form-input" id="fSchadeTypeH">
+                <option value="">—</option>
+                <option value="Brand">Brand</option>
+                <option value="BA Bedrijven">BA Bedrijven</option>
+                <option value="BA Bouw">BA Bouw</option>
+                <option value="Woning">Woning</option>
+                <option value="Auto">Auto</option>
+                <option value="Alle Risico's">Alle Risico's</option>
+                <option value="Technische Verzekering">Technische Verzekering</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Subcategorie</span>
+              <input type="text" class="form-input" id="fSchadeTypeS" placeholder="bv. Waterschade, Stormschade...">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Roerend/Onroerend</span>
+              <select class="form-input small" id="fRoerendOnroerend">
+                <option value="">—</option>
+                <option value="Onroerend">Onroerend</option>
+                <option value="Roerend">Roerend</option>
+                <option value="Beide">Beide</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#128270; Expertise</div>
+          <div class="section-body">
+            <div class="form-row">
+              <span class="form-label">Expertise methode</span>
+              <select class="form-input" id="fExpertiseMethode">
+                <option value="">—</option>
+                <option value="Tegensprekelijk">Tegensprekelijk</option>
+                <option value="Eenzijdig">Eenzijdig</option>
+                <option value="Minnelijk">Minnelijk</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="form-label">Procedure</span>
+              <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+            </div>
+            <div class="form-row">
+              <span class="form-label">Tarificatie</span>
+              <select class="form-input" id="fTarificatie">
+                <option value="Standaard">Standaard</option>
+                <option value="Klantenvoordeel">Klantenvoordeel</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">&#128172; Omstandigheden &amp; Verhaal</div>
+          <div class="section-body">
+            <div class="form-row" style="flex-direction:column; align-items:stretch;">
+              <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Omstandigheden / BAVrijeTekst</span>
+              <textarea class="form-input" id="fBAVrijeTekst" rows="4" placeholder="Omstandigheden van het schadegeval..."></textarea>
+            </div>
+            <div class="form-row" style="flex-direction:column; align-items:stretch; margin-top:10px;">
+              <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Verhaal</span>
+              <textarea class="form-input" id="fVerhaal" rows="3" placeholder="Verhaalsmogelijkheden..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: MEDIA ===== -->
+  <div class="tab-content" id="tab2">
+    <table class="doc-table" id="docTable">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>Bestandsnaam</th>
+          <th>Type</th>
+          <th>Grootte</th>
+          <th>Bron</th>
+        </tr>
+      </thead>
+      <tbody id="docTableBody">
+      </tbody>
+    </table>
+    <div class="no-docs" id="noDocs">Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.</div>
+  </div>
+
+  <!-- ===== TAB 3: NOTAS ===== -->
+  <div class="tab-content" id="tab3">
+    <div class="form-columns">
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128221; Notities</div>
+          <div class="section-body">
+            <ul class="notas-list" id="notasList"></ul>
+            <div class="nota-input-row">
+              <input type="text" class="form-input" id="newNotaInput" placeholder="Nieuwe nota toevoegen..." onkeydown="if(event.key==='Enter')addNota()">
+              <button class="btn btn-sm btn-primary" onclick="addNota()">+ Nota</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-section">
+          <div class="section-header">&#128196; Dossiersamenvatting</div>
+          <div class="section-body">
+            <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 4: JSON OUTPUT ===== -->
+  <div class="tab-content" id="tab4">
+    <div class="json-actions">
+      <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
+      <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
+      <button class="btn" onclick="generateJSON()">&#8635; Vernieuw JSON</button>
+    </div>
+    <textarea class="json-output" id="jsonOutput" readonly></textarea>
+  </div>
+</div>
+
+<!-- ===== STATUS BAR ===== -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="status-indicator">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Klaar voor intake</span>
+    </div>
+    <span id="statusFiles">0 bestanden verwerkt</span>
+  </div>
+  <div>Charlie Dossier Intake v2.0 — CED</div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== CONFIGURATION ==========
+const CONFIG = {
+  apiUrl: localStorage.getItem('charlie_api_url') || '',
+  defaultModel: 'claude-sonnet-4-6'
+};
+
+// ========== STATE ==========
+const state = {
+  DossierCode: '',
+  DatumOntvangst: '',
+  DatumSchade: null,
+  DatumEersteContact: null,
+  DatumGepland: null,
+  DatumAfsluiting: null,
+  Schadelijder: { Info: emptyPartij('Schadelijder'), Partijen: [] },
+  LocatieSchade: emptyLocatie(),
+  SchadeTypeH: '',
+  SchadeTypeS: '',
+  Schadebedrag: null,
+  Claim: null,
+  Vrijstelling: null,
+  KapitaalGebouw: null,
+  Verhaal: '',
+  BAVrijeTekst: '',
+  Expert: '',
+  Beheerder: '',
+  Kantoor: 'Premium Noord - ANTWERPEN',
+  Netwerk: 'Schade',
+  Tarificatie: 'Standaard',
+  RoerendOnroerend: '',
+  ExternPlatform: 'Baloise',
+  ExpertiseMethode: '',
+  ExpertiseMethodeProcedure: '',
+  ExterneCommunicatie: '',
+  Derden: [],
+  Notas: [],
+  Samenvatting: '',
+  Identificatiefiche: '',
+  Verslag: '',
+  Foutcode: '',
+  JsonString: ''
+};
+
+let documents = [];
+let derdeCounter = 0;
+let selectedModel = CONFIG.defaultModel;
+let lastApiResponse = null;
+
+function emptyLocatie() {
+  return { Straat: '', Huisnummer: '', Postcode: '', Woonplaats: '', Land: 'BE' };
+}
+
+function emptyPartij(type) {
+  return {
+    Type: type || '', Naam: '', Voornaam: '', Code: '', Polis: '', Referte: '',
+    Correspondent: '', Email: '', Telefoon: '', Mobiel: '', Taal: '', BTWNummer: '',
+    Locatie: emptyLocatie()
+  };
+}
+
+// ========== MODEL SELECTOR ==========
+document.querySelectorAll('.model-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelector('.model-option.selected')?.classList.remove('selected');
+    opt.classList.add('selected');
+    opt.querySelector('input').checked = true;
+    selectedModel = opt.querySelector('input').value;
+  });
+});
+
+// ========== TABS ==========
+document.querySelectorAll('.buildex-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelector('.buildex-tab.active').classList.remove('active');
+    tab.classList.add('active');
+    document.querySelector('.tab-content.active').classList.remove('active');
+    document.getElementById('tab' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === '4') generateJSON();
+  });
+});
+
+// ========== DRAG & DROP ==========
+const intakeZone = document.getElementById('intakeZone');
+const fileInput = document.getElementById('fileInput');
+
+['dragenter', 'dragover'].forEach(evt => {
+  intakeZone.addEventListener(evt, e => { e.preventDefault(); intakeZone.classList.add('drag-over'); });
+});
+['dragleave', 'drop'].forEach(evt => {
+  intakeZone.addEventListener(evt, e => { e.preventDefault(); intakeZone.classList.remove('drag-over'); });
+});
+intakeZone.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) handleFiles(e.target.files);
+});
+
+// ========== FILE HANDLING ==========
+async function handleFiles(files) {
+  for (const file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    documents.push({ name: file.name, type: ext, size: file.size, source: 'Upload' });
+
+    const codeFromFilename = file.name.match(/(26-\d{5,7})/);
+    if (codeFromFilename && !state.DossierCode) state.DossierCode = codeFromFilename[1];
+  }
+
+  renderDocTable();
+  showBuildex();
+  updateStatusFiles();
+
+  if (CONFIG.apiUrl) {
+    await processFilesViaAPI(files);
+  } else {
+    setStatus('error', 'Geen API URL geconfigureerd. Stel in via console: setApiUrl("https://...")');
+    showToast('API URL niet ingesteld — gebruik setApiUrl("url")', 'error');
+  }
+}
+
+async function processFilesViaAPI(files) {
+  const modelLabel = selectedModel.split('-').slice(-1)[0];
+  showLoading(true, `Analyseren met Claude ${modelLabel}...`);
+  setStatus('loading', `Bestanden versturen naar Claude API (${selectedModel})...`);
+
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file);
+  }
+  formData.append('model', selectedModel);
+
+  const startTime = performance.now();
+
+  try {
+    const response = await fetch(`${CONFIG.apiUrl}/api/parse`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`API fout (${response.status}): ${err}`);
+    }
+
+    const result = await response.json();
+    lastApiResponse = result;
+    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+
+    populateFromApiResponse(result);
+    showApiInfo(result.meta, elapsed);
+    setStatus('loaded', `Verwerkt met ${selectedModel} in ${elapsed}s`);
+    showToast(`Dossier geanalyseerd met Claude ${modelLabel}`, 'success');
+  } catch (err) {
+    console.error('API error:', err);
+    setStatus('error', `API fout: ${err.message}`);
+    showToast(`Fout: ${err.message}`, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+function populateFromApiResponse(result) {
+  const data = result.data || result;
+
+  if (data.DossierCode) state.DossierCode = data.DossierCode;
+  if (data.DatumOntvangst) state.DatumOntvangst = data.DatumOntvangst;
+  if (data.DatumSchade) state.DatumSchade = data.DatumSchade;
+  if (data.DatumEersteContact) state.DatumEersteContact = data.DatumEersteContact;
+
+  if (data.Schadelijder?.Info) {
+    Object.assign(state.Schadelijder.Info, data.Schadelijder.Info);
+    if (data.Schadelijder.Info.Locatie) {
+      Object.assign(state.Schadelijder.Info.Locatie, data.Schadelijder.Info.Locatie);
+    }
+  }
+
+  if (data.LocatieSchade) Object.assign(state.LocatieSchade, data.LocatieSchade);
+
+  const simpleFields = [
+    'SchadeTypeH', 'SchadeTypeS', 'Schadebedrag', 'Claim', 'Vrijstelling',
+    'KapitaalGebouw', 'Verhaal', 'BAVrijeTekst', 'ExpertiseMethode',
+    'ExpertiseMethodeProcedure', 'Tarificatie', 'RoerendOnroerend',
+    'Kantoor', 'Netwerk'
+  ];
+  simpleFields.forEach(f => { if (data[f] !== undefined && data[f] !== null && data[f] !== '') state[f] = data[f]; });
+
+  if (Array.isArray(data.Derden)) {
+    data.Derden.forEach(d => {
+      if (!d.Info) return;
+      const existing = state.Derden.find(sd => sd.Info.Type === d.Info.Type && sd.Info.Naam === d.Info.Naam);
+      if (!existing) {
+        const newDerde = { Info: { ...emptyPartij(d.Info.Type), ...d.Info }, Partijen: d.Partijen || [] };
+        if (d.Info.Locatie) newDerde.Info.Locatie = { ...emptyLocatie(), ...d.Info.Locatie };
+        state.Derden.push(newDerde);
+      }
+    });
+  }
+
+  if (Array.isArray(data.Notas)) {
+    data.Notas.forEach(n => { if (n && !state.Notas.includes(n)) state.Notas.push(n); });
+  }
+
+  if (data.Samenvatting) state.Samenvatting = data.Samenvatting;
+
+  syncFormFromState();
+  generateSummary();
+}
+
+// ========== LOADING ==========
+function showLoading(show, text) {
+  const overlay = document.getElementById('loadingOverlay');
+  if (show) {
+    document.getElementById('loadingText').textContent = text || 'Analyseren...';
+    document.getElementById('loadingModel').textContent = selectedModel;
+    overlay.classList.add('active');
+    intakeZone.classList.add('processing');
+  } else {
+    overlay.classList.remove('active');
+    intakeZone.classList.remove('processing');
+  }
+}
+
+function showApiInfo(meta, elapsed) {
+  if (!meta) return;
+  const el = document.getElementById('apiInfo');
+  document.getElementById('apiModel').textContent = meta.model || selectedModel;
+  document.getElementById('apiTokens').textContent = meta.inputTokens ? `${meta.inputTokens} in / ${meta.outputTokens} out` : '—';
+  document.getElementById('apiTime').textContent = elapsed ? `${elapsed}s` : '—';
+  el.classList.add('visible');
+}
+
+// ========== SUMMARY GENERATION ==========
+function generateSummary() {
+  if (state.Samenvatting) {
+    document.getElementById('summaryBox').textContent = state.Samenvatting;
+    return;
+  }
+
+  const parts = [];
+  const naam = [state.Schadelijder.Info.Voornaam, state.Schadelijder.Info.Naam].filter(Boolean).join(' ');
+  if (naam) parts.push(`Schadelijder: ${naam}`);
+
+  const schadeType = [state.SchadeTypeH, state.SchadeTypeS].filter(Boolean).join(' — ');
+  if (schadeType) parts.push(`Type: ${schadeType}`);
+
+  if (state.DatumSchade) parts.push(`Datum schadegeval: ${state.DatumSchade}`);
+
+  const loc = [state.LocatieSchade.Straat, state.LocatieSchade.Huisnummer, state.LocatieSchade.Postcode, state.LocatieSchade.Woonplaats].filter(Boolean);
+  if (loc.length) parts.push(`Locatie: ${loc.join(' ')}`);
+
+  if (state.BAVrijeTekst) parts.push(`Omstandigheden: ${state.BAVrijeTekst}`);
+  if (state.Verhaal) parts.push(`Verhaal: ${state.Verhaal}`);
+  if (state.Vrijstelling) parts.push(`Vrijstelling: €${state.Vrijstelling}`);
+  if (state.ExpertiseMethode) parts.push(`Expertise: ${state.ExpertiseMethode}`);
+
+  const summary = parts.length > 0
+    ? parts.join('\n')
+    : 'Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.';
+
+  document.getElementById('summaryBox').textContent = summary;
+}
+
+// ========== FORM SYNC ==========
+function syncFormFromState() {
+  document.getElementById('fDossierCode').value = state.DossierCode;
+  document.getElementById('fKantoor').value = state.Kantoor;
+  document.getElementById('fExpert').value = state.Expert;
+  document.getElementById('fBeheerder').value = state.Beheerder;
+  document.getElementById('fNetwerk').value = state.Netwerk;
+  document.getElementById('fDatumOntvangst').value = state.DatumOntvangst || '';
+
+  const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  if (maat) {
+    document.getElementById('fMaatschappijReferte').value = maat.Info.Referte;
+    document.getElementById('fMaatschappijContact').value = maat.Info.Correspondent;
+    document.getElementById('fMaatschappijEmail').value = maat.Info.Email;
+  }
+
+  const mak = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  if (mak) {
+    document.getElementById('fMakelaarNaam').value = mak.Info.Naam;
+    document.getElementById('fMakelaarCode').value = mak.Info.Code;
+    document.getElementById('fMakelaarReferte').value = mak.Info.Referte;
+    document.getElementById('fMakelaarStraat').value = mak.Info.Locatie.Straat;
+    document.getElementById('fMakelaarNr').value = mak.Info.Locatie.Huisnummer;
+    document.getElementById('fMakelaarPostcode').value = mak.Info.Locatie.Postcode;
+    document.getElementById('fMakelaarWoonplaats').value = mak.Info.Locatie.Woonplaats;
+  }
+
+  document.getElementById('fSchadelijderNaam').value = state.Schadelijder.Info.Naam;
+  document.getElementById('fSchadelijderVoornaam').value = state.Schadelijder.Info.Voornaam;
+  document.getElementById('fSchadelijderPolis').value = state.Schadelijder.Info.Polis;
+  document.getElementById('fSchadelijderTaal').value = state.Schadelijder.Info.Taal;
+  document.getElementById('fSLStraat').value = state.Schadelijder.Info.Locatie.Straat;
+  document.getElementById('fSLNr').value = state.Schadelijder.Info.Locatie.Huisnummer;
+  document.getElementById('fSLPostcode').value = state.Schadelijder.Info.Locatie.Postcode;
+  document.getElementById('fSLWoonplaats').value = state.Schadelijder.Info.Locatie.Woonplaats;
+  document.getElementById('fSLLand').value = state.Schadelijder.Info.Locatie.Land || 'BE';
+  document.getElementById('fSLTelefoon').value = state.Schadelijder.Info.Telefoon || '';
+  document.getElementById('fSLEmail').value = state.Schadelijder.Info.Email || '';
+
+  document.getElementById('fDatumSchade').value = state.DatumSchade || '';
+  document.getElementById('fDatumEersteContact').value = state.DatumEersteContact || '';
+  document.getElementById('fDatumGepland').value = state.DatumGepland || '';
+  document.getElementById('fLocStraat').value = state.LocatieSchade.Straat;
+  document.getElementById('fLocNr').value = state.LocatieSchade.Huisnummer;
+  document.getElementById('fLocPostcode').value = state.LocatieSchade.Postcode;
+  document.getElementById('fLocWoonplaats').value = state.LocatieSchade.Woonplaats;
+  document.getElementById('fLocLand').value = state.LocatieSchade.Land || 'BE';
+  document.getElementById('fSchadeTypeH').value = state.SchadeTypeH;
+  document.getElementById('fSchadeTypeS').value = state.SchadeTypeS;
+  document.getElementById('fSchadebedrag').value = state.Schadebedrag ?? '';
+  document.getElementById('fClaim').value = state.Claim ?? '';
+  document.getElementById('fVrijstelling').value = state.Vrijstelling ?? '';
+  document.getElementById('fKapitaalGebouw').value = state.KapitaalGebouw ?? '';
+  document.getElementById('fRoerendOnroerend').value = state.RoerendOnroerend;
+  document.getElementById('fExpertiseMethode').value = state.ExpertiseMethode;
+  document.getElementById('fExpertiseMethodeProcedure').value = state.ExpertiseMethodeProcedure || '';
+  document.getElementById('fTarificatie').value = state.Tarificatie;
+  document.getElementById('fBAVrijeTekst').value = state.BAVrijeTekst;
+  document.getElementById('fVerhaal').value = state.Verhaal;
+
+  document.getElementById('headerDossierCode').textContent = state.DossierCode || '—';
+  document.getElementById('headerDatumOntvangst').textContent = state.DatumOntvangst || '—';
+  document.getElementById('headerSchadelijder').textContent = [state.Schadelijder.Info.Naam, state.Schadelijder.Info.Voornaam].filter(Boolean).join(' ') || '—';
+  const locParts = [state.LocatieSchade.Straat, state.LocatieSchade.Huisnummer, state.LocatieSchade.Postcode, state.LocatieSchade.Woonplaats].filter(Boolean);
+  document.getElementById('headerLocatie').textContent = locParts.join(' ') || '—';
+
+  renderDerden();
+  renderNotas();
+  generateSummary();
+}
+
+function syncStateFromForm() {
+  state.DossierCode = document.getElementById('fDossierCode').value;
+  state.Kantoor = document.getElementById('fKantoor').value;
+  state.Expert = document.getElementById('fExpert').value;
+  state.Beheerder = document.getElementById('fBeheerder').value;
+  state.Netwerk = document.getElementById('fNetwerk').value;
+  state.DatumOntvangst = document.getElementById('fDatumOntvangst').value;
+
+  let maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  if (!maat) { maat = { Info: emptyPartij('Maatschappij'), Partijen: [] }; maat.Info.Naam = 'BALOISE'; state.Derden.push(maat); }
+  maat.Info.Referte = document.getElementById('fMaatschappijReferte').value;
+  maat.Info.Correspondent = document.getElementById('fMaatschappijContact').value;
+  maat.Info.Email = document.getElementById('fMaatschappijEmail').value;
+
+  let mak = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  const makNaam = document.getElementById('fMakelaarNaam').value;
+  if (makNaam) {
+    if (!mak) { mak = { Info: emptyPartij('Makelaar'), Partijen: [] }; state.Derden.push(mak); }
+    mak.Info.Naam = makNaam;
+    mak.Info.Code = document.getElementById('fMakelaarCode').value;
+    mak.Info.Referte = document.getElementById('fMakelaarReferte').value;
+    mak.Info.Locatie.Straat = document.getElementById('fMakelaarStraat').value;
+    mak.Info.Locatie.Huisnummer = document.getElementById('fMakelaarNr').value;
+    mak.Info.Locatie.Postcode = document.getElementById('fMakelaarPostcode').value;
+    mak.Info.Locatie.Woonplaats = document.getElementById('fMakelaarWoonplaats').value;
+  }
+
+  state.Schadelijder.Info.Naam = document.getElementById('fSchadelijderNaam').value;
+  state.Schadelijder.Info.Voornaam = document.getElementById('fSchadelijderVoornaam').value;
+  state.Schadelijder.Info.Polis = document.getElementById('fSchadelijderPolis').value;
+  state.Schadelijder.Info.Taal = document.getElementById('fSchadelijderTaal').value;
+  state.Schadelijder.Info.Locatie.Straat = document.getElementById('fSLStraat').value;
+  state.Schadelijder.Info.Locatie.Huisnummer = document.getElementById('fSLNr').value;
+  state.Schadelijder.Info.Locatie.Postcode = document.getElementById('fSLPostcode').value;
+  state.Schadelijder.Info.Locatie.Woonplaats = document.getElementById('fSLWoonplaats').value;
+  state.Schadelijder.Info.Locatie.Land = document.getElementById('fSLLand').value || 'BE';
+  state.Schadelijder.Info.Telefoon = document.getElementById('fSLTelefoon').value;
+  state.Schadelijder.Info.Email = document.getElementById('fSLEmail').value;
+
+  state.DatumSchade = document.getElementById('fDatumSchade').value || null;
+  state.DatumEersteContact = document.getElementById('fDatumEersteContact').value || null;
+  state.DatumGepland = document.getElementById('fDatumGepland').value || null;
+  state.LocatieSchade.Straat = document.getElementById('fLocStraat').value;
+  state.LocatieSchade.Huisnummer = document.getElementById('fLocNr').value;
+  state.LocatieSchade.Postcode = document.getElementById('fLocPostcode').value;
+  state.LocatieSchade.Woonplaats = document.getElementById('fLocWoonplaats').value;
+  state.LocatieSchade.Land = document.getElementById('fLocLand').value || 'BE';
+  state.SchadeTypeH = document.getElementById('fSchadeTypeH').value;
+  state.SchadeTypeS = document.getElementById('fSchadeTypeS').value;
+  state.Schadebedrag = parseFloat(document.getElementById('fSchadebedrag').value) || null;
+  state.Claim = parseFloat(document.getElementById('fClaim').value) || null;
+  state.Vrijstelling = parseFloat(document.getElementById('fVrijstelling').value) || null;
+  state.KapitaalGebouw = parseFloat(document.getElementById('fKapitaalGebouw').value) || null;
+  state.RoerendOnroerend = document.getElementById('fRoerendOnroerend').value;
+  state.ExpertiseMethode = document.getElementById('fExpertiseMethode').value;
+  state.ExpertiseMethodeProcedure = document.getElementById('fExpertiseMethodeProcedure').value;
+  state.Tarificatie = document.getElementById('fTarificatie').value;
+  state.BAVrijeTekst = document.getElementById('fBAVrijeTekst').value;
+  state.Verhaal = document.getElementById('fVerhaal').value;
+  syncDerdenFromCards();
+}
+
+// ========== DERDEN RENDERING ==========
+function renderDerden() {
+  const container = document.getElementById('derdenContainer');
+  const otherDerden = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
+  const noDerdenMsg = document.getElementById('noDerden');
+  container.querySelectorAll('.derde-card').forEach(c => c.remove());
+  if (otherDerden.length === 0) { noDerdenMsg.style.display = 'block'; return; }
+  noDerdenMsg.style.display = 'none';
+  otherDerden.forEach((d, idx) => {
+    derdeCounter++;
+    const card = document.createElement('div');
+    card.className = 'derde-card';
+    card.dataset.derdeIdx = idx;
+    card.innerHTML = `
+      <div class="derde-header">
+        <span>${d.Info.Type || 'Derde'} ${idx + 1}</span>
+        <button class="btn-remove-derde" onclick="removeDerde(this)" title="Verwijderen">&times;</button>
+      </div>
+      <div class="derde-body">
+        <div class="form-row"><span class="form-label">Type</span>
+          <select class="form-input" data-field="Type">
+            <option value="">—</option>
+            <option value="Derde aansprakelijk" ${d.Info.Type==='Derde aansprakelijk'?'selected':''}>Derde aansprakelijk</option>
+            <option value="Expert tegenpartij" ${d.Info.Type==='Expert tegenpartij'?'selected':''}>Expert tegenpartij</option>
+            <option value="Getuige" ${d.Info.Type==='Getuige'?'selected':''}>Getuige</option>
+            <option value="Andere" ${d.Info.Type==='Andere'?'selected':''}>Andere</option>
+          </select>
+        </div>
+        <div class="form-row"><span class="form-label">Naam</span><input type="text" class="form-input" data-field="Naam" value="${esc(d.Info.Naam)}"></div>
+        <div class="form-row"><span class="form-label">Voornaam</span><input type="text" class="form-input" data-field="Voornaam" value="${esc(d.Info.Voornaam)}"></div>
+        <div class="form-row"><span class="form-label">Polis</span><input type="text" class="form-input small" data-field="Polis" value="${esc(d.Info.Polis)}"></div>
+        <div class="form-row"><span class="form-label">Verzekeraar</span><input type="text" class="form-input" data-field="Correspondent" value="${esc(d.Info.Correspondent)}"></div>
+        <div class="form-row"><span class="form-label">Telefoon</span><input type="text" class="form-input" data-field="Telefoon" value="${esc(d.Info.Telefoon)}"></div>
+        <div class="form-row"><span class="form-label">Email</span><input type="email" class="form-input" data-field="Email" value="${esc(d.Info.Email)}"></div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function addDerde() {
+  state.Derden.push({ Info: emptyPartij('Derde aansprakelijk'), Partijen: [] });
+  renderDerden();
+}
+
+function removeDerde(btn) {
+  const card = btn.closest('.derde-card');
+  const idx = parseInt(card.dataset.derdeIdx);
+  const otherDerden = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
+  const toRemove = otherDerden[idx];
+  if (toRemove) { const si = state.Derden.indexOf(toRemove); if (si > -1) state.Derden.splice(si, 1); }
+  renderDerden();
+}
+
+function syncDerdenFromCards() {
+  const cards = document.querySelectorAll('#derdenContainer .derde-card');
+  const otherDerden = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
+  cards.forEach((card, idx) => {
+    if (!otherDerden[idx]) return;
+    card.querySelectorAll('[data-field]').forEach(el => { otherDerden[idx].Info[el.dataset.field] = el.value; });
+  });
+}
+
+// ========== NOTAS ==========
+function renderNotas() {
+  const list = document.getElementById('notasList');
+  list.innerHTML = '';
+  state.Notas.forEach((nota, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${esc(nota)}</span><button class="btn-remove-derde" onclick="removeNota(${idx})" title="Verwijderen">&times;</button>`;
+    list.appendChild(li);
+  });
+}
+
+function addNota() {
+  const input = document.getElementById('newNotaInput');
+  const val = input.value.trim();
+  if (val) { state.Notas.push(val); input.value = ''; renderNotas(); }
+}
+
+function removeNota(idx) { state.Notas.splice(idx, 1); renderNotas(); }
+
+// ========== MEDIA TAB ==========
+function renderDocTable() {
+  const tbody = document.getElementById('docTableBody');
+  const noDocsMsg = document.getElementById('noDocs');
+  tbody.innerHTML = '';
+  if (documents.length === 0) { noDocsMsg.style.display = 'block'; return; }
+  noDocsMsg.style.display = 'none';
+  documents.forEach((doc, idx) => {
+    const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ========== JSON GENERATION ==========
+function generateJSON() {
+  syncStateFromForm();
+  const output = {
+    DossierCode: state.DossierCode,
+    DatumOntvangst: state.DatumOntvangst || null,
+    DatumSchade: state.DatumSchade || null,
+    DatumEersteContact: state.DatumEersteContact || null,
+    DatumGepland: state.DatumGepland || null,
+    DatumAfsluiting: state.DatumAfsluiting || null,
+    Schadelijder: cleanDerde(state.Schadelijder),
+    LocatieSchade: cleanLocatie(state.LocatieSchade),
+    SchadeTypeH: state.SchadeTypeH, SchadeTypeS: state.SchadeTypeS,
+    Schadebedrag: state.Schadebedrag, Claim: state.Claim,
+    Vrijstelling: state.Vrijstelling, KapitaalGebouw: state.KapitaalGebouw,
+    Verhaal: state.Verhaal, BAVrijeTekst: state.BAVrijeTekst,
+    Expert: state.Expert, Beheerder: state.Beheerder,
+    Kantoor: state.Kantoor, Netwerk: state.Netwerk,
+    Tarificatie: state.Tarificatie, RoerendOnroerend: state.RoerendOnroerend,
+    ExternPlatform: state.ExternPlatform,
+    ExpertiseMethode: state.ExpertiseMethode,
+    ExpertiseMethodeProcedure: state.ExpertiseMethodeProcedure,
+    ExterneCommunicatie: state.ExterneCommunicatie,
+    Derden: state.Derden.map(cleanDerde),
+    Notas: state.Notas,
+    Identificatiefiche: state.Identificatiefiche,
+    Verslag: state.Verslag,
+    Foutcode: state.Foutcode, JsonString: state.JsonString
+  };
+  const json = JSON.stringify(output, null, 2);
+  document.getElementById('jsonOutput').value = json;
+  return json;
+}
+
+function cleanDerde(d) { return { Info: cleanPartij(d.Info), Partijen: (d.Partijen || []).map(cleanPartij) }; }
+function cleanPartij(p) {
+  const out = {};
+  for (const k of ['Type','Naam','Voornaam','Code','Polis','Referte','Correspondent','Email','Telefoon','Mobiel','Taal','BTWNummer']) { if (p[k]) out[k] = p[k]; }
+  if (p.Locatie && (p.Locatie.Straat || p.Locatie.Postcode)) out.Locatie = cleanLocatie(p.Locatie);
+  return out;
+}
+function cleanLocatie(loc) {
+  const out = {};
+  if (loc.Straat) out.Straat = loc.Straat;
+  if (loc.Huisnummer) out.Huisnummer = loc.Huisnummer;
+  if (loc.Postcode) out.Postcode = loc.Postcode;
+  if (loc.Woonplaats) out.Woonplaats = loc.Woonplaats;
+  out.Land = loc.Land || 'BE';
+  return out;
+}
+
+async function generateAndCopyJSON() {
+  const json = generateJSON();
+  try { await navigator.clipboard.writeText(json); showToast('JSON gekopieerd!', 'success'); }
+  catch { document.getElementById('jsonOutput').select(); document.execCommand('copy'); showToast('JSON gekopieerd (fallback)'); }
+}
+
+function downloadJSON() {
+  const json = generateJSON();
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = (state.DossierCode || 'dossier') + '_request.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON gedownload');
+}
+
+// ========== UI HELPERS ==========
+function showBuildex() { document.getElementById('buildexForm').classList.add('visible'); }
+
+function setStatus(type, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ' + (type === 'loaded' ? 'loaded' : type === 'error' ? 'error' : '');
+  document.getElementById('statusText').textContent = text;
+}
+
+function updateStatusFiles() {
+  document.getElementById('statusFiles').textContent = documents.length + ' bestand' + (documents.length !== 1 ? 'en' : '') + ' verwerkt';
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => toast.className = 'toast', 3000);
+}
+
+function esc(str) { if (!str) return ''; const el = document.createElement('span'); el.textContent = str; return el.innerHTML; }
+
+function resetApp() {
+  if (!confirm('Alle gegevens wissen en opnieuw beginnen?')) return;
+  location.reload();
+}
+
+// ========== CONFIG HELPERS (call from console) ==========
+function setApiUrl(url) {
+  CONFIG.apiUrl = url.replace(/\/+$/, '');
+  localStorage.setItem('charlie_api_url', CONFIG.apiUrl);
+  setStatus('loaded', `API URL ingesteld: ${CONFIG.apiUrl}`);
+  showToast('API URL opgeslagen', 'success');
+}
+
+// Show config instructions on load if no API URL
+if (!CONFIG.apiUrl) {
+  console.log('%c Charlie Dossier Intake v2.0', 'color:#1C054F;font-size:16px;font-weight:bold');
+  console.log('%c Stel de API URL in met: setApiUrl("https://your-railway-app.railway.app")', 'color:#3899DD;font-size:12px');
+}
+</script>
+</body>
+</html>
