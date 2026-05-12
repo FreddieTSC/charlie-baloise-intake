@@ -331,6 +331,85 @@ body {
 .dossier-meta span { display: flex; align-items: center; gap: 4px; }
 .meta-label { color: var(--text-label); font-weight: 600; }
 
+/* ========== LEFT PANEL ========== */
+.buildex-body {
+  display: flex;
+  min-height: calc(100vh - 220px);
+}
+.left-panel {
+  width: 310px;
+  min-width: 310px;
+  border-right: 1px solid var(--buildex-border);
+  overflow-y: auto;
+  background: #F5F5F5;
+  font-size: 12px;
+}
+.left-section {
+  border-bottom: 1px solid var(--buildex-border);
+}
+.left-section-header {
+  background: linear-gradient(to bottom, #F0F0F0, #DCDCDC);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-dark);
+  user-select: none;
+  border-bottom: 1px solid var(--buildex-border);
+}
+.left-section-header:hover { background: linear-gradient(to bottom, #E8E8E8, #D0D0D0); }
+.left-section-header .toggle-icon { font-size: 8px; width: 12px; display: inline-block; text-align: center; }
+.left-section-body { padding: 6px 8px; }
+.left-section.collapsed .left-section-body { display: none; }
+.left-section.collapsed .toggle-icon::before { content: '\25B6'; }
+.left-section:not(.collapsed) .toggle-icon::before { content: '\25BC'; }
+
+/* Compact key-value rows for left panel */
+.left-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+  gap: 4px;
+}
+.left-label {
+  width: 90px;
+  min-width: 90px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-label);
+  text-align: right;
+  padding-right: 6px;
+}
+.left-panel .form-input {
+  font-size: 12px;
+  padding: 2px 5px;
+  flex: 1;
+  min-width: 0;
+}
+.left-panel select.form-input {
+  padding: 1px 4px;
+}
+.left-panel .form-input.readonly {
+  background: var(--buildex-yellow);
+}
+.left-panel .form-input.highlight {
+  background: var(--ced-blue);
+  color: white;
+  font-weight: 600;
+}
+
+/* ========== RIGHT PANEL ========== */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
 /* Tabs */
 .buildex-tabs {
   display: flex;
@@ -358,10 +437,10 @@ body {
   color: var(--ced-blue-deep);
   font-weight: 600;
 }
-.tab-content { display: none; padding: 16px; }
+.tab-content { display: none; padding: 16px; overflow-y: auto; }
 .tab-content.active { display: block; }
 
-/* ========== FORM GRID ========== */
+/* ========== FORM GRID (used in right panel tabs) ========== */
 .form-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -690,10 +769,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 /* ========== API RESPONSE INFO ========== */
 .api-info {
   background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  padding: 10px 16px;
-  margin-bottom: 16px;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 6px 16px;
   display: none;
   font-size: 11px;
   color: var(--text-muted);
@@ -728,6 +805,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
   .form-columns { grid-template-columns: 1fr; }
+  .buildex-body { flex-direction: column; }
+  .left-panel { width: 100%; min-width: 100%; border-right: none; border-bottom: 1px solid var(--buildex-border); max-height: 50vh; }
 }
 @media (max-width: 700px) {
   .app-header { flex-wrap: wrap; gap: 8px; }
@@ -801,183 +880,323 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
   <div class="buildex-header">
     <div>
-      <span class="dossier-title" id="headerDossierCode">—</span>
+      <span class="dossier-title" id="headerDossierCode">&mdash;</span>
     </div>
     <div class="dossier-meta">
-      <span><span class="meta-label">Ontvangst:</span> <span id="headerDatumOntvangst">—</span></span>
+      <span><span class="meta-label">Ontvangst:</span> <span id="headerDatumOntvangst">&mdash;</span></span>
       <span><span class="meta-label">Status:</span> Ontvangst</span>
-      <span><span class="meta-label">Locatie:</span> <span id="headerLocatie">—</span></span>
+      <span><span class="meta-label">Locatie:</span> <span id="headerLocatie">&mdash;</span></span>
       <span><span class="meta-label">Maatschappij:</span> BALOISE</span>
-      <span><span class="meta-label">Schadelijder:</span> <span id="headerSchadelijder">—</span></span>
+      <span><span class="meta-label">Schadelijder:</span> <span id="headerSchadelijder">&mdash;</span></span>
     </div>
   </div>
 
   <!-- API response info bar -->
   <div class="api-info" id="apiInfo">
-    <span>Model: <span class="api-model" id="apiModel">—</span></span>
-    <span>Tokens: <span class="api-tokens" id="apiTokens">—</span></span>
-    <span>Tijd: <span class="api-time" id="apiTime">—</span></span>
+    <span>Model: <span class="api-model" id="apiModel">&mdash;</span></span>
+    <span>Tokens: <span class="api-tokens" id="apiTokens">&mdash;</span></span>
+    <span>Tijd: <span class="api-time" id="apiTime">&mdash;</span></span>
   </div>
 
-  <!-- Tabs -->
-  <div class="buildex-tabs">
-    <div class="buildex-tab active" data-tab="0">Overzicht</div>
-    <div class="buildex-tab" data-tab="1">Schadegegevens</div>
-    <div class="buildex-tab" data-tab="2">Documenten</div>
-    <div class="buildex-tab" data-tab="3">Media</div>
-    <div class="buildex-tab" data-tab="4">Notas</div>
-    <div class="buildex-tab" data-tab="5">JSON Output</div>
-  </div>
+  <div class="buildex-body">
 
-  <!-- ===== TAB 0: OVERZICHT ===== -->
-  <div class="tab-content active" id="tab0">
-    <div class="form-columns">
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128203; Dossiergegevens</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Dossiernummer</span>
-              <input type="text" class="form-input readonly small" id="fDossierCode" readonly>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Kantoor</span>
-              <select class="form-input medium" id="fKantoor">
-                <option value="Premium Noord - ANTWERPEN">Premium Noord - ANTWERPEN</option>
-                <option value="Premium Zuid - BRUSSEL">Premium Zuid - BRUSSEL</option>
-                <option value="LEXA - MECHELEN">LEXA - MECHELEN</option>
-                <option value="BODEX - GENT">BODEX - GENT</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Expert</span>
-              <input type="text" class="form-input" id="fExpert" placeholder="Toe te wijzen">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Beheerder</span>
-              <input type="text" class="form-input" id="fBeheerder" placeholder="Toe te wijzen">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Netwerk</span>
-              <select class="form-input small" id="fNetwerk">
-                <option value="Schade" selected>Schade</option>
-                <option value="Technisch">Technisch</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Extern platform</span>
-              <input type="text" class="form-input readonly small" id="fExternPlatform" value="Baloise" readonly>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Datum ontvangst</span>
-              <input type="date" class="form-input small" id="fDatumOntvangst">
-            </div>
+    <!-- ===== LEFT PANEL (Sidebar) ===== -->
+    <div class="left-panel">
+
+      <!-- Dossiergegevens -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Dossiergegevens</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Dossiernr</span>
+            <input type="text" class="form-input readonly" id="fDossierCode" readonly>
           </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-header">&#127970; Maatschappij</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Naam</span>
-              <input type="text" class="form-input readonly" id="fMaatschappijNaam" value="BALOISE" readonly>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Referte</span>
-              <input type="text" class="form-input" id="fMaatschappijReferte">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Contactpersoon</span>
-              <input type="text" class="form-input" id="fMaatschappijContact">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Email</span>
-              <input type="email" class="form-input" id="fMaatschappijEmail">
-            </div>
+          <div class="left-row">
+            <span class="left-label">Kantoor</span>
+            <select class="form-input" id="fKantoor">
+              <option value="Premium Noord - ANTWERPEN">Premium Noord - ANTWERPEN</option>
+              <option value="Premium Zuid - BRUSSEL">Premium Zuid - BRUSSEL</option>
+              <option value="LEXA - MECHELEN">LEXA - MECHELEN</option>
+              <option value="BODEX - GENT">BODEX - GENT</option>
+            </select>
           </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-header">&#129309; Makelaar</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Naam</span>
-              <input type="text" class="form-input" id="fMakelaarNaam">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Code</span>
-              <input type="text" class="form-input small" id="fMakelaarCode">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Referte</span>
-              <input type="text" class="form-input" id="fMakelaarReferte">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Straat + nr</span>
-              <input type="text" class="form-input" id="fMakelaarStraat">
-              <input type="text" class="form-input" id="fMakelaarNr" style="max-width:60px;" placeholder="Nr">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Postcode + plaats</span>
-              <input type="text" class="form-input" id="fMakelaarPostcode" style="max-width:70px;" placeholder="Postcode">
-              <input type="text" class="form-input" id="fMakelaarWoonplaats" placeholder="Woonplaats">
-            </div>
+          <div class="left-row">
+            <span class="left-label">Beheerder</span>
+            <input type="text" class="form-input" id="fBeheerder" placeholder="Toe te wijzen">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Expert</span>
+            <input type="text" class="form-input" id="fExpert" placeholder="Toe te wijzen">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Schadetype</span>
+            <input type="text" class="form-input readonly" id="fLeftSchadeType" readonly>
+          </div>
+          <div class="left-row">
+            <span class="left-label">Netwerk</span>
+            <select class="form-input" id="fNetwerk">
+              <option value="Schade" selected>Schade</option>
+              <option value="Technisch">Technisch</option>
+            </select>
+          </div>
+          <div class="left-row">
+            <span class="left-label">Ext. platform</span>
+            <input type="text" class="form-input readonly" id="fExternPlatform" value="Baloise" readonly>
+          </div>
+          <div class="left-row">
+            <span class="left-label">Status</span>
+            <input type="text" class="form-input readonly" value="Ontvangst" readonly>
           </div>
         </div>
       </div>
 
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128100; Schadelijder (Verzekeringsnemer)</div>
+      <!-- Maatschappij -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Maatschappij</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Naam</span>
+            <input type="text" class="form-input readonly highlight" id="fMaatschappijNaam" value="BALOISE" readonly>
+          </div>
+          <div class="left-row">
+            <span class="left-label">Referte</span>
+            <input type="text" class="form-input" id="fMaatschappijReferte">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Contact</span>
+            <input type="text" class="form-input" id="fMaatschappijContact">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Email</span>
+            <input type="email" class="form-input" id="fMaatschappijEmail">
+          </div>
+        </div>
+      </div>
+
+      <!-- Verzekerde (Schadelijder) -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Verzekerde (Schadelijder)</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Naam</span>
+            <input type="text" class="form-input" id="fSchadelijderNaam">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Voornaam</span>
+            <input type="text" class="form-input" id="fSchadelijderVoornaam">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Straat + nr</span>
+            <input type="text" class="form-input" id="fSLStraat" style="flex:2;">
+            <input type="text" class="form-input" id="fSLNr" style="max-width:40px;" placeholder="Nr">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Postcode + pl.</span>
+            <input type="text" class="form-input" id="fSLPostcode" style="max-width:55px;" placeholder="Code">
+            <input type="text" class="form-input" id="fSLWoonplaats" placeholder="Plaats">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Land</span>
+            <input type="text" class="form-input" id="fSLLand" value="BE" style="max-width:50px;">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Polis</span>
+            <input type="text" class="form-input" id="fSchadelijderPolis">
+          </div>
+        </div>
+      </div>
+
+      <!-- Contactgegevens -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Contactgegevens</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Telefoon</span>
+            <input type="text" class="form-input" id="fSLTelefoon">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Email</span>
+            <input type="email" class="form-input" id="fSLEmail">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Taal</span>
+            <select class="form-input" id="fSchadelijderTaal">
+              <option value="">&mdash;</option>
+              <option value="NLD">NLD</option>
+              <option value="FRA">FRA</option>
+              <option value="DEU">DEU</option>
+              <option value="ENG">ENG</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schadegeval (Locatie) -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Locatie schadegeval</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Straat + nr</span>
+            <input type="text" class="form-input" id="fLocStraat" style="flex:2;">
+            <input type="text" class="form-input" id="fLocNr" style="max-width:40px;" placeholder="Nr">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Postcode + pl.</span>
+            <input type="text" class="form-input" id="fLocPostcode" style="max-width:55px;" placeholder="Code">
+            <input type="text" class="form-input" id="fLocWoonplaats" placeholder="Plaats">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Land</span>
+            <input type="text" class="form-input" id="fLocLand" value="BE" style="max-width:50px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Datums -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Datums</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Ontvangen</span>
+            <input type="date" class="form-input" id="fDatumOntvangst">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Eerste contact</span>
+            <input type="date" class="form-input" id="fDatumEersteContact">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Schadegeval</span>
+            <input type="date" class="form-input" id="fDatumSchade">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Gepland</span>
+            <input type="date" class="form-input" id="fDatumGepland">
+          </div>
+        </div>
+      </div>
+
+      <!-- Makelaar -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Makelaar</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Naam</span>
+            <input type="text" class="form-input" id="fMakelaarNaam">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Code</span>
+            <input type="text" class="form-input" id="fMakelaarCode" style="max-width:80px;">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Referte</span>
+            <input type="text" class="form-input" id="fMakelaarReferte">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Straat + nr</span>
+            <input type="text" class="form-input" id="fMakelaarStraat" style="flex:2;">
+            <input type="text" class="form-input" id="fMakelaarNr" style="max-width:40px;" placeholder="Nr">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Postcode + pl.</span>
+            <input type="text" class="form-input" id="fMakelaarPostcode" style="max-width:55px;" placeholder="Code">
+            <input type="text" class="form-input" id="fMakelaarWoonplaats" placeholder="Plaats">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bedragen -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Bedragen</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Schadebedrag</span>
+            <input type="number" step="0.01" class="form-input" id="fSchadebedrag" placeholder="0.00">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Claim</span>
+            <input type="number" step="0.01" class="form-input" id="fClaim" placeholder="0.00">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Vrijstelling</span>
+            <input type="number" step="0.01" class="form-input" id="fVrijstelling" placeholder="0.00">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Kap. gebouw</span>
+            <input type="number" step="0.01" class="form-input" id="fKapitaalGebouw" placeholder="0.00">
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Info</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Link SSP</span>
+            <input type="text" class="form-input readonly" value="" readonly placeholder="N/A">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Login SSP</span>
+            <input type="text" class="form-input readonly" value="" readonly placeholder="N/A">
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="right-panel">
+
+      <!-- Tabs -->
+      <div class="buildex-tabs">
+        <div class="buildex-tab active" data-tab="0">Overzicht</div>
+        <div class="buildex-tab" data-tab="1">Algemeen</div>
+        <div class="buildex-tab" data-tab="2">Documenten</div>
+        <div class="buildex-tab" data-tab="3">Media</div>
+        <div class="buildex-tab" data-tab="4">JSON Output</div>
+      </div>
+
+      <!-- ===== TAB 0: OVERZICHT (Notes/Activity + Samenvatting + Derden) ===== -->
+      <div class="tab-content active" id="tab0">
+        <div class="notas-toolbar">
+          <label><input type="checkbox" id="notasShowSys" checked onchange="renderNotas()"> Toon systeemberichten</label>
+          <span style="color:var(--text-muted)">|</span>
+          <span id="notasCount">0 berichten</span>
+        </div>
+        <div class="notas-scroll">
+          <table class="notas-table">
+            <thead>
+              <tr>
+                <th style="width:80px;">Datum</th>
+                <th style="width:50px;">Tijd</th>
+                <th style="width:60px;">User</th>
+                <th>Nota</th>
+                <th style="width:110px;">Categorie</th>
+              </tr>
+            </thead>
+            <tbody id="notasTableBody"></tbody>
+          </table>
+        </div>
+        <div class="nota-input-row">
+          <input type="text" class="form-input" id="newNotaInput" placeholder="Nieuwe nota toevoegen..." onkeydown="if(event.key==='Enter')addNota()">
+          <select class="form-input" id="newNotaCategory">
+            <option value="Nota">Nota</option>
+            <option value="Planning">Planning</option>
+            <option value="Briefwisseling">Briefwisseling</option>
+            <option value="Upload">Upload</option>
+            <option value="Relances">Relances</option>
+          </select>
+          <button class="btn btn-sm btn-primary" onclick="addNota()">+ Nota</button>
+        </div>
+
+        <div class="form-section" style="margin-top:16px;">
+          <div class="section-header">&#128196; Dossiersamenvatting</div>
           <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Naam</span>
-              <input type="text" class="form-input" id="fSchadelijderNaam">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Voornaam</span>
-              <input type="text" class="form-input" id="fSchadelijderVoornaam">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Polisnummer</span>
-              <input type="text" class="form-input small" id="fSchadelijderPolis">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Taal</span>
-              <select class="form-input small" id="fSchadelijderTaal">
-                <option value="">—</option>
-                <option value="NLD">NLD</option>
-                <option value="FRA">FRA</option>
-                <option value="DEU">DEU</option>
-                <option value="ENG">ENG</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Straat + nr</span>
-              <input type="text" class="form-input" id="fSLStraat">
-              <input type="text" class="form-input" id="fSLNr" style="max-width:60px;" placeholder="Nr">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Postcode + plaats</span>
-              <input type="text" class="form-input" id="fSLPostcode" style="max-width:70px;" placeholder="Postcode">
-              <input type="text" class="form-input" id="fSLWoonplaats" placeholder="Woonplaats">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Land</span>
-              <input type="text" class="form-input small" id="fSLLand" value="BE">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Telefoon</span>
-              <input type="text" class="form-input" id="fSLTelefoon">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Email</span>
-              <input type="email" class="form-input" id="fSLEmail">
-            </div>
+            <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
           </div>
         </div>
 
-        <div class="form-section">
+        <div class="form-section" style="margin-top:16px;">
           <div class="section-header">
             &#128101; Betrokken Derden
             <button class="btn btn-sm" onclick="addDerde()" style="margin-left:auto;">+ Derde toevoegen</button>
@@ -987,241 +1206,143 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ===== TAB 1: SCHADEGEGEVENS ===== -->
-  <div class="tab-content" id="tab1">
-    <div class="form-columns">
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128197; Schadegeval</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label wide">Datum schadegeval</span>
-              <input type="date" class="form-input small" id="fDatumSchade">
+      <!-- ===== TAB 1: ALGEMEEN (Schadegegevens) ===== -->
+      <div class="tab-content" id="tab1">
+        <div class="form-columns">
+          <div>
+            <div class="form-section">
+              <div class="section-header">&#128293; Schadetype</div>
+              <div class="section-body">
+                <div class="form-row">
+                  <span class="form-label">Hoofdcategorie</span>
+                  <select class="form-input" id="fSchadeTypeH">
+                    <option value="">&mdash;</option>
+                    <option value="Brand">Brand</option>
+                    <option value="BA Bedrijven">BA Bedrijven</option>
+                    <option value="BA Bouw">BA Bouw</option>
+                    <option value="Woning">Woning</option>
+                    <option value="Auto">Auto</option>
+                    <option value="Alle Risico's">Alle Risico's</option>
+                    <option value="Technische Verzekering">Technische Verzekering</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Subcategorie</span>
+                  <input type="text" class="form-input" id="fSchadeTypeS" placeholder="bv. Waterschade, Stormschade...">
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Roerend/Onroerend</span>
+                  <select class="form-input small" id="fRoerendOnroerend">
+                    <option value="">&mdash;</option>
+                    <option value="Onroerend">Onroerend</option>
+                    <option value="Roerend">Roerend</option>
+                    <option value="Beide">Beide</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div class="form-row">
-              <span class="form-label wide">Datum eerste contact</span>
-              <input type="date" class="form-input small" id="fDatumEersteContact">
-            </div>
-            <div class="form-row">
-              <span class="form-label wide">Datum gepland</span>
-              <input type="date" class="form-input small" id="fDatumGepland">
+
+            <div class="form-section">
+              <div class="section-header">&#128270; Expertise</div>
+              <div class="section-body">
+                <div class="form-row">
+                  <span class="form-label">Expertise methode</span>
+                  <select class="form-input" id="fExpertiseMethode">
+                    <option value="">&mdash;</option>
+                    <option value="Tegensprekelijk">Tegensprekelijk</option>
+                    <option value="Eenzijdig">Eenzijdig</option>
+                    <option value="Minnelijk">Minnelijk</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Procedure</span>
+                  <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Tarificatie</span>
+                  <select class="form-input" id="fTarificatie">
+                    <option value="Standaard">Standaard</option>
+                    <option value="Klantenvoordeel">Klantenvoordeel</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-section">
-          <div class="section-header">&#127968; Locatie schade</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Straat + nr</span>
-              <input type="text" class="form-input" id="fLocStraat">
-              <input type="text" class="form-input" id="fLocNr" style="max-width:60px;" placeholder="Nr">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Postcode + plaats</span>
-              <input type="text" class="form-input" id="fLocPostcode" style="max-width:70px;" placeholder="Postcode">
-              <input type="text" class="form-input" id="fLocWoonplaats" placeholder="Woonplaats">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Land</span>
-              <input type="text" class="form-input small" id="fLocLand" value="BE">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-header">&#128176; Bedragen</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Schadebedrag</span>
-              <input type="number" step="0.01" class="form-input small" id="fSchadebedrag" placeholder="0.00">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Claim</span>
-              <input type="number" step="0.01" class="form-input small" id="fClaim" placeholder="0.00">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Vrijstelling</span>
-              <input type="number" step="0.01" class="form-input small" id="fVrijstelling" placeholder="0.00">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Kapitaal gebouw</span>
-              <input type="number" step="0.01" class="form-input small" id="fKapitaalGebouw" placeholder="0.00">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128293; Schadetype</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Hoofdcategorie</span>
-              <select class="form-input" id="fSchadeTypeH">
-                <option value="">—</option>
-                <option value="Brand">Brand</option>
-                <option value="BA Bedrijven">BA Bedrijven</option>
-                <option value="BA Bouw">BA Bouw</option>
-                <option value="Woning">Woning</option>
-                <option value="Auto">Auto</option>
-                <option value="Alle Risico's">Alle Risico's</option>
-                <option value="Technische Verzekering">Technische Verzekering</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Subcategorie</span>
-              <input type="text" class="form-input" id="fSchadeTypeS" placeholder="bv. Waterschade, Stormschade...">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Roerend/Onroerend</span>
-              <select class="form-input small" id="fRoerendOnroerend">
-                <option value="">—</option>
-                <option value="Onroerend">Onroerend</option>
-                <option value="Roerend">Roerend</option>
-                <option value="Beide">Beide</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-header">&#128270; Expertise</div>
-          <div class="section-body">
-            <div class="form-row">
-              <span class="form-label">Expertise methode</span>
-              <select class="form-input" id="fExpertiseMethode">
-                <option value="">—</option>
-                <option value="Tegensprekelijk">Tegensprekelijk</option>
-                <option value="Eenzijdig">Eenzijdig</option>
-                <option value="Minnelijk">Minnelijk</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="form-label">Procedure</span>
-              <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
-            </div>
-            <div class="form-row">
-              <span class="form-label">Tarificatie</span>
-              <select class="form-input" id="fTarificatie">
-                <option value="Standaard">Standaard</option>
-                <option value="Klantenvoordeel">Klantenvoordeel</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-header">&#128172; Omstandigheden &amp; Verhaal</div>
-          <div class="section-body">
-            <div class="form-row" style="flex-direction:column; align-items:stretch;">
-              <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Omstandigheden / BAVrijeTekst</span>
-              <textarea class="form-input" id="fBAVrijeTekst" rows="4" placeholder="Omstandigheden van het schadegeval..."></textarea>
-            </div>
-            <div class="form-row" style="flex-direction:column; align-items:stretch; margin-top:10px;">
-              <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Verhaal</span>
-              <textarea class="form-input" id="fVerhaal" rows="3" placeholder="Verhaalsmogelijkheden..."></textarea>
+          <div>
+            <div class="form-section">
+              <div class="section-header">&#128172; Omstandigheden &amp; Verhaal</div>
+              <div class="section-body">
+                <div class="form-row" style="flex-direction:column; align-items:stretch;">
+                  <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Omstandigheden / BAVrijeTekst</span>
+                  <textarea class="form-input" id="fBAVrijeTekst" rows="6" placeholder="Omstandigheden van het schadegeval..."></textarea>
+                </div>
+                <div class="form-row" style="flex-direction:column; align-items:stretch; margin-top:10px;">
+                  <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Verhaal</span>
+                  <textarea class="form-input" id="fVerhaal" rows="4" placeholder="Verhaalsmogelijkheden..."></textarea>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ===== TAB 2: DOCUMENTEN ===== -->
-  <div class="tab-content" id="tab2">
-    <div class="doc-toolbar">
-      <span class="doc-toolbar-title">&#128195; Documenten bij dit dossier</span>
-      <span class="doc-count" id="docCount">0 documenten</span>
-    </div>
-    <table class="doc-table" id="docTable">
-      <thead>
-        <tr>
-          <th style="width:40px;">#</th>
-          <th>Bestandsnaam</th>
-          <th>Type</th>
-          <th>Grootte</th>
-          <th>Bron</th>
-          <th style="width:90px;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="docTableBody">
-      </tbody>
-    </table>
-    <div class="no-docs" id="noDocs">Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.</div>
-  </div>
-
-  <!-- ===== TAB 3: MEDIA ===== -->
-  <div class="tab-content" id="tab3">
-    <div class="doc-toolbar">
-      <span class="doc-toolbar-title">&#128247; Foto's &amp; afbeeldingen</span>
-      <span class="doc-count" id="mediaCount">0 foto's</span>
-    </div>
-    <div class="media-grid" id="mediaGrid">
-    </div>
-    <div class="media-upload-zone" id="mediaUploadZone">
-      <div class="media-upload-icon">&#128247;</div>
-      <div class="media-upload-text">Sleep foto's hierheen of klik om te uploaden</div>
-      <div class="media-upload-hint">JPG, PNG, HEIC — max 10MB per foto</div>
-      <input type="file" class="file-input" id="mediaFileInput" accept="image/*" multiple>
-    </div>
-    <div class="no-docs" id="noMedia">Nog geen foto's toegevoegd aan dit dossier.</div>
-  </div>
-
-  <!-- ===== TAB 4: NOTAS ===== -->
-  <div class="tab-content" id="tab4">
-    <div class="notas-toolbar">
-      <label><input type="checkbox" id="notasShowSys" checked onchange="renderNotas()"> Toon systeemberichten</label>
-      <span style="color:var(--text-muted)">|</span>
-      <span id="notasCount">0 berichten</span>
-    </div>
-    <div class="notas-scroll">
-      <table class="notas-table">
-        <thead>
-          <tr>
-            <th style="width:80px;">Datum</th>
-            <th style="width:50px;">Tijd</th>
-            <th style="width:60px;">User</th>
-            <th>Nota</th>
-            <th style="width:110px;">Categorie</th>
-          </tr>
-        </thead>
-        <tbody id="notasTableBody"></tbody>
-      </table>
-    </div>
-    <div class="nota-input-row">
-      <input type="text" class="form-input" id="newNotaInput" placeholder="Nieuwe nota toevoegen..." onkeydown="if(event.key==='Enter')addNota()">
-      <select class="form-input" id="newNotaCategory">
-        <option value="Nota">Nota</option>
-        <option value="Planning">Planning</option>
-        <option value="Briefwisseling">Briefwisseling</option>
-        <option value="Upload">Upload</option>
-        <option value="Relances">Relances</option>
-      </select>
-      <button class="btn btn-sm btn-primary" onclick="addNota()">+ Nota</button>
-    </div>
-
-    <div class="form-section" style="margin-top:16px;">
-      <div class="section-header">&#128196; Dossiersamenvatting</div>
-      <div class="section-body">
-        <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
+      <!-- ===== TAB 2: DOCUMENTEN ===== -->
+      <div class="tab-content" id="tab2">
+        <div class="doc-toolbar">
+          <span class="doc-toolbar-title">&#128195; Documenten bij dit dossier</span>
+          <span class="doc-count" id="docCount">0 documenten</span>
+        </div>
+        <table class="doc-table" id="docTable">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th>Bestandsnaam</th>
+              <th>Type</th>
+              <th>Grootte</th>
+              <th>Bron</th>
+              <th style="width:90px;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="docTableBody">
+          </tbody>
+        </table>
+        <div class="no-docs" id="noDocs">Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.</div>
       </div>
-    </div>
-  </div>
 
-  <!-- ===== TAB 5: JSON OUTPUT ===== -->
-  <div class="tab-content" id="tab5">
-    <div class="json-actions">
-      <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
-      <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
-      <button class="btn" onclick="generateJSON()">&#8635; Vernieuw JSON</button>
-    </div>
-    <textarea class="json-output" id="jsonOutput" readonly></textarea>
-  </div>
-</div>
+      <!-- ===== TAB 3: MEDIA ===== -->
+      <div class="tab-content" id="tab3">
+        <div class="doc-toolbar">
+          <span class="doc-toolbar-title">&#128247; Foto's &amp; afbeeldingen</span>
+          <span class="doc-count" id="mediaCount">0 foto's</span>
+        </div>
+        <div class="media-grid" id="mediaGrid">
+        </div>
+        <div class="media-upload-zone" id="mediaUploadZone">
+          <div class="media-upload-icon">&#128247;</div>
+          <div class="media-upload-text">Sleep foto's hierheen of klik om te uploaden</div>
+          <div class="media-upload-hint">JPG, PNG, HEIC &mdash; max 10MB per foto</div>
+          <input type="file" class="file-input" id="mediaFileInput" accept="image/*" multiple>
+        </div>
+        <div class="no-docs" id="noMedia">Nog geen foto's toegevoegd aan dit dossier.</div>
+      </div>
+
+      <!-- ===== TAB 4: JSON OUTPUT ===== -->
+      <div class="tab-content" id="tab4">
+        <div class="json-actions">
+          <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
+          <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
+          <button class="btn" onclick="generateJSON()">&#8635; Vernieuw JSON</button>
+        </div>
+        <textarea class="json-output" id="jsonOutput" readonly></textarea>
+      </div>
+
+    </div><!-- /right-panel -->
+
+  </div><!-- /buildex-body -->
+
+</div><!-- /buildex-wrapper -->
 
 <!-- ===== STATUS BAR ===== -->
 <div class="status-bar">
@@ -1232,7 +1353,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
-  <div>Charlie Dossier Intake v2.0 — CED</div>
+  <div>Charlie Dossier Intake v2.0 &mdash; CED</div>
 </div>
 
 <!-- ===== TOAST ===== -->
@@ -1618,8 +1739,13 @@ document.querySelectorAll('.buildex-tab').forEach(tab => {
     tab.classList.add('active');
     document.querySelector('.tab-content.active').classList.remove('active');
     document.getElementById('tab' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === '5') generateJSON();
+    if (tab.dataset.tab === '4') generateJSON();
   });
+});
+
+// ========== LEFT PANEL COLLAPSIBLE SECTIONS ==========
+document.querySelectorAll('.left-section-header').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('collapsed'));
 });
 
 // ========== DRAG & DROP ==========
@@ -1899,6 +2025,10 @@ function syncFormFromState() {
   document.getElementById('fBeheerder').value = state.Beheerder;
   document.getElementById('fNetwerk').value = state.Netwerk;
   document.getElementById('fDatumOntvangst').value = state.DatumOntvangst || '';
+
+  // Update the left panel schadetype display
+  const schadeDisp = [state.SchadeTypeH, state.SchadeTypeS].filter(Boolean).join(' — ');
+  document.getElementById('fLeftSchadeType').value = schadeDisp || '';
 
   const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
   if (maat) {
@@ -2199,15 +2329,16 @@ async function typewriterAnimate() {
   const wrapper = document.getElementById('buildexForm');
   wrapper.classList.add('typewriter-active');
 
-  // ===== TAB 0: OVERZICHT =====
-  switchToTab(0);
+  // ===== LEFT PANEL: Fill sidebar fields =====
   await sleep(300);
 
+  // Dossiergegevens
   await typeIntoField(document.getElementById('fDossierCode'), state.DossierCode, 30);
   await setFieldFast('fKantoor', state.Kantoor);
   await setFieldFast('fNetwerk', state.Netwerk);
   await setFieldFast('fDatumOntvangst', state.DatumOntvangst);
 
+  // Maatschappij
   const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
   if (maat) {
     await typeIntoField(document.getElementById('fMaatschappijReferte'), maat.Info.Referte, 22);
@@ -2215,6 +2346,34 @@ async function typewriterAnimate() {
     await typeIntoField(document.getElementById('fMaatschappijEmail'), maat.Info.Email, 15);
   }
 
+  // Schadelijder
+  await typeIntoField(document.getElementById('fSchadelijderNaam'), state.Schadelijder.Info.Naam, 22);
+  await typeIntoField(document.getElementById('fSchadelijderVoornaam'), state.Schadelijder.Info.Voornaam, 22);
+  await typeIntoField(document.getElementById('fSLStraat'), state.Schadelijder.Info.Locatie?.Straat, 18);
+  await setFieldFast('fSLNr', state.Schadelijder.Info.Locatie?.Huisnummer);
+  await typeIntoField(document.getElementById('fSLPostcode'), state.Schadelijder.Info.Locatie?.Postcode, 30);
+  await typeIntoField(document.getElementById('fSLWoonplaats'), state.Schadelijder.Info.Locatie?.Woonplaats, 18);
+  await setFieldFast('fSLLand', state.Schadelijder.Info.Locatie?.Land || 'BE');
+  await typeIntoField(document.getElementById('fSchadelijderPolis'), state.Schadelijder.Info.Polis, 25);
+
+  // Contactgegevens
+  await setFieldFast('fSchadelijderTaal', state.Schadelijder.Info.Taal);
+  await typeIntoField(document.getElementById('fSLTelefoon'), state.Schadelijder.Info.Telefoon, 25);
+  await typeIntoField(document.getElementById('fSLEmail'), state.Schadelijder.Info.Email, 15);
+
+  // Locatie schade
+  await typeIntoField(document.getElementById('fLocStraat'), state.LocatieSchade.Straat, 18);
+  await setFieldFast('fLocNr', state.LocatieSchade.Huisnummer);
+  await typeIntoField(document.getElementById('fLocPostcode'), state.LocatieSchade.Postcode, 30);
+  await typeIntoField(document.getElementById('fLocWoonplaats'), state.LocatieSchade.Woonplaats, 18);
+  await setFieldFast('fLocLand', state.LocatieSchade.Land || 'BE');
+
+  // Datums
+  await setFieldFast('fDatumSchade', state.DatumSchade);
+  await setFieldFast('fDatumEersteContact', state.DatumEersteContact);
+  await setFieldFast('fDatumGepland', state.DatumGepland);
+
+  // Makelaar
   const mak = state.Derden.find(d => d.Info.Type === 'Makelaar');
   if (mak) {
     await typeIntoField(document.getElementById('fMakelaarNaam'), mak.Info.Naam, 22);
@@ -2226,44 +2385,30 @@ async function typewriterAnimate() {
     await typeIntoField(document.getElementById('fMakelaarWoonplaats'), mak.Info.Locatie?.Woonplaats, 18);
   }
 
-  await typeIntoField(document.getElementById('fSchadelijderNaam'), state.Schadelijder.Info.Naam, 22);
-  await typeIntoField(document.getElementById('fSchadelijderVoornaam'), state.Schadelijder.Info.Voornaam, 22);
-  await typeIntoField(document.getElementById('fSchadelijderPolis'), state.Schadelijder.Info.Polis, 25);
-  await setFieldFast('fSchadelijderTaal', state.Schadelijder.Info.Taal);
-  await typeIntoField(document.getElementById('fSLStraat'), state.Schadelijder.Info.Locatie?.Straat, 18);
-  await setFieldFast('fSLNr', state.Schadelijder.Info.Locatie?.Huisnummer);
-  await typeIntoField(document.getElementById('fSLPostcode'), state.Schadelijder.Info.Locatie?.Postcode, 30);
-  await typeIntoField(document.getElementById('fSLWoonplaats'), state.Schadelijder.Info.Locatie?.Woonplaats, 18);
-  await setFieldFast('fSLLand', state.Schadelijder.Info.Locatie?.Land || 'BE');
-  await typeIntoField(document.getElementById('fSLTelefoon'), state.Schadelijder.Info.Telefoon, 25);
-  await typeIntoField(document.getElementById('fSLEmail'), state.Schadelijder.Info.Email, 15);
+  // Bedragen
+  await setFieldFast('fSchadebedrag', state.Schadebedrag);
+  await setFieldFast('fClaim', state.Claim);
+  await setFieldFast('fVrijstelling', state.Vrijstelling);
+  await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
 
-  renderDerden();
-
+  // Update header bar
   document.getElementById('headerDossierCode').textContent = state.DossierCode || '—';
   document.getElementById('headerDatumOntvangst').textContent = state.DatumOntvangst || '—';
   document.getElementById('headerSchadelijder').textContent = [state.Schadelijder.Info.Naam, state.Schadelijder.Info.Voornaam].filter(Boolean).join(' ') || '—';
   const locParts = [state.LocatieSchade.Straat, state.LocatieSchade.Huisnummer, state.LocatieSchade.Postcode, state.LocatieSchade.Woonplaats].filter(Boolean);
   document.getElementById('headerLocatie').textContent = locParts.join(' ') || '—';
 
+  // Update left panel schadetype display
+  const schadeDisp = [state.SchadeTypeH, state.SchadeTypeS].filter(Boolean).join(' — ');
+  await setFieldFast('fLeftSchadeType', schadeDisp);
+
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 1: SCHADEGEGEVENS =====
+  // ===== TAB 1: ALGEMEEN (Schadegegevens) =====
   await sleep(400);
   switchToTab(1);
   await sleep(300);
 
-  await setFieldFast('fDatumSchade', state.DatumSchade);
-  await setFieldFast('fDatumEersteContact', state.DatumEersteContact);
-  await typeIntoField(document.getElementById('fLocStraat'), state.LocatieSchade.Straat, 18);
-  await setFieldFast('fLocNr', state.LocatieSchade.Huisnummer);
-  await typeIntoField(document.getElementById('fLocPostcode'), state.LocatieSchade.Postcode, 30);
-  await typeIntoField(document.getElementById('fLocWoonplaats'), state.LocatieSchade.Woonplaats, 18);
-  await setFieldFast('fLocLand', state.LocatieSchade.Land || 'BE');
-  await setFieldFast('fSchadebedrag', state.Schadebedrag);
-  await setFieldFast('fClaim', state.Claim);
-  await setFieldFast('fVrijstelling', state.Vrijstelling);
-  await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
   await setFieldFast('fSchadeTypeH', state.SchadeTypeH);
   await typeIntoField(document.getElementById('fSchadeTypeS'), state.SchadeTypeS, 18);
   await setFieldFast('fRoerendOnroerend', state.RoerendOnroerend);
@@ -2310,9 +2455,9 @@ async function typewriterAnimate() {
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 4: NOTAS =====
+  // ===== TAB 0: OVERZICHT (Notas + Samenvatting) =====
   await sleep(400);
-  switchToTab(4);
+  switchToTab(0);
   await sleep(300);
 
   const notasBody = document.getElementById('notasTableBody');
@@ -2329,6 +2474,8 @@ async function typewriterAnimate() {
     await sleep(150);
   }
   document.getElementById('notasCount').textContent = `${notaRows.length} berichten`;
+
+  renderDerden();
 
   const summaryEl = document.getElementById('summaryBox');
   if (state.Samenvatting) {
