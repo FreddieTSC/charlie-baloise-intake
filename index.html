@@ -248,6 +248,27 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 14px; font-weight: 600; color: var(--text-dark); }
 .loading-model { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.loading-progress {
+  width: 200px;
+  height: 3px;
+  background: #E2E8F0;
+  border-radius: 2px;
+  margin: 12px auto 0;
+  overflow: hidden;
+}
+.loading-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ced-blue), var(--ced-blue-light));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s ease;
+  animation: loadingPulse 2s ease-in-out infinite;
+}
+@keyframes loadingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.loading-model { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
 /* ========== STATUS BAR ========== */
 .status-bar {
@@ -420,7 +441,7 @@ body {
   padding: 0 4px;
 }
 .buildex-tab {
-  padding: 6px 10px;
+  padding: 5px 9px;
   font-size: 11px;
   font-weight: 500;
   color: var(--text-label);
@@ -428,11 +449,18 @@ body {
   border: 1px solid transparent;
   border-bottom: none;
   margin-bottom: -1px;
-  border-radius: 4px 4px 0 0;
+  border-radius: 3px 3px 0 0;
   transition: all 0.1s;
   user-select: none;
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.buildex-tab .tab-icon {
+  font-size: 10px;
+  opacity: 0.6;
 }
 .buildex-tab:hover { background: #E0E0E0; }
 .buildex-tab.active {
@@ -440,6 +468,9 @@ body {
   border-color: var(--buildex-border);
   color: var(--ced-blue-deep);
   font-weight: 600;
+}
+.buildex-tab.active .tab-icon {
+  opacity: 0.9;
 }
 .tab-content { display: none; padding: 16px; overflow-y: auto; }
 .tab-content.active { display: block; }
@@ -928,6 +959,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Analyseren met Claude...</div>
     <div class="loading-model" id="loadingModel">claude-sonnet-4-6</div>
+    <div class="loading-progress"><div class="loading-progress-bar" id="loadingProgressBar"></div></div>
   </div>
 </div>
 
@@ -1296,18 +1328,18 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
       <!-- Tabs -->
       <div class="buildex-tabs">
-        <div class="buildex-tab active" data-tab="0">&#128203; Overzicht</div>
-        <div class="buildex-tab" data-tab="1">&#128203; Algemeen</div>
-        <div class="buildex-tab" data-tab="2">&#128197; Afspraken</div>
-        <div class="buildex-tab" data-tab="3">&#128196; Documenten</div>
-        <div class="buildex-tab" data-tab="4">&#128260; Opvolging</div>
-        <div class="buildex-tab" data-tab="5">&#128187; Digitaal pv</div>
-        <div class="buildex-tab" data-tab="6">&#128202; Prestaties</div>
-        <div class="buildex-tab" data-tab="7">&#128200; Statistische Info</div>
-        <div class="buildex-tab" data-tab="8">&#128444; Multimedia</div>
-        <div class="buildex-tab" data-tab="9">&#128176; Facturatie</div>
-        <div class="buildex-tab" data-tab="10">&#128172; Communicatie</div>
-        <div class="buildex-tab" data-tab="11">{ } JSON Output</div>
+        <div class="buildex-tab active" data-tab="0"><span class="tab-icon">&#9776;</span> Overzicht</div>
+        <div class="buildex-tab" data-tab="1"><span class="tab-icon">&#9776;</span> Algemeen</div>
+        <div class="buildex-tab" data-tab="2"><span class="tab-icon">&#128197;</span> Afspraken</div>
+        <div class="buildex-tab" data-tab="3"><span class="tab-icon">&#128196;</span> Documenten</div>
+        <div class="buildex-tab" data-tab="4"><span class="tab-icon">&#128260;</span> Opvolging</div>
+        <div class="buildex-tab" data-tab="5"><span class="tab-icon">&#128187;</span> Digitaal pv</div>
+        <div class="buildex-tab" data-tab="6"><span class="tab-icon">&#128202;</span> Prestaties</div>
+        <div class="buildex-tab" data-tab="7"><span class="tab-icon">&#128200;</span> Statistische Info</div>
+        <div class="buildex-tab" data-tab="8"><span class="tab-icon">&#128247;</span> Multimedia</div>
+        <div class="buildex-tab" data-tab="9"><span class="tab-icon">&#128176;</span> Facturatie</div>
+        <div class="buildex-tab" data-tab="10"><span class="tab-icon">&#128172;</span> Communicatie</div>
+        <div class="buildex-tab" data-tab="11"><span class="tab-icon">{ }</span> JSON Output</div>
       </div>
 
       <!-- ===== TAB 0: OVERZICHT (Notes/Activity + Samenvatting + Derden) ===== -->
@@ -1660,7 +1692,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
-  <div>Charlie Dossier Intake v2.0 &mdash; CED</div>
+  <div>Charlie Dossier Intake v2.1 &mdash; CED</div>
 </div>
 
 <!-- ===== TOAST ===== -->
@@ -2163,7 +2195,6 @@ async function processFilesViaAPI(files) {
 
     if (!response.ok) {
       const errText = await response.text();
-      // Try to parse JSON error
       try {
         const errObj = JSON.parse(errText);
         throw new Error(errObj.error || `API fout (${response.status})`);
@@ -2173,36 +2204,68 @@ async function processFilesViaAPI(files) {
       }
     }
 
-    // Read response as SSE stream (server always returns text/event-stream)
-    const responseText = await response.text();
+    // Real-time SSE streaming: read chunks as they arrive
     let result = null;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let lastProgressUpdate = 0;
 
-    // Parse SSE events from response text
-    const sseLines = responseText.split('\n');
-    for (const line of sseLines) {
-      if (!line.startsWith('data: ')) continue;
-      try {
-        const data = JSON.parse(line.substring(6));
-        if (data.type === 'progress') {
-          setStatus('loading', `Claude genereert... (${data.chars} tekens)`);
-        } else if (data.type === 'result') {
-          result = data;
-        } else if (data.type === 'error') {
-          throw new Error(data.error);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process complete SSE lines from buffer
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // Keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.substring(6));
+          if (data.type === 'progress') {
+            const now = performance.now();
+            if (now - lastProgressUpdate > 200) { // Throttle UI updates to 5/sec
+              const elapsed = ((now - startTime) / 1000).toFixed(0);
+              setStatus('loading', `Claude genereert... ${data.chars.toLocaleString()} tekens (${elapsed}s)`);
+              document.getElementById('loadingText').textContent = `Claude ${modelLabel} analyseert — ${data.chars.toLocaleString()} tekens gegenereerd...`;
+              // Estimate progress: typical response is ~3000-8000 chars
+              const estimatedTotal = 5000;
+              const pct = Math.min(95, (data.chars / estimatedTotal) * 100);
+              document.getElementById('loadingProgressBar').style.width = pct + '%';
+              lastProgressUpdate = now;
+            }
+          } else if (data.type === 'result') {
+            result = data;
+          } else if (data.type === 'error') {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          if (e.message && !e.message.includes('Unexpected token') && !e.message.includes('JSON')) throw e;
         }
-      } catch (e) {
-        if (e.message && !e.message.includes('Unexpected token') && !e.message.includes('JSON')) throw e;
       }
     }
 
-    // If no SSE result found, try parsing as plain JSON (legacy fallback)
-    if (!result) {
-      try {
-        const jsonResult = JSON.parse(responseText);
-        result = jsonResult;
-      } catch (e) {
-        throw new Error('Geen geldig resultaat ontvangen van API');
+    // Process remaining buffer
+    if (buffer.trim()) {
+      const remaining = buffer.split('\n');
+      for (const line of remaining) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.substring(6));
+          if (data.type === 'result') result = data;
+          else if (data.type === 'error') throw new Error(data.error);
+        } catch (e) {
+          if (e.message && !e.message.includes('Unexpected token') && !e.message.includes('JSON')) throw e;
+        }
       }
+    }
+
+    // Fallback: if no SSE result found, try parsing entire response as JSON
+    if (!result) {
+      throw new Error('Geen geldig resultaat ontvangen van API');
     }
 
     lastApiResponse = result;
@@ -2276,10 +2339,12 @@ function showLoading(show, text) {
   if (show) {
     document.getElementById('loadingText').textContent = text || 'Analyseren...';
     document.getElementById('loadingModel').textContent = selectedModel;
+    document.getElementById('loadingProgressBar').style.width = '0%';
     overlay.classList.add('active');
     intakeZone.classList.add('processing');
   } else {
-    overlay.classList.remove('active');
+    document.getElementById('loadingProgressBar').style.width = '100%';
+    setTimeout(() => overlay.classList.remove('active'), 300);
     intakeZone.classList.remove('processing');
   }
 }
@@ -3051,7 +3116,8 @@ function setApiUrl(url) {
   showToast('API URL opgeslagen', 'success');
 }
 
-console.log('%c Charlie Dossier Intake v2.0', 'color:#1C054F;font-size:16px;font-weight:bold');
+console.log('%c Charlie Dossier Intake v2.1', 'color:#1C054F;font-size:16px;font-weight:bold');
+console.log('%c Real-time SSE streaming enabled', 'color:#3899DD;font-size:12px');
 console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 
 // ========== SPLASH SCREEN ==========
