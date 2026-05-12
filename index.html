@@ -413,13 +413,15 @@ body {
 /* Tabs */
 .buildex-tabs {
   display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   background: var(--buildex-toolbar);
   border-bottom: 1px solid var(--buildex-border);
-  padding: 0 8px;
+  padding: 0 4px;
 }
 .buildex-tab {
-  padding: 8px 18px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-label);
   cursor: pointer;
@@ -429,6 +431,8 @@ body {
   border-radius: 4px 4px 0 0;
   transition: all 0.1s;
   user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .buildex-tab:hover { background: #E0E0E0; }
 .buildex-tab.active {
@@ -735,6 +739,58 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   white-space: pre-wrap;
 }
 
+/* ========== TAB PLACEHOLDER ========== */
+.tab-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.tab-placeholder-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+.tab-placeholder-title { font-size: 18px; font-weight: 600; color: var(--text-label); margin-bottom: 8px; }
+.tab-placeholder-text { font-size: 13px; max-width: 400px; }
+
+/* ========== PARTIJEN TABLE ========== */
+.partijen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.partijen-table th {
+  background: var(--ced-navy);
+  color: #fff;
+  font-weight: 600;
+  padding: 5px 10px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.partijen-table th:first-child { border-radius: 4px 0 0 0; }
+.partijen-table th:last-child { border-radius: 0 4px 0 0; }
+.partijen-table td {
+  padding: 4px 10px;
+  border-bottom: 1px solid #EEE;
+  font-size: 11px;
+}
+.partijen-table tbody tr:hover { background: #F0F5FF; }
+.partij-type-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.partij-type-badge.verzekerde { background: #DBEAFE; color: #1D4ED8; }
+.partij-type-badge.expert { background: #D1FAE5; color: #065F46; }
+.partij-type-badge.makelaar { background: #FEF3C7; color: #92400E; }
+.partij-type-badge.maatschappij { background: #E0E7FF; color: #3730A3; }
+.partij-type-badge.derde { background: #FCE7F3; color: #831843; }
+
 /* ========== TYPEWRITER EFFECT ========== */
 @keyframes typeCursor {
   0%, 100% { border-right-color: var(--ced-blue); }
@@ -947,6 +1003,14 @@ textarea.form-input { resize: vertical; min-height: 60px; }
             <span class="left-label">Status</span>
             <input type="text" class="form-input readonly" value="Ontvangst" readonly>
           </div>
+          <div class="left-row">
+            <span class="left-label">Connex dossier</span>
+            <input type="text" class="form-input" id="fConnexDossier" placeholder="">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Status dossier</span>
+            <input type="text" class="form-input readonly" id="fStatusDossier" value="Info partij VZ" readonly>
+          </div>
         </div>
       </div>
 
@@ -1011,6 +1075,10 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         <div class="left-section-header"><span class="toggle-icon"></span> Contactgegevens</div>
         <div class="left-section-body">
           <div class="left-row">
+            <span class="left-label">GSM</span>
+            <input type="text" class="form-input" id="fSLGSM">
+          </div>
+          <div class="left-row">
             <span class="left-label">Telefoon</span>
             <input type="text" class="form-input" id="fSLTelefoon">
           </div>
@@ -1052,6 +1120,17 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         </div>
       </div>
 
+      <!-- Schadegeval -->
+      <div class="left-section">
+        <div class="left-section-header"><span class="toggle-icon"></span> Schadegeval</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Type</span>
+            <input type="text" class="form-input readonly" id="fLeftSchadeGeval" readonly>
+          </div>
+        </div>
+      </div>
+
       <!-- Datums -->
       <div class="left-section">
         <div class="left-section-header"><span class="toggle-icon"></span> Datums</div>
@@ -1071,6 +1150,89 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <div class="left-row">
             <span class="left-label">Gepland</span>
             <input type="date" class="form-input" id="fDatumGepland">
+          </div>
+        </div>
+      </div>
+
+      <!-- Instant expertise -->
+      <div class="left-section collapsed">
+        <div class="left-section-header"><span class="toggle-icon"></span> Instant expertise</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Status</span>
+            <input type="text" class="form-input readonly" value="" readonly placeholder="N/A">
+          </div>
+        </div>
+      </div>
+
+      <!-- Afspraken -->
+      <div class="left-section collapsed">
+        <div class="left-section-header"><span class="toggle-icon"></span> Afspraken</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Opname 1e afspr.</span>
+            <input type="date" class="form-input" id="fAfspraakOpname">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Eerste</span>
+            <input type="date" class="form-input" id="fAfspraakEerste">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Laatste</span>
+            <input type="date" class="form-input" id="fAfspraakLaatste">
+          </div>
+          <div class="left-row">
+            <span class="left-label">1e suggestie</span>
+            <input type="date" class="form-input" id="fAfspraakSuggestie">
+          </div>
+        </div>
+      </div>
+
+      <!-- Rapport -->
+      <div class="left-section collapsed">
+        <div class="left-section-header"><span class="toggle-icon"></span> Rapport</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Aanbieden rapp</span>
+            <input type="date" class="form-input" id="fRapportAanbieden">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Ondertekenen</span>
+            <input type="date" class="form-input" id="fRapportOndertekenen">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Verst. 1e rapp</span>
+            <input type="date" class="form-input" id="fRapportEerste">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Verst. ltste rapp</span>
+            <input type="date" class="form-input" id="fRapportLaatste">
+          </div>
+        </div>
+      </div>
+
+      <!-- Facturatie -->
+      <div class="left-section collapsed">
+        <div class="left-section-header"><span class="toggle-icon"></span> Facturatie</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Eerste</span>
+            <input type="date" class="form-input" id="fFacturatieEerste">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Laatste</span>
+            <input type="date" class="form-input" id="fFacturatieLaatste">
+          </div>
+        </div>
+      </div>
+
+      <!-- Afsluiting -->
+      <div class="left-section collapsed">
+        <div class="left-section-header"><span class="toggle-icon"></span> Afsluiting</div>
+        <div class="left-section-body">
+          <div class="left-row">
+            <span class="left-label">Datum</span>
+            <input type="date" class="form-input" id="fDatumAfsluiting">
           </div>
         </div>
       </div>
@@ -1104,31 +1266,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         </div>
       </div>
 
-      <!-- Bedragen -->
-      <div class="left-section">
-        <div class="left-section-header"><span class="toggle-icon"></span> Bedragen</div>
-        <div class="left-section-body">
-          <div class="left-row">
-            <span class="left-label">Schadebedrag</span>
-            <input type="number" step="0.01" class="form-input" id="fSchadebedrag" placeholder="0.00">
-          </div>
-          <div class="left-row">
-            <span class="left-label">Claim</span>
-            <input type="number" step="0.01" class="form-input" id="fClaim" placeholder="0.00">
-          </div>
-          <div class="left-row">
-            <span class="left-label">Vrijstelling</span>
-            <input type="number" step="0.01" class="form-input" id="fVrijstelling" placeholder="0.00">
-          </div>
-          <div class="left-row">
-            <span class="left-label">Kap. gebouw</span>
-            <input type="number" step="0.01" class="form-input" id="fKapitaalGebouw" placeholder="0.00">
-          </div>
-        </div>
-      </div>
-
       <!-- Info -->
-      <div class="left-section">
+      <div class="left-section collapsed">
         <div class="left-section-header"><span class="toggle-icon"></span> Info</div>
         <div class="left-section-body">
           <div class="left-row">
@@ -1138,6 +1277,14 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <div class="left-row">
             <span class="left-label">Login SSP</span>
             <input type="text" class="form-input readonly" value="" readonly placeholder="N/A">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Heropening</span>
+            <input type="date" class="form-input" id="fHeropening">
+          </div>
+          <div class="left-row">
+            <span class="left-label">Laatste wijziging</span>
+            <input type="text" class="form-input readonly" id="fLaatsteWijziging" readonly placeholder="">
           </div>
         </div>
       </div>
@@ -1149,11 +1296,18 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
       <!-- Tabs -->
       <div class="buildex-tabs">
-        <div class="buildex-tab active" data-tab="0">Overzicht</div>
-        <div class="buildex-tab" data-tab="1">Algemeen</div>
-        <div class="buildex-tab" data-tab="2">Documenten</div>
-        <div class="buildex-tab" data-tab="3">Media</div>
-        <div class="buildex-tab" data-tab="4">JSON Output</div>
+        <div class="buildex-tab active" data-tab="0">&#128203; Overzicht</div>
+        <div class="buildex-tab" data-tab="1">&#128203; Algemeen</div>
+        <div class="buildex-tab" data-tab="2">&#128197; Afspraken</div>
+        <div class="buildex-tab" data-tab="3">&#128196; Documenten</div>
+        <div class="buildex-tab" data-tab="4">&#128260; Opvolging</div>
+        <div class="buildex-tab" data-tab="5">&#128187; Digitaal pv</div>
+        <div class="buildex-tab" data-tab="6">&#128202; Prestaties</div>
+        <div class="buildex-tab" data-tab="7">&#128200; Statistische Info</div>
+        <div class="buildex-tab" data-tab="8">&#128444; Multimedia</div>
+        <div class="buildex-tab" data-tab="9">&#128176; Facturatie</div>
+        <div class="buildex-tab" data-tab="10">&#128172; Communicatie</div>
+        <div class="buildex-tab" data-tab="11">{ } JSON Output</div>
       </div>
 
       <!-- ===== TAB 0: OVERZICHT (Notes/Activity + Samenvatting + Derden) ===== -->
@@ -1209,10 +1363,60 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
       <!-- ===== TAB 1: ALGEMEEN (Schadegegevens) ===== -->
       <div class="tab-content" id="tab1">
+
+        <!-- Partijen section -->
+        <div class="form-section">
+          <div class="section-header">&#128101; Partijen</div>
+          <div class="section-body" style="padding:0;">
+            <table class="partijen-table" id="partijenTable">
+              <thead>
+                <tr>
+                  <th style="width:130px;">Type</th>
+                  <th>Naam</th>
+                  <th>Referte / Polis</th>
+                  <th>Telefoon</th>
+                  <th>Email</th>
+                </tr>
+              </thead>
+              <tbody id="partijenTableBody">
+                <tr>
+                  <td><span class="partij-type-badge verzekerde">Verzekerde</span></td>
+                  <td id="ptVerzekerde">&mdash;</td>
+                  <td id="ptVerzekerdeRef">&mdash;</td>
+                  <td id="ptVerzekerdeTel">&mdash;</td>
+                  <td id="ptVerzekerdeEmail">&mdash;</td>
+                </tr>
+                <tr>
+                  <td><span class="partij-type-badge expert">Expert</span></td>
+                  <td id="ptExpert">&mdash;</td>
+                  <td>&mdash;</td>
+                  <td>&mdash;</td>
+                  <td>&mdash;</td>
+                </tr>
+                <tr>
+                  <td><span class="partij-type-badge makelaar">Makelaar</span></td>
+                  <td id="ptMakelaar">&mdash;</td>
+                  <td id="ptMakelaarRef">&mdash;</td>
+                  <td>&mdash;</td>
+                  <td>&mdash;</td>
+                </tr>
+                <tr>
+                  <td><span class="partij-type-badge maatschappij">Maatschappij</span></td>
+                  <td id="ptMaatschappij">BALOISE</td>
+                  <td id="ptMaatschappijRef">&mdash;</td>
+                  <td>&mdash;</td>
+                  <td id="ptMaatschappijEmail">&mdash;</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="form-columns">
           <div>
+            <!-- Schadegeval section -->
             <div class="form-section">
-              <div class="section-header">&#128293; Schadetype</div>
+              <div class="section-header">&#128293; Schadegeval</div>
               <div class="section-body">
                 <div class="form-row">
                   <span class="form-label">Hoofdcategorie</span>
@@ -1240,37 +1444,58 @@ textarea.form-input { resize: vertical; min-height: 60px; }
                     <option value="Beide">Beide</option>
                   </select>
                 </div>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <div class="section-header">&#128270; Expertise</div>
-              <div class="section-body">
                 <div class="form-row">
-                  <span class="form-label">Expertise methode</span>
-                  <select class="form-input" id="fExpertiseMethode">
-                    <option value="">&mdash;</option>
-                    <option value="Tegensprekelijk">Tegensprekelijk</option>
-                    <option value="Eenzijdig">Eenzijdig</option>
-                    <option value="Minnelijk">Minnelijk</option>
-                  </select>
+                  <span class="form-label">Hoedanigheid</span>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="fHoedEigenaar"> Eigenaar</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="fHoedHuurder"> Huurder</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="fHoedVME"> VME</label>
                 </div>
-                <div class="form-row">
-                  <span class="form-label">Procedure</span>
-                  <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+                <div style="border-top:1px solid #E0E0E0;margin-top:8px;padding-top:8px;">
+                  <div class="form-row">
+                    <span class="form-label">Schadebedrag</span>
+                    <input type="number" step="0.01" class="form-input small" id="fSchadebedrag" placeholder="0.00">
+                  </div>
+                  <div class="form-row">
+                    <span class="form-label">Claim</span>
+                    <input type="number" step="0.01" class="form-input small" id="fClaim" placeholder="0.00">
+                  </div>
+                  <div class="form-row">
+                    <span class="form-label">Vrijstelling</span>
+                    <input type="number" step="0.01" class="form-input small" id="fVrijstelling" placeholder="0.00">
+                  </div>
+                  <div class="form-row">
+                    <span class="form-label">Kap. gebouw</span>
+                    <input type="number" step="0.01" class="form-input small" id="fKapitaalGebouw" placeholder="0.00">
+                  </div>
                 </div>
-                <div class="form-row">
-                  <span class="form-label">Tarificatie</span>
-                  <select class="form-input" id="fTarificatie">
-                    <option value="Standaard">Standaard</option>
-                    <option value="Klantenvoordeel">Klantenvoordeel</option>
-                  </select>
+                <div style="border-top:1px solid #E0E0E0;margin-top:8px;padding-top:8px;">
+                  <div class="form-row">
+                    <span class="form-label">Expertise methode</span>
+                    <select class="form-input" id="fExpertiseMethode">
+                      <option value="">&mdash;</option>
+                      <option value="Tegensprekelijk">Tegensprekelijk</option>
+                      <option value="Eenzijdig">Eenzijdig</option>
+                      <option value="Minnelijk">Minnelijk</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <span class="form-label">Procedure</span>
+                    <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+                  </div>
+                  <div class="form-row">
+                    <span class="form-label">Tarificatie</span>
+                    <select class="form-input" id="fTarificatie">
+                      <option value="Standaard">Standaard</option>
+                      <option value="Klantenvoordeel">Klantenvoordeel</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <div>
+            <!-- Omstandigheden & Verhaal -->
             <div class="form-section">
               <div class="section-header">&#128172; Omstandigheden &amp; Verhaal</div>
               <div class="section-body">
@@ -1284,12 +1509,40 @@ textarea.form-input { resize: vertical; min-height: 60px; }
                 </div>
               </div>
             </div>
+
+            <!-- Gegevens CED section -->
+            <div class="form-section">
+              <div class="section-header">&#127970; Gegevens CED</div>
+              <div class="section-body">
+                <div class="form-row">
+                  <span class="form-label">Kantoor</span>
+                  <input type="text" class="form-input readonly" id="fAlgKantoor" readonly>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Beheerder</span>
+                  <input type="text" class="form-input readonly" id="fAlgBeheerder" readonly>
+                </div>
+                <div class="form-row">
+                  <span class="form-label">Expert</span>
+                  <input type="text" class="form-input readonly" id="fAlgExpert" readonly>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== TAB 2: DOCUMENTEN ===== -->
+      <!-- ===== TAB 2: AFSPRAKEN (placeholder) ===== -->
       <div class="tab-content" id="tab2">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128197;</div>
+          <div class="tab-placeholder-title">Afspraken</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 3: DOCUMENTEN ===== -->
+      <div class="tab-content" id="tab3">
         <div class="doc-toolbar">
           <span class="doc-toolbar-title">&#128195; Documenten bij dit dossier</span>
           <span class="doc-count" id="docCount">0 documenten</span>
@@ -1311,8 +1564,44 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         <div class="no-docs" id="noDocs">Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.</div>
       </div>
 
-      <!-- ===== TAB 3: MEDIA ===== -->
-      <div class="tab-content" id="tab3">
+      <!-- ===== TAB 4: OPVOLGING (placeholder) ===== -->
+      <div class="tab-content" id="tab4">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128260;</div>
+          <div class="tab-placeholder-title">Opvolging</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 5: DIGITAAL PV (placeholder) ===== -->
+      <div class="tab-content" id="tab5">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128187;</div>
+          <div class="tab-placeholder-title">Digitaal pv</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 6: PRESTATIES (placeholder) ===== -->
+      <div class="tab-content" id="tab6">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128202;</div>
+          <div class="tab-placeholder-title">Prestaties</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 7: STATISTISCHE INFO (placeholder) ===== -->
+      <div class="tab-content" id="tab7">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128200;</div>
+          <div class="tab-placeholder-title">Statistische Info</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 8: MULTIMEDIA ===== -->
+      <div class="tab-content" id="tab8">
         <div class="doc-toolbar">
           <span class="doc-toolbar-title">&#128247; Foto's &amp; afbeeldingen</span>
           <span class="doc-count" id="mediaCount">0 foto's</span>
@@ -1328,8 +1617,26 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         <div class="no-docs" id="noMedia">Nog geen foto's toegevoegd aan dit dossier.</div>
       </div>
 
-      <!-- ===== TAB 4: JSON OUTPUT ===== -->
-      <div class="tab-content" id="tab4">
+      <!-- ===== TAB 9: FACTURATIE (placeholder) ===== -->
+      <div class="tab-content" id="tab9">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128176;</div>
+          <div class="tab-placeholder-title">Facturatie</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 10: COMMUNICATIE (placeholder) ===== -->
+      <div class="tab-content" id="tab10">
+        <div class="tab-placeholder">
+          <div class="tab-placeholder-icon">&#128172;</div>
+          <div class="tab-placeholder-title">Communicatie</div>
+          <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 11: JSON OUTPUT ===== -->
+      <div class="tab-content" id="tab11">
         <div class="json-actions">
           <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
           <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
@@ -1739,7 +2046,7 @@ document.querySelectorAll('.buildex-tab').forEach(tab => {
     tab.classList.add('active');
     document.querySelector('.tab-content.active').classList.remove('active');
     document.getElementById('tab' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === '4') generateJSON();
+    if (tab.dataset.tab === '11') generateJSON();
   });
 });
 
@@ -2029,6 +2336,7 @@ function syncFormFromState() {
   // Update the left panel schadetype display
   const schadeDisp = [state.SchadeTypeH, state.SchadeTypeS].filter(Boolean).join(' — ');
   document.getElementById('fLeftSchadeType').value = schadeDisp || '';
+  document.getElementById('fLeftSchadeGeval').value = schadeDisp || '';
 
   const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
   if (maat) {
@@ -2086,6 +2394,38 @@ function syncFormFromState() {
   document.getElementById('headerSchadelijder').textContent = [state.Schadelijder.Info.Naam, state.Schadelijder.Info.Voornaam].filter(Boolean).join(' ') || '—';
   const locParts = [state.LocatieSchade.Straat, state.LocatieSchade.Huisnummer, state.LocatieSchade.Postcode, state.LocatieSchade.Woonplaats].filter(Boolean);
   document.getElementById('headerLocatie').textContent = locParts.join(' ') || '—';
+
+  // Sync Partijen table in Algemeen tab
+  const slNaam = [state.Schadelijder.Info.Voornaam, state.Schadelijder.Info.Naam].filter(Boolean).join(' ');
+  document.getElementById('ptVerzekerde').textContent = slNaam || '—';
+  document.getElementById('ptVerzekerdeRef').textContent = state.Schadelijder.Info.Polis || '—';
+  document.getElementById('ptVerzekerdeTel').textContent = state.Schadelijder.Info.Telefoon || '—';
+  document.getElementById('ptVerzekerdeEmail').textContent = state.Schadelijder.Info.Email || '—';
+  document.getElementById('ptExpert').textContent = state.Expert || '—';
+  const makPt = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  document.getElementById('ptMakelaar').textContent = makPt?.Info.Naam || '—';
+  document.getElementById('ptMakelaarRef').textContent = makPt?.Info.Referte || '—';
+  const maatPt = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  document.getElementById('ptMaatschappij').textContent = maatPt?.Info.Naam || 'BALOISE';
+  document.getElementById('ptMaatschappijRef').textContent = maatPt?.Info.Referte || '—';
+  document.getElementById('ptMaatschappijEmail').textContent = maatPt?.Info.Email || '—';
+
+  // Add Derde rows to Partijen table
+  const ptBody = document.getElementById('partijenTableBody');
+  ptBody.querySelectorAll('.derde-pt-row').forEach(r => r.remove());
+  const otherDerden = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
+  otherDerden.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.className = 'derde-pt-row';
+    const naam = [d.Info.Voornaam, d.Info.Naam].filter(Boolean).join(' ');
+    tr.innerHTML = `<td><span class="partij-type-badge derde">${esc(d.Info.Type || 'Derde')}</span></td><td>${esc(naam)}</td><td>${esc(d.Info.Polis || '—')}</td><td>${esc(d.Info.Telefoon || '—')}</td><td>${esc(d.Info.Email || '—')}</td>`;
+    ptBody.appendChild(tr);
+  });
+
+  // Sync Gegevens CED fields in Algemeen tab
+  document.getElementById('fAlgKantoor').value = state.Kantoor || '';
+  document.getElementById('fAlgBeheerder').value = state.Beheerder || '';
+  document.getElementById('fAlgExpert').value = state.Expert || '';
 
   renderDerden();
   renderNotas();
@@ -2385,12 +2725,6 @@ async function typewriterAnimate() {
     await typeIntoField(document.getElementById('fMakelaarWoonplaats'), mak.Info.Locatie?.Woonplaats, 18);
   }
 
-  // Bedragen
-  await setFieldFast('fSchadebedrag', state.Schadebedrag);
-  await setFieldFast('fClaim', state.Claim);
-  await setFieldFast('fVrijstelling', state.Vrijstelling);
-  await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
-
   // Update header bar
   document.getElementById('headerDossierCode').textContent = state.DossierCode || '—';
   document.getElementById('headerDatumOntvangst').textContent = state.DatumOntvangst || '—';
@@ -2401,6 +2735,7 @@ async function typewriterAnimate() {
   // Update left panel schadetype display
   const schadeDisp = [state.SchadeTypeH, state.SchadeTypeS].filter(Boolean).join(' — ');
   await setFieldFast('fLeftSchadeType', schadeDisp);
+  await setFieldFast('fLeftSchadeGeval', schadeDisp);
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
@@ -2409,20 +2744,48 @@ async function typewriterAnimate() {
   switchToTab(1);
   await sleep(300);
 
+  // Partijen table update
+  const slFullName = [state.Schadelijder.Info.Voornaam, state.Schadelijder.Info.Naam].filter(Boolean).join(' ');
+  document.getElementById('ptVerzekerde').textContent = slFullName || '—';
+  document.getElementById('ptVerzekerdeRef').textContent = state.Schadelijder.Info.Polis || '—';
+  document.getElementById('ptVerzekerdeTel').textContent = state.Schadelijder.Info.Telefoon || '—';
+  document.getElementById('ptVerzekerdeEmail').textContent = state.Schadelijder.Info.Email || '—';
+  document.getElementById('ptExpert').textContent = state.Expert || '—';
+  const makPtTw = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  document.getElementById('ptMakelaar').textContent = makPtTw?.Info.Naam || '—';
+  document.getElementById('ptMakelaarRef').textContent = makPtTw?.Info.Referte || '—';
+  const maatPtTw = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  document.getElementById('ptMaatschappij').textContent = maatPtTw?.Info.Naam || 'BALOISE';
+  document.getElementById('ptMaatschappijRef').textContent = maatPtTw?.Info.Referte || '—';
+  document.getElementById('ptMaatschappijEmail').textContent = maatPtTw?.Info.Email || '—';
+  await sleep(200);
+
   await setFieldFast('fSchadeTypeH', state.SchadeTypeH);
   await typeIntoField(document.getElementById('fSchadeTypeS'), state.SchadeTypeS, 18);
   await setFieldFast('fRoerendOnroerend', state.RoerendOnroerend);
+
+  // Bedragen (now in Algemeen tab)
+  await setFieldFast('fSchadebedrag', state.Schadebedrag);
+  await setFieldFast('fClaim', state.Claim);
+  await setFieldFast('fVrijstelling', state.Vrijstelling);
+  await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
+
   await setFieldFast('fExpertiseMethode', state.ExpertiseMethode);
   await typeIntoField(document.getElementById('fExpertiseMethodeProcedure'), state.ExpertiseMethodeProcedure, 18);
   await setFieldFast('fTarificatie', state.Tarificatie);
   await typeIntoTextarea(document.getElementById('fBAVrijeTekst'), state.BAVrijeTekst, 6);
   await typeIntoTextarea(document.getElementById('fVerhaal'), state.Verhaal, 6);
 
+  // Gegevens CED
+  await setFieldFast('fAlgKantoor', state.Kantoor);
+  await setFieldFast('fAlgBeheerder', state.Beheerder);
+  await setFieldFast('fAlgExpert', state.Expert);
+
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 2: DOCUMENTEN =====
+  // ===== TAB 3: DOCUMENTEN =====
   await sleep(400);
-  switchToTab(2);
+  switchToTab(3);
   await sleep(300);
 
   const tbody = document.getElementById('docTableBody');
@@ -2447,9 +2810,9 @@ async function typewriterAnimate() {
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 3: MEDIA =====
+  // ===== TAB 8: MULTIMEDIA =====
   await sleep(400);
-  switchToTab(3);
+  switchToTab(8);
   await sleep(300);
   renderMediaGrid();
 
