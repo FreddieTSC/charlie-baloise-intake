@@ -116,7 +116,10 @@ exports.handler = async (event) => {
     const fullText = extractedTexts.join('\n\n');
     const selectedModel = model || 'claude-sonnet-4-6';
 
-    const anthropic = new Anthropic();
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY niet geconfigureerd op server' }) };
+    }
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const startTime = Date.now();
 
     const response = await anthropic.messages.create({

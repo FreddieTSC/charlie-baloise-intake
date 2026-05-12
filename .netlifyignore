@@ -1,0 +1,13 @@
+voorbeelden aanmaak Baloise/
+paperbox/
+png/
+logo/
+prompt splitter/
+api/
+.git/
+.claude/
+node_modules/
+*.md
+*.txt
+baloise-dossier-intake.html
+Procfile

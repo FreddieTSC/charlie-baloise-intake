@@ -422,26 +422,61 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 }
 
 /* ========== NOTAS TAB ========== */
-.notas-list { list-style: none; }
-.notas-list li {
+.notas-toolbar {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid #F0F0F0;
-  font-size: 12px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: var(--buildex-toolbar);
+  border: 1px solid var(--buildex-border);
+  border-radius: 3px;
+  font-size: 11px;
 }
-.notas-list li::before {
-  content: '';
-  display: block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--ced-blue);
-  margin-top: 5px;
-  flex-shrink: 0;
+.notas-toolbar label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 500; }
+.notas-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
 }
-.nota-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.notas-table thead th {
+  background: var(--ced-navy);
+  color: #fff;
+  font-weight: 600;
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+}
+.notas-table thead th:first-child { border-radius: 4px 0 0 0; }
+.notas-table thead th:last-child { border-radius: 0 4px 0 0; }
+.notas-table tbody tr { border-bottom: 1px solid #DDD; transition: background 0.1s; }
+.notas-table tbody tr:hover { filter: brightness(0.96); }
+.notas-table td { padding: 5px 10px; vertical-align: top; }
+.notas-table td.nota-text { max-width: 500px; }
+.nota-cat-badge {
+  font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+  text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;
+}
+.nota-row-briefwisseling { background: #DBEAFE; }
+.nota-row-planning { background: #D1FAE5; }
+.nota-row-relances { background: #FCE7F3; }
+.nota-row-upload { background: #FEF9C3; }
+.nota-row-schadehistoriek { background: #F3F4F6; }
+.nota-row-nota { background: #FFF; }
+.nota-cat-briefwisseling { background: #93C5FD; color: #1E3A5F; }
+.nota-cat-planning { background: #6EE7B7; color: #064E3B; }
+.nota-cat-relances { background: #F9A8D4; color: #831843; }
+.nota-cat-upload { background: #FDE68A; color: #78350F; }
+.nota-cat-schadehistoriek { background: #D1D5DB; color: #1F2937; }
+.nota-cat-nota { background: #C7D2FE; color: #312E81; }
+.nota-input-row { display: flex; gap: 8px; margin-top: 10px; }
 .nota-input-row input { flex: 1; }
+.nota-input-row select { max-width: 150px; }
+.notas-scroll { max-height: 400px; overflow-y: auto; border: 1px solid var(--buildex-border); border-radius: 3px; }
 
 .summary-box {
   background: var(--buildex-yellow);
@@ -453,6 +488,37 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   color: var(--text-body);
   min-height: 80px;
   white-space: pre-wrap;
+}
+
+/* ========== TYPEWRITER EFFECT ========== */
+@keyframes typeCursor {
+  0%, 100% { border-right-color: var(--ced-blue); }
+  50% { border-right-color: transparent; }
+}
+.form-input.typing {
+  border-right: 2px solid var(--ced-blue);
+  animation: typeCursor 0.6s step-end infinite;
+  background: #FFFDE7;
+}
+.typewriter-active .buildex-tab.active {
+  position: relative;
+}
+.typewriter-active .buildex-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ced-blue);
+  animation: typeCursor 0.6s step-end infinite;
+}
+.nota-row-appear {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ========== API RESPONSE INFO ========== */
@@ -913,26 +979,41 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
   <!-- ===== TAB 3: NOTAS ===== -->
   <div class="tab-content" id="tab3">
-    <div class="form-columns">
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128221; Notities</div>
-          <div class="section-body">
-            <ul class="notas-list" id="notasList"></ul>
-            <div class="nota-input-row">
-              <input type="text" class="form-input" id="newNotaInput" placeholder="Nieuwe nota toevoegen..." onkeydown="if(event.key==='Enter')addNota()">
-              <button class="btn btn-sm btn-primary" onclick="addNota()">+ Nota</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="form-section">
-          <div class="section-header">&#128196; Dossiersamenvatting</div>
-          <div class="section-body">
-            <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
-          </div>
-        </div>
+    <div class="notas-toolbar">
+      <label><input type="checkbox" id="notasShowSys" checked onchange="renderNotas()"> Toon systeemberichten</label>
+      <span style="color:var(--text-muted)">|</span>
+      <span id="notasCount">0 berichten</span>
+    </div>
+    <div class="notas-scroll">
+      <table class="notas-table">
+        <thead>
+          <tr>
+            <th style="width:80px;">Datum</th>
+            <th style="width:50px;">Tijd</th>
+            <th style="width:60px;">User</th>
+            <th>Nota</th>
+            <th style="width:110px;">Categorie</th>
+          </tr>
+        </thead>
+        <tbody id="notasTableBody"></tbody>
+      </table>
+    </div>
+    <div class="nota-input-row">
+      <input type="text" class="form-input" id="newNotaInput" placeholder="Nieuwe nota toevoegen..." onkeydown="if(event.key==='Enter')addNota()">
+      <select class="form-input" id="newNotaCategory">
+        <option value="Nota">Nota</option>
+        <option value="Planning">Planning</option>
+        <option value="Briefwisseling">Briefwisseling</option>
+        <option value="Upload">Upload</option>
+        <option value="Relances">Relances</option>
+      </select>
+      <button class="btn btn-sm btn-primary" onclick="addNota()">+ Nota</button>
+    </div>
+
+    <div class="form-section" style="margin-top:16px;">
+      <div class="section-header">&#128196; Dossiersamenvatting</div>
+      <div class="section-body">
+        <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
       </div>
     </div>
   </div>
@@ -1175,8 +1256,7 @@ function populateFromApiResponse(result) {
 
   if (data.Samenvatting) state.Samenvatting = data.Samenvatting;
 
-  syncFormFromState();
-  generateSummary();
+  typewriterAnimate();
 }
 
 // ========== LOADING ==========
@@ -1429,23 +1509,263 @@ function syncDerdenFromCards() {
 }
 
 // ========== NOTAS ==========
+function notaToRow(nota) {
+  if (typeof nota === 'string') {
+    const now = new Date();
+    return { datum: now.toLocaleDateString('nl-BE'), tijd: now.toLocaleTimeString('nl-BE', {hour:'2-digit',minute:'2-digit'}), user: 'AI', text: nota, categorie: detectNotaCategorie(nota) };
+  }
+  return nota;
+}
+
+function detectNotaCategorie(text) {
+  const t = text.toLowerCase();
+  if (t.includes('mail') || t.includes('verzonden') || t.includes('brief')) return 'Briefwisseling';
+  if (t.includes('afspraak') || t.includes('gepland') || t.includes('planning')) return 'Planning';
+  if (t.includes('relance') || t.includes('herinnering') || t.includes('ingebrekestelling')) return 'Relances';
+  if (t.includes('upload') || t.includes('foto') || t.includes('document') || t.includes('bijlage')) return 'Upload';
+  if (t.includes('schade') || t.includes('sinistre') || t.includes('expertise')) return 'Schadehistoriek';
+  return 'Nota';
+}
+
 function renderNotas() {
-  const list = document.getElementById('notasList');
-  list.innerHTML = '';
-  state.Notas.forEach((nota, idx) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span>${esc(nota)}</span><button class="btn-remove-derde" onclick="removeNota(${idx})" title="Verwijderen">&times;</button>`;
-    list.appendChild(li);
+  const tbody = document.getElementById('notasTableBody');
+  const showSys = document.getElementById('notasShowSys').checked;
+  tbody.innerHTML = '';
+
+  const rows = state.Notas.map(notaToRow);
+  const filtered = showSys ? rows : rows.filter(r => r.user !== 'SYS');
+
+  filtered.forEach((row, idx) => {
+    const catClass = row.categorie.toLowerCase().replace(/\s+/g, '');
+    const tr = document.createElement('tr');
+    tr.className = `nota-row-${catClass}`;
+    tr.innerHTML = `<td>${esc(row.datum)}</td><td>${esc(row.tijd)}</td><td>${esc(row.user)}</td><td class="nota-text">${esc(row.text)}</td><td><span class="nota-cat-badge nota-cat-${catClass}">${esc(row.categorie)}</span></td>`;
+    tbody.appendChild(tr);
   });
+
+  document.getElementById('notasCount').textContent = `${filtered.length} berichten`;
 }
 
 function addNota() {
   const input = document.getElementById('newNotaInput');
+  const catSelect = document.getElementById('newNotaCategory');
   const val = input.value.trim();
-  if (val) { state.Notas.push(val); input.value = ''; renderNotas(); }
+  if (val) {
+    const now = new Date();
+    state.Notas.push({
+      datum: now.toLocaleDateString('nl-BE'), tijd: now.toLocaleTimeString('nl-BE', {hour:'2-digit',minute:'2-digit'}),
+      user: 'GEB', text: val, categorie: catSelect.value
+    });
+    input.value = '';
+    renderNotas();
+  }
 }
 
 function removeNota(idx) { state.Notas.splice(idx, 1); renderNotas(); }
+
+// ========== TYPEWRITER ANIMATION ==========
+let typewriterAbort = false;
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function typeIntoField(el, value, charDelay = 18) {
+  if (!el || !value || typewriterAbort) return;
+  el.value = '';
+  el.classList.add('typing');
+  el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  const str = String(value);
+  for (let i = 0; i < str.length; i++) {
+    if (typewriterAbort) { el.value = str; break; }
+    el.value += str[i];
+    await sleep(charDelay);
+  }
+  el.classList.remove('typing');
+}
+
+async function typeIntoTextarea(el, value, charDelay = 8) {
+  if (!el || !value || typewriterAbort) return;
+  el.value = '';
+  el.classList.add('typing');
+  el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  const str = String(value);
+  for (let i = 0; i < str.length; i++) {
+    if (typewriterAbort) { el.value = str; break; }
+    el.value += str[i];
+    if (i % 3 === 0) await sleep(charDelay);
+  }
+  el.classList.remove('typing');
+}
+
+async function setFieldFast(id, value) {
+  const el = document.getElementById(id);
+  if (!el || value === undefined || value === null || value === '') return;
+  el.value = value;
+  el.style.transition = 'background 0.3s';
+  el.style.background = '#FFFDE7';
+  await sleep(60);
+  el.style.background = '';
+}
+
+function switchToTab(tabIdx) {
+  document.querySelector('.buildex-tab.active').classList.remove('active');
+  const tab = document.querySelector(`.buildex-tab[data-tab="${tabIdx}"]`);
+  tab.classList.add('active');
+  document.querySelector('.tab-content.active').classList.remove('active');
+  document.getElementById('tab' + tabIdx).classList.add('active');
+}
+
+async function typewriterAnimate() {
+  typewriterAbort = false;
+  const wrapper = document.getElementById('buildexForm');
+  wrapper.classList.add('typewriter-active');
+
+  // ===== TAB 0: OVERZICHT =====
+  switchToTab(0);
+  await sleep(300);
+
+  await typeIntoField(document.getElementById('fDossierCode'), state.DossierCode, 30);
+  await setFieldFast('fKantoor', state.Kantoor);
+  await setFieldFast('fNetwerk', state.Netwerk);
+  await setFieldFast('fDatumOntvangst', state.DatumOntvangst);
+
+  const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  if (maat) {
+    await typeIntoField(document.getElementById('fMaatschappijReferte'), maat.Info.Referte, 22);
+    await typeIntoField(document.getElementById('fMaatschappijContact'), maat.Info.Correspondent, 22);
+    await typeIntoField(document.getElementById('fMaatschappijEmail'), maat.Info.Email, 15);
+  }
+
+  const mak = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  if (mak) {
+    await typeIntoField(document.getElementById('fMakelaarNaam'), mak.Info.Naam, 22);
+    await typeIntoField(document.getElementById('fMakelaarCode'), mak.Info.Code, 30);
+    await typeIntoField(document.getElementById('fMakelaarReferte'), mak.Info.Referte, 22);
+    await typeIntoField(document.getElementById('fMakelaarStraat'), mak.Info.Locatie?.Straat, 18);
+    await setFieldFast('fMakelaarNr', mak.Info.Locatie?.Huisnummer);
+    await typeIntoField(document.getElementById('fMakelaarPostcode'), mak.Info.Locatie?.Postcode, 30);
+    await typeIntoField(document.getElementById('fMakelaarWoonplaats'), mak.Info.Locatie?.Woonplaats, 18);
+  }
+
+  await typeIntoField(document.getElementById('fSchadelijderNaam'), state.Schadelijder.Info.Naam, 22);
+  await typeIntoField(document.getElementById('fSchadelijderVoornaam'), state.Schadelijder.Info.Voornaam, 22);
+  await typeIntoField(document.getElementById('fSchadelijderPolis'), state.Schadelijder.Info.Polis, 25);
+  await setFieldFast('fSchadelijderTaal', state.Schadelijder.Info.Taal);
+  await typeIntoField(document.getElementById('fSLStraat'), state.Schadelijder.Info.Locatie?.Straat, 18);
+  await setFieldFast('fSLNr', state.Schadelijder.Info.Locatie?.Huisnummer);
+  await typeIntoField(document.getElementById('fSLPostcode'), state.Schadelijder.Info.Locatie?.Postcode, 30);
+  await typeIntoField(document.getElementById('fSLWoonplaats'), state.Schadelijder.Info.Locatie?.Woonplaats, 18);
+  await setFieldFast('fSLLand', state.Schadelijder.Info.Locatie?.Land || 'BE');
+  await typeIntoField(document.getElementById('fSLTelefoon'), state.Schadelijder.Info.Telefoon, 25);
+  await typeIntoField(document.getElementById('fSLEmail'), state.Schadelijder.Info.Email, 15);
+
+  renderDerden();
+
+  document.getElementById('headerDossierCode').textContent = state.DossierCode || '—';
+  document.getElementById('headerDatumOntvangst').textContent = state.DatumOntvangst || '—';
+  document.getElementById('headerSchadelijder').textContent = [state.Schadelijder.Info.Naam, state.Schadelijder.Info.Voornaam].filter(Boolean).join(' ') || '—';
+  const locParts = [state.LocatieSchade.Straat, state.LocatieSchade.Huisnummer, state.LocatieSchade.Postcode, state.LocatieSchade.Woonplaats].filter(Boolean);
+  document.getElementById('headerLocatie').textContent = locParts.join(' ') || '—';
+
+  if (typewriterAbort) { finishTypewriter(); return; }
+
+  // ===== TAB 1: SCHADEGEGEVENS =====
+  await sleep(400);
+  switchToTab(1);
+  await sleep(300);
+
+  await setFieldFast('fDatumSchade', state.DatumSchade);
+  await setFieldFast('fDatumEersteContact', state.DatumEersteContact);
+  await typeIntoField(document.getElementById('fLocStraat'), state.LocatieSchade.Straat, 18);
+  await setFieldFast('fLocNr', state.LocatieSchade.Huisnummer);
+  await typeIntoField(document.getElementById('fLocPostcode'), state.LocatieSchade.Postcode, 30);
+  await typeIntoField(document.getElementById('fLocWoonplaats'), state.LocatieSchade.Woonplaats, 18);
+  await setFieldFast('fLocLand', state.LocatieSchade.Land || 'BE');
+  await setFieldFast('fSchadebedrag', state.Schadebedrag);
+  await setFieldFast('fClaim', state.Claim);
+  await setFieldFast('fVrijstelling', state.Vrijstelling);
+  await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
+  await setFieldFast('fSchadeTypeH', state.SchadeTypeH);
+  await typeIntoField(document.getElementById('fSchadeTypeS'), state.SchadeTypeS, 18);
+  await setFieldFast('fRoerendOnroerend', state.RoerendOnroerend);
+  await setFieldFast('fExpertiseMethode', state.ExpertiseMethode);
+  await typeIntoField(document.getElementById('fExpertiseMethodeProcedure'), state.ExpertiseMethodeProcedure, 18);
+  await setFieldFast('fTarificatie', state.Tarificatie);
+  await typeIntoTextarea(document.getElementById('fBAVrijeTekst'), state.BAVrijeTekst, 6);
+  await typeIntoTextarea(document.getElementById('fVerhaal'), state.Verhaal, 6);
+
+  if (typewriterAbort) { finishTypewriter(); return; }
+
+  // ===== TAB 2: MEDIA =====
+  await sleep(400);
+  switchToTab(2);
+  await sleep(300);
+
+  const tbody = document.getElementById('docTableBody');
+  const noDocsMsg = document.getElementById('noDocs');
+  tbody.innerHTML = '';
+  if (documents.length > 0) {
+    noDocsMsg.style.display = 'none';
+    for (const [idx, doc] of documents.entries()) {
+      if (typewriterAbort) break;
+      const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
+      const tr = document.createElement('tr');
+      tr.className = 'nota-row-appear';
+      tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td>`;
+      tbody.appendChild(tr);
+      await sleep(200);
+    }
+  }
+
+  if (typewriterAbort) { finishTypewriter(); return; }
+
+  // ===== TAB 3: NOTAS =====
+  await sleep(400);
+  switchToTab(3);
+  await sleep(300);
+
+  const notasBody = document.getElementById('notasTableBody');
+  notasBody.innerHTML = '';
+  const notaRows = state.Notas.map(notaToRow);
+
+  for (const row of notaRows) {
+    if (typewriterAbort) break;
+    const catClass = row.categorie.toLowerCase().replace(/\s+/g, '');
+    const tr = document.createElement('tr');
+    tr.className = `nota-row-${catClass} nota-row-appear`;
+    tr.innerHTML = `<td>${esc(row.datum)}</td><td>${esc(row.tijd)}</td><td>${esc(row.user)}</td><td class="nota-text">${esc(row.text)}</td><td><span class="nota-cat-badge nota-cat-${catClass}">${esc(row.categorie)}</span></td>`;
+    notasBody.appendChild(tr);
+    await sleep(150);
+  }
+  document.getElementById('notasCount').textContent = `${notaRows.length} berichten`;
+
+  const summaryEl = document.getElementById('summaryBox');
+  if (state.Samenvatting) {
+    summaryEl.textContent = '';
+    const chars = state.Samenvatting;
+    for (let i = 0; i < chars.length; i++) {
+      if (typewriterAbort) { summaryEl.textContent = chars; break; }
+      summaryEl.textContent += chars[i];
+      if (i % 2 === 0) await sleep(8);
+    }
+  }
+
+  finishTypewriter();
+}
+
+function finishTypewriter() {
+  const wrapper = document.getElementById('buildexForm');
+  wrapper.classList.remove('typewriter-active');
+  syncFormFromState();
+  generateSummary();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('buildexForm').classList.contains('typewriter-active')) {
+    typewriterAbort = true;
+  }
+});
 
 // ========== MEDIA TAB ==========
 function renderDocTable() {
