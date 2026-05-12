@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Charlie — Dossier Intake Baloise</title>
+<title>Charlie — Dossier Intake</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -592,6 +592,101 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 }
 .doc-pages { font-size: 11px; color: #666; font-family: monospace; }
 .doc-desc { font-size: 11px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-table tbody tr.clickable { cursor: pointer; }
+.doc-table tbody tr.clickable td:nth-child(2) { color: var(--ced-blue); text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color 0.15s; }
+.doc-table tbody tr.clickable:hover td:nth-child(2) { text-decoration-color: var(--ced-blue); }
+
+/* PDF Viewer Modal */
+.pdf-viewer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 5, 79, 0.6);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+.pdf-viewer-overlay.open { display: flex; }
+.pdf-viewer-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 900px;
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(28, 5, 79, 0.3);
+  overflow: hidden;
+}
+.pdf-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--ced-navy);
+  color: #fff;
+  flex-shrink: 0;
+}
+.pdf-viewer-title {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pdf-viewer-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.pdf-viewer-nav button {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+}
+.pdf-viewer-nav button:hover { background: rgba(255,255,255,0.25); }
+.pdf-viewer-nav button:disabled { opacity: 0.4; cursor: default; }
+.pdf-viewer-page-info {
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 80px;
+  text-align: center;
+}
+.pdf-viewer-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.pdf-viewer-close:hover { opacity: 1; }
+.pdf-viewer-body {
+  flex: 1;
+  overflow: auto;
+  background: #E5E5E5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 16px;
+}
+.pdf-viewer-body canvas {
+  max-width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
 .no-docs {
   text-align: center;
   padding: 40px;
@@ -915,13 +1010,13 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 38px;">
       <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
-    <span class="header-subtitle">Baloise Intake</span>
+    <span class="header-subtitle">DOSSIER INTAKE</span>
   </div>
 
   <div class="intake-zone" id="intakeZone" onclick="document.getElementById('fileInput').click()">
     <span class="drop-icon" style="font-size:20px;color:var(--ced-blue);opacity:0.6;">+</span>
     <span class="drop-label">Sleep .msg of PDF hier</span>
-    <span class="drop-hint">Baloise opdracht</span>
+    <span class="drop-hint">Opdracht verzekeraar</span>
     <input type="file" class="file-input" id="fileInput" accept=".pdf,.msg,.eml,.txt" multiple>
   </div>
 
@@ -967,7 +1062,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <span><span class="meta-label">Ontvangst:</span> <span id="headerDatumOntvangst">&mdash;</span></span>
       <span><span class="meta-label">Status:</span> Ontvangst</span>
       <span><span class="meta-label">Locatie:</span> <span id="headerLocatie">&mdash;</span></span>
-      <span><span class="meta-label">Maatschappij:</span> BALOISE</span>
+      <span><span class="meta-label">Maatschappij:</span> <span id="metaMaatschappij">—</span></span>
       <span><span class="meta-label">Schadelijder:</span> <span id="headerSchadelijder">&mdash;</span></span>
     </div>
   </div>
@@ -1022,7 +1117,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           </div>
           <div class="left-row">
             <span class="left-label">Ext. platform</span>
-            <input type="text" class="form-input readonly" id="fExternPlatform" value="Baloise" readonly>
+            <input type="text" class="form-input readonly" id="fExternPlatform" value="" readonly>
           </div>
           <div class="left-row">
             <span class="left-label">Status</span>
@@ -1045,7 +1140,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         <div class="left-section-body">
           <div class="left-row">
             <span class="left-label">Naam</span>
-            <input type="text" class="form-input readonly highlight" id="fMaatschappijNaam" value="BALOISE" readonly>
+            <input type="text" class="form-input readonly highlight" id="fMaatschappijNaam" value="" readonly>
           </div>
           <div class="left-row">
             <span class="left-label">Referte</span>
@@ -1427,7 +1522,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
                 </tr>
                 <tr>
                   <td><span class="partij-type-badge maatschappij">Maatschappij</span></td>
-                  <td id="ptMaatschappij">BALOISE</td>
+                  <td id="ptMaatschappij">—</td>
                   <td id="ptMaatschappijRef">&mdash;</td>
                   <td>&mdash;</td>
                   <td id="ptMaatschappijEmail">&mdash;</td>
@@ -1687,6 +1782,23 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
   <div>Charlie Dossier Intake v2.2 &mdash; CED</div>
+</div>
+
+<!-- ===== PDF VIEWER MODAL ===== -->
+<div class="pdf-viewer-overlay" id="pdfViewerOverlay">
+  <div class="pdf-viewer-modal">
+    <div class="pdf-viewer-header">
+      <span class="pdf-viewer-title" id="pdfViewerTitle">Document</span>
+      <div class="pdf-viewer-nav">
+        <button id="pdfPrevBtn" onclick="pdfViewerNav(-1)">&larr; Vorige</button>
+        <span class="pdf-viewer-page-info" id="pdfPageInfo">1 / 1</span>
+        <button id="pdfNextBtn" onclick="pdfViewerNav(1)">Volgende &rarr;</button>
+      </div>
+      <button class="pdf-viewer-close" onclick="closePdfViewer()">&times;</button>
+    </div>
+    <div class="pdf-viewer-body" id="pdfViewerBody">
+    </div>
+  </div>
 </div>
 
 <!-- ===== TOAST ===== -->
@@ -2029,7 +2141,7 @@ const state = {
   Netwerk: 'Schade',
   Tarificatie: 'Standaard',
   RoerendOnroerend: '',
-  ExternPlatform: 'Baloise',
+  ExternPlatform: '',
   ExpertiseMethode: '',
   ExpertiseMethodeProcedure: '',
   ExterneCommunicatie: '',
@@ -2437,9 +2549,13 @@ function syncFormFromState() {
 
   const maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
   if (maat) {
+    document.getElementById('fMaatschappijNaam').value = maat.Info.Naam || '';
     document.getElementById('fMaatschappijReferte').value = maat.Info.Referte;
     document.getElementById('fMaatschappijContact').value = maat.Info.Correspondent;
     document.getElementById('fMaatschappijEmail').value = maat.Info.Email;
+    document.getElementById('fExternPlatform').value = maat.Info.Naam || '';
+    state.ExternPlatform = maat.Info.Naam || '';
+    document.getElementById('metaMaatschappij').textContent = maat.Info.Naam || '—';
   }
 
   const mak = state.Derden.find(d => d.Info.Type === 'Makelaar');
@@ -2503,7 +2619,8 @@ function syncFormFromState() {
   document.getElementById('ptMakelaar').textContent = makPt?.Info.Naam || '—';
   document.getElementById('ptMakelaarRef').textContent = makPt?.Info.Referte || '—';
   const maatPt = state.Derden.find(d => d.Info.Type === 'Maatschappij');
-  document.getElementById('ptMaatschappij').textContent = maatPt?.Info.Naam || 'BALOISE';
+  document.getElementById('ptMaatschappij').textContent = maatPt?.Info.Naam || '—';
+  document.getElementById('metaMaatschappij').textContent = maatPt?.Info.Naam || '—';
   document.getElementById('ptMaatschappijRef').textContent = maatPt?.Info.Referte || '—';
   document.getElementById('ptMaatschappijEmail').textContent = maatPt?.Info.Email || '—';
 
@@ -2538,7 +2655,7 @@ function syncStateFromForm() {
   state.DatumOntvangst = document.getElementById('fDatumOntvangst').value;
 
   let maat = state.Derden.find(d => d.Info.Type === 'Maatschappij');
-  if (!maat) { maat = { Info: emptyPartij('Maatschappij'), Partijen: [] }; maat.Info.Naam = 'BALOISE'; state.Derden.push(maat); }
+  if (!maat) { maat = { Info: emptyPartij('Maatschappij'), Partijen: [] }; state.Derden.push(maat); }
   maat.Info.Referte = document.getElementById('fMaatschappijReferte').value;
   maat.Info.Correspondent = document.getElementById('fMaatschappijContact').value;
   maat.Info.Email = document.getElementById('fMaatschappijEmail').value;
@@ -2852,7 +2969,8 @@ async function typewriterAnimate() {
   document.getElementById('ptMakelaar').textContent = makPtTw?.Info.Naam || '—';
   document.getElementById('ptMakelaarRef').textContent = makPtTw?.Info.Referte || '—';
   const maatPtTw = state.Derden.find(d => d.Info.Type === 'Maatschappij');
-  document.getElementById('ptMaatschappij').textContent = maatPtTw?.Info.Naam || 'BALOISE';
+  document.getElementById('ptMaatschappij').textContent = maatPtTw?.Info.Naam || '—';
+  document.getElementById('metaMaatschappij').textContent = maatPtTw?.Info.Naam || '—';
   document.getElementById('ptMaatschappijRef').textContent = maatPtTw?.Info.Referte || '—';
   document.getElementById('ptMaatschappijEmail').textContent = maatPtTw?.Info.Email || '—';
   await sleep(200);
@@ -2902,8 +3020,13 @@ async function typewriterAnimate() {
       const pages = doc.pages || '';
       const desc = doc.description || '';
       const displayName = stripDossierPrefix(doc.name);
+      const hasPdf = doc.source && Object.keys(pdfDataStore).some(k => k.includes(doc.source) || doc.source.includes(k)) || Object.keys(pdfDataStore).length > 0;
       const tr = document.createElement('tr');
       tr.className = 'nota-row-appear';
+      if (hasPdf && (doc.type === 'pdf' || doc.fromLLM)) {
+        tr.classList.add('clickable');
+        tr.addEventListener('click', () => openPdfViewer(doc));
+      }
       tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
       tbody.appendChild(tr);
       await sleep(200);
@@ -3032,6 +3155,129 @@ async function extractPhotosFromPdfPages(pageNumbers) {
   renderMediaGrid();
 }
 
+// ========== PDF VIEWER ==========
+let pdfViewerState = { pdf: null, pages: [], currentIdx: 0, canvases: [] };
+
+function parsePageRange(rangeStr) {
+  if (!rangeStr) return [];
+  const pages = [];
+  rangeStr.split(',').forEach(part => {
+    part = part.trim();
+    const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (m) {
+      for (let i = parseInt(m[1]); i <= parseInt(m[2]); i++) pages.push(i);
+    } else {
+      const n = parseInt(part);
+      if (!isNaN(n)) pages.push(n);
+    }
+  });
+  return pages;
+}
+
+async function openPdfViewer(doc) {
+  // Find the PDF data in pdfDataStore by matching the source filename
+  const source = doc.source || '';
+  let pdfData = null;
+
+  // Try exact match first
+  if (pdfDataStore[source]) {
+    pdfData = pdfDataStore[source];
+  } else {
+    // Try partial match (source might be a substring of the stored key)
+    for (const [key, data] of Object.entries(pdfDataStore)) {
+      if (key.includes(source) || source.includes(key)) {
+        pdfData = data;
+        break;
+      }
+    }
+    // If still no match, use the first available PDF
+    if (!pdfData) {
+      const keys = Object.keys(pdfDataStore);
+      if (keys.length > 0) pdfData = pdfDataStore[keys[0]];
+    }
+  }
+
+  if (!pdfData) {
+    showToast('PDF data niet beschikbaar voor dit document', 'error');
+    return;
+  }
+
+  const overlay = document.getElementById('pdfViewerOverlay');
+  const body = document.getElementById('pdfViewerBody');
+  const title = document.getElementById('pdfViewerTitle');
+  body.innerHTML = '<div style="color:#999;padding:40px;text-align:center;">PDF laden...</div>';
+  title.textContent = stripDossierPrefix(doc.name);
+  overlay.classList.add('open');
+
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: pdfData.slice() }).promise;
+    const pageNums = parsePageRange(doc.pages);
+    // If no page range specified, show all pages
+    const pagesToShow = pageNums.length > 0 ? pageNums.filter(p => p >= 1 && p <= pdf.numPages) : Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+
+    pdfViewerState.pdf = pdf;
+    pdfViewerState.pages = pagesToShow;
+    pdfViewerState.currentIdx = 0;
+
+    body.innerHTML = '';
+    await renderPdfViewerPage();
+  } catch (err) {
+    body.innerHTML = `<div style="color:#E53E3E;padding:40px;text-align:center;">Fout bij laden PDF: ${err.message}</div>`;
+  }
+}
+
+async function renderPdfViewerPage() {
+  const { pdf, pages, currentIdx } = pdfViewerState;
+  if (!pdf || pages.length === 0) return;
+
+  const body = document.getElementById('pdfViewerBody');
+  body.innerHTML = '';
+
+  const pageNum = pages[currentIdx];
+  const page = await pdf.getPage(pageNum);
+  const scale = 2;
+  const viewport = page.getViewport({ scale });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+
+  const ctx = canvas.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport }).promise;
+
+  body.appendChild(canvas);
+
+  // Update nav
+  document.getElementById('pdfPageInfo').textContent = `${currentIdx + 1} / ${pages.length}  (p.${pageNum})`;
+  document.getElementById('pdfPrevBtn').disabled = currentIdx === 0;
+  document.getElementById('pdfNextBtn').disabled = currentIdx === pages.length - 1;
+}
+
+function pdfViewerNav(dir) {
+  const newIdx = pdfViewerState.currentIdx + dir;
+  if (newIdx < 0 || newIdx >= pdfViewerState.pages.length) return;
+  pdfViewerState.currentIdx = newIdx;
+  renderPdfViewerPage();
+}
+
+function closePdfViewer() {
+  document.getElementById('pdfViewerOverlay').classList.remove('open');
+  document.getElementById('pdfViewerBody').innerHTML = '';
+  pdfViewerState = { pdf: null, pages: [], currentIdx: 0, canvases: [] };
+}
+
+// Close on overlay click (outside modal)
+document.getElementById('pdfViewerOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closePdfViewer();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('pdfViewerOverlay').classList.contains('open')) {
+    closePdfViewer();
+  }
+});
+
 // ========== DOCUMENTEN TAB ==========
 let mediaFiles = [];
 
@@ -3057,7 +3303,12 @@ function renderDocTable() {
     const pages = doc.pages || '';
     const desc = doc.description || '';
     const displayName = stripDossierPrefix(doc.name);
+    const hasPdf = doc.source && Object.keys(pdfDataStore).some(k => k.includes(doc.source) || doc.source.includes(k)) || Object.keys(pdfDataStore).length > 0;
     const tr = document.createElement('tr');
+    if (hasPdf && (doc.type === 'pdf' || doc.fromLLM)) {
+      tr.className = 'clickable';
+      tr.addEventListener('click', () => openPdfViewer(doc));
+    }
     tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
     tbody.appendChild(tr);
   });

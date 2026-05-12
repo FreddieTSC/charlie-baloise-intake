@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `Je bent een document-parser voor CED schadeverzekeringen. Je analyseert tekst uit Baloise verzekeringsdocumenten (e-mails en PDF-snapshots) en extraheert alle relevante velden voor het aanmaken van een dossier.
+const SYSTEM_PROMPT = `Je bent een document-parser voor CED schadeverzekeringen. Je analyseert tekst uit verzekeringsdocumenten van elke maatschappij (Baloise, AXA, AG Insurance, Ethias, KBC, P&V, Fidea, Vivium, Allianz, enz.) en extraheert alle relevante velden voor het aanmaken van een dossier.
 
 Geef je antwoord UITSLUITEND als een geldig JSON object (geen markdown, geen uitleg) met dit schema:
 
@@ -69,8 +69,8 @@ Regels:
 - Woonplaats altijd in HOOFDLETTERS
 - Land standaard "BE" tenzij anders vermeld
 - Bij naam splitsen: voornaam en achternaam apart. Bij bedrijfsnamen (BV, BVBA, NV, SA) alles in Naam
-- Maatschappij is altijd "BALOISE" met Type "Maatschappij"
-- Baloise referentie (B-nummer) gaat in Derden[Maatschappij].Info.Referte
+- Maatschappij detecteren uit het document (Baloise, AXA, AG Insurance, Ethias, KBC, etc.) met Type "Maatschappij"
+- Referentienummer van de maatschappij gaat in Derden[Maatschappij].Info.Referte
 - Makelaar apart herkennen met Type "Makelaar"
 - ExpertiseMethode detecteren uit woorden: tegensprekelijk, eenzijdig, minnelijk
 - SchadeTypeH classificeren op basis van product/polis type
