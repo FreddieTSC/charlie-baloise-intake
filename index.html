@@ -584,23 +584,12 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 3px;
   text-transform: uppercase;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
 }
-.doc-type-badge.pdf { background: #FEE2E2; color: #B91C1C; }
-.doc-type-badge.msg { background: #DBEAFE; color: #1D4ED8; }
-.doc-type-badge.txt { background: #E5E7EB; color: #374151; }
-.doc-type-badge.jpg, .doc-type-badge.foto { background: #FEF3C7; color: #92400E; }
-.doc-type-badge.opdracht { background: #E0E7FF; color: #3730A3; }
-.doc-type-badge.polis, .doc-type-badge.verzekeringscontract { background: #D1FAE5; color: #065F46; }
-.doc-type-badge.factuur, .doc-type-badge.offerte { background: #FCE7F3; color: #9D174D; }
-.doc-type-badge.schadeaangifte, .doc-type-badge.aangifte { background: #FEF3C7; color: #92400E; }
-.doc-type-badge.mail { background: #DBEAFE; color: #1D4ED8; }
-.doc-type-badge.samenvatting { background: #EDE9FE; color: #5B21B6; }
-.doc-type-badge.brief { background: #E5E7EB; color: #374151; }
-.doc-type-badge.bestek { background: #CFFAFE; color: #155E75; }
-.doc-type-badge.overzicht { background: #F0FDF4; color: #166534; }
-.doc-type-badge.ingebrekestelling { background: #FEE2E2; color: #991B1B; }
 .doc-pages { font-size: 11px; color: #666; font-family: monospace; }
 .doc-desc { font-size: 11px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .no-docs {
@@ -630,13 +619,14 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 }
 .doc-status-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 3px;
+  background: #F8FAFC;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
 }
-.doc-status-badge.parsed { background: #D1FAE5; color: #065F46; }
-.doc-status-badge.uploaded { background: #DBEAFE; color: #1D4ED8; }
-.doc-status-badge.extracted { background: #FEF3C7; color: #92400E; }
+.doc-status-badge.parsed { color: #166534; border-color: #86EFAC; }
 
 /* ========== MEDIA TAB ========== */
 .media-grid {
@@ -751,21 +741,13 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 .notas-table td { padding: 5px 10px; vertical-align: top; }
 .notas-table td.nota-text { max-width: 500px; }
 .nota-cat-badge {
-  font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+  font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 3px;
   text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;
+  background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;
 }
-.nota-row-briefwisseling { background: #DBEAFE; }
-.nota-row-planning { background: #D1FAE5; }
-.nota-row-relances { background: #FCE7F3; }
-.nota-row-upload { background: #FEF9C3; }
-.nota-row-schadehistoriek { background: #F3F4F6; }
+.nota-row-briefwisseling, .nota-row-planning, .nota-row-relances,
+.nota-row-upload, .nota-row-schadehistoriek { background: #FAFBFC; }
 .nota-row-nota { background: #FFF; }
-.nota-cat-briefwisseling { background: #93C5FD; color: #1E3A5F; }
-.nota-cat-planning { background: #6EE7B7; color: #064E3B; }
-.nota-cat-relances { background: #F9A8D4; color: #831843; }
-.nota-cat-upload { background: #FDE68A; color: #78350F; }
-.nota-cat-schadehistoriek { background: #D1D5DB; color: #1F2937; }
-.nota-cat-nota { background: #C7D2FE; color: #312E81; }
 .nota-input-row { display: flex; gap: 8px; margin-top: 10px; }
 .nota-input-row input { flex: 1; }
 .nota-input-row select { max-width: 150px; }
@@ -826,14 +808,12 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   font-size: 9px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 3px;
   text-transform: uppercase;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
 }
-.partij-type-badge.verzekerde { background: #DBEAFE; color: #1D4ED8; }
-.partij-type-badge.expert { background: #D1FAE5; color: #065F46; }
-.partij-type-badge.makelaar { background: #FEF3C7; color: #92400E; }
-.partij-type-badge.maatschappij { background: #E0E7FF; color: #3730A3; }
-.partij-type-badge.derde { background: #FCE7F3; color: #831843; }
 
 /* ========== TYPEWRITER EFFECT ========== */
 @keyframes typeCursor {
@@ -939,7 +919,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   </div>
 
   <div class="intake-zone" id="intakeZone" onclick="document.getElementById('fileInput').click()">
-    <span class="drop-icon">&#128194;</span>
+    <span class="drop-icon" style="font-size:20px;color:var(--ced-blue);opacity:0.6;">+</span>
     <span class="drop-label">Sleep .msg of PDF hier</span>
     <span class="drop-hint">Baloise opdracht</span>
     <input type="file" class="file-input" id="fileInput" accept=".pdf,.msg,.eml,.txt" multiple>
@@ -1341,18 +1321,18 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
       <!-- Tabs -->
       <div class="buildex-tabs">
-        <div class="buildex-tab active" data-tab="0"><span class="tab-icon">&#9776;</span> Overzicht</div>
-        <div class="buildex-tab" data-tab="1"><span class="tab-icon">&#9776;</span> Algemeen</div>
-        <div class="buildex-tab" data-tab="2"><span class="tab-icon">&#128197;</span> Afspraken</div>
-        <div class="buildex-tab" data-tab="3"><span class="tab-icon">&#128196;</span> Documenten</div>
-        <div class="buildex-tab" data-tab="4"><span class="tab-icon">&#128260;</span> Opvolging</div>
-        <div class="buildex-tab" data-tab="5"><span class="tab-icon">&#128187;</span> Digitaal pv</div>
-        <div class="buildex-tab" data-tab="6"><span class="tab-icon">&#128202;</span> Prestaties</div>
-        <div class="buildex-tab" data-tab="7"><span class="tab-icon">&#128200;</span> Statistische Info</div>
-        <div class="buildex-tab" data-tab="8"><span class="tab-icon">&#128247;</span> Multimedia</div>
-        <div class="buildex-tab" data-tab="9"><span class="tab-icon">&#128176;</span> Facturatie</div>
-        <div class="buildex-tab" data-tab="10"><span class="tab-icon">&#128172;</span> Communicatie</div>
-        <div class="buildex-tab" data-tab="11"><span class="tab-icon">{ }</span> JSON Output</div>
+        <div class="buildex-tab active" data-tab="0">Overzicht</div>
+        <div class="buildex-tab" data-tab="1">Algemeen</div>
+        <div class="buildex-tab" data-tab="2">Afspraken</div>
+        <div class="buildex-tab" data-tab="3">Documenten</div>
+        <div class="buildex-tab" data-tab="4">Opvolging</div>
+        <div class="buildex-tab" data-tab="5">Digitaal pv</div>
+        <div class="buildex-tab" data-tab="6">Prestaties</div>
+        <div class="buildex-tab" data-tab="7">Statistische Info</div>
+        <div class="buildex-tab" data-tab="8">Multimedia</div>
+        <div class="buildex-tab" data-tab="9">Facturatie</div>
+        <div class="buildex-tab" data-tab="10">Communicatie</div>
+        <div class="buildex-tab" data-tab="11">JSON Output</div>
       </div>
 
       <!-- ===== TAB 0: OVERZICHT (Notes/Activity + Samenvatting + Derden) ===== -->
@@ -1389,7 +1369,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         </div>
 
         <div class="form-section" style="margin-top:16px;">
-          <div class="section-header">&#128196; Dossiersamenvatting</div>
+          <div class="section-header">Dossiersamenvatting</div>
           <div class="section-body">
             <div class="summary-box" id="summaryBox">Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.</div>
           </div>
@@ -1397,7 +1377,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
         <div class="form-section" style="margin-top:16px;">
           <div class="section-header">
-            &#128101; Betrokken Derden
+            Betrokken Derden
             <button class="btn btn-sm" onclick="addDerde()" style="margin-left:auto;">+ Derde toevoegen</button>
           </div>
           <div class="section-body" id="derdenContainer">
@@ -1411,7 +1391,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
         <!-- Partijen section -->
         <div class="form-section">
-          <div class="section-header">&#128101; Partijen</div>
+          <div class="section-header">Partijen</div>
           <div class="section-body" style="padding:0;">
             <table class="partijen-table" id="partijenTable">
               <thead>
@@ -1461,7 +1441,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <div>
             <!-- Schadegeval section -->
             <div class="form-section">
-              <div class="section-header">&#128293; Schadegeval</div>
+              <div class="section-header">Schadegeval</div>
               <div class="section-body">
                 <div class="form-row">
                   <span class="form-label">Hoofdcategorie</span>
@@ -1542,7 +1522,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <div>
             <!-- Omstandigheden & Verhaal -->
             <div class="form-section">
-              <div class="section-header">&#128172; Omstandigheden &amp; Verhaal</div>
+              <div class="section-header">Omstandigheden &amp; Verhaal</div>
               <div class="section-body">
                 <div class="form-row" style="flex-direction:column; align-items:stretch;">
                   <span class="form-label" style="text-align:left; width:auto; margin-bottom:4px;">Omstandigheden / BAVrijeTekst</span>
@@ -1557,7 +1537,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
             <!-- Gegevens CED section -->
             <div class="form-section">
-              <div class="section-header">&#127970; Gegevens CED</div>
+              <div class="section-header">Gegevens CED</div>
               <div class="section-body">
                 <div class="form-row">
                   <span class="form-label">Kantoor</span>
@@ -1580,7 +1560,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 2: AFSPRAKEN (placeholder) ===== -->
       <div class="tab-content" id="tab2">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128197;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Afspraken</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1589,7 +1569,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 3: DOCUMENTEN ===== -->
       <div class="tab-content" id="tab3">
         <div class="doc-toolbar">
-          <span class="doc-toolbar-title">&#128195; Documenten bij dit dossier</span>
+          <span class="doc-toolbar-title">Documenten bij dit dossier</span>
           <span class="doc-count" id="docCount">0 documenten</span>
         </div>
         <table class="doc-table" id="docTable">
@@ -1613,7 +1593,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 4: OPVOLGING (placeholder) ===== -->
       <div class="tab-content" id="tab4">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128260;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Opvolging</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1622,7 +1602,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 5: DIGITAAL PV (placeholder) ===== -->
       <div class="tab-content" id="tab5">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128187;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Digitaal pv</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1631,7 +1611,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 6: PRESTATIES (placeholder) ===== -->
       <div class="tab-content" id="tab6">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128202;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Prestaties</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1640,7 +1620,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 7: STATISTISCHE INFO (placeholder) ===== -->
       <div class="tab-content" id="tab7">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128200;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Statistische Info</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1649,13 +1629,13 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 8: MULTIMEDIA ===== -->
       <div class="tab-content" id="tab8">
         <div class="doc-toolbar">
-          <span class="doc-toolbar-title">&#128247; Foto's &amp; afbeeldingen</span>
+          <span class="doc-toolbar-title">Foto's &amp; afbeeldingen</span>
           <span class="doc-count" id="mediaCount">0 foto's</span>
         </div>
         <div class="media-grid" id="mediaGrid">
         </div>
         <div class="media-upload-zone" id="mediaUploadZone">
-          <div class="media-upload-icon">&#128247;</div>
+          <div class="media-upload-icon" style="font-size:24px;color:#999;">+</div>
           <div class="media-upload-text">Sleep foto's hierheen of klik om te uploaden</div>
           <div class="media-upload-hint">JPG, PNG, HEIC &mdash; max 10MB per foto</div>
           <input type="file" class="file-input" id="mediaFileInput" accept="image/*" multiple>
@@ -1666,7 +1646,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 9: FACTURATIE (placeholder) ===== -->
       <div class="tab-content" id="tab9">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128176;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Facturatie</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1675,7 +1655,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 10: COMMUNICATIE (placeholder) ===== -->
       <div class="tab-content" id="tab10">
         <div class="tab-placeholder">
-          <div class="tab-placeholder-icon">&#128172;</div>
+          <div class="tab-placeholder-icon">&mdash;</div>
           <div class="tab-placeholder-title">Communicatie</div>
           <div class="tab-placeholder-text">Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.</div>
         </div>
@@ -1684,9 +1664,9 @@ textarea.form-input { resize: vertical; min-height: 60px; }
       <!-- ===== TAB 11: JSON OUTPUT ===== -->
       <div class="tab-content" id="tab11">
         <div class="json-actions">
-          <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
-          <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
-          <button class="btn" onclick="generateJSON()">&#8635; Vernieuw JSON</button>
+          <button class="btn btn-primary" onclick="generateAndCopyJSON()">Kopieer naar klembord</button>
+          <button class="btn" onclick="downloadJSON()">Download JSON</button>
+          <button class="btn" onclick="generateJSON()">Vernieuw JSON</button>
         </div>
         <textarea class="json-output" id="jsonOutput" readonly></textarea>
       </div>
@@ -2921,9 +2901,10 @@ async function typewriterAnimate() {
       const badgeClass = badgeType.toLowerCase().replace(/['\s]/g, '');
       const pages = doc.pages || '';
       const desc = doc.description || '';
+      const displayName = stripDossierPrefix(doc.name);
       const tr = document.createElement('tr');
       tr.className = 'nota-row-appear';
-      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(doc.name)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
       tbody.appendChild(tr);
       await sleep(200);
     }
@@ -3054,6 +3035,11 @@ async function extractPhotosFromPdfPages(pageNumbers) {
 // ========== DOCUMENTEN TAB ==========
 let mediaFiles = [];
 
+// Strip dossiernummer prefix (e.g., "26-555127_offerte..." → "offerte...")
+function stripDossierPrefix(name) {
+  return name.replace(/^\d{2}-\d{5,7}_/, '');
+}
+
 function renderDocTable() {
   const tbody = document.getElementById('docTableBody');
   const noDocsMsg = document.getElementById('noDocs');
@@ -3070,8 +3056,9 @@ function renderDocTable() {
     const badgeClass = badgeType.toLowerCase().replace(/['\s]/g, '');
     const pages = doc.pages || '';
     const desc = doc.description || '';
+    const displayName = stripDossierPrefix(doc.name);
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(doc.name)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+    tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
     tbody.appendChild(tr);
   });
 }
