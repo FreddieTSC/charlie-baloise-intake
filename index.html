@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charlie — Dossier Intake Baloise</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,14 +40,94 @@ body {
   min-height: 100vh;
 }
 
+/* ========== SPLASH SCREEN ========== */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #FAEEDA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.splash.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.splash-logo {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(64px, 12vw, 120px);
+  color: var(--ced-navy);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.splash-logo .dot {
+  color: var(--ced-blue);
+}
+.splash-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(16px, 3vw, 26px);
+  font-weight: 300;
+  color: var(--ced-navy);
+  letter-spacing: 0.08em;
+  height: 1.4em;
+  overflow: hidden;
+}
+.splash-subtitle .ai-letter {
+  color: var(--ced-blue);
+  opacity: 0.55;
+}
+.splash-logo .ai-reveal {
+  color: var(--ced-navy);
+  transition: color 1.4s ease;
+}
+.splash-logo .ai-reveal.active {
+  color: var(--ced-blue);
+}
+.splash-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--ced-navy);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: splashBlink 0.6s infinite;
+}
+@keyframes splashBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.splash-hint {
+  position: absolute;
+  bottom: 48px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ced-navy);
+  opacity: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: opacity 0.8s ease;
+}
+.splash-hint.visible {
+  opacity: 0.35;
+}
+
 /* ========== COMPACT HEADER ========== */
 .app-header {
   background: var(--bg-white);
   border-bottom: 3px solid var(--ced-navy);
-  padding: 8px 16px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   box-shadow: var(--shadow-sm);
   flex-wrap: nowrap;
 }
@@ -56,7 +137,7 @@ body {
   gap: 10px;
   flex-shrink: 0;
 }
-.header-brand svg { height: 32px; }
+.header-brand svg { height: 38px; }
 .header-subtitle {
   font-family: 'Inter', sans-serif;
   font-size: 9px;
@@ -74,14 +155,14 @@ body {
   background: var(--cream);
   border: 2px dashed var(--buildex-border);
   border-radius: 8px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  height: 42px;
+  height: 48px;
 }
 .intake-zone:hover { border-color: var(--ced-blue); background: #FDF6E3; }
 .intake-zone.drag-over { border-color: var(--ced-blue); background: #EBF5FB; }
@@ -400,6 +481,91 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   padding: 40px;
   color: var(--text-muted);
 }
+.doc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--buildex-toolbar);
+  border: 1px solid var(--buildex-border);
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.doc-toolbar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+.doc-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.doc-status-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.doc-status-badge.parsed { background: #D1FAE5; color: #065F46; }
+.doc-status-badge.uploaded { background: #DBEAFE; color: #1D4ED8; }
+.doc-status-badge.extracted { background: #FEF3C7; color: #92400E; }
+
+/* ========== MEDIA TAB ========== */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.media-card {
+  border: 1px solid var(--buildex-section);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-white);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.media-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.media-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: #F0F0F0;
+}
+.media-card-info {
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.media-upload-zone {
+  border: 2px dashed var(--buildex-border);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #FAFAFA;
+  margin-bottom: 12px;
+}
+.media-upload-zone:hover {
+  border-color: var(--ced-blue);
+  background: #F0F5FF;
+}
+.media-upload-zone.drag-over {
+  border-color: var(--ced-blue);
+  background: #EBF5FB;
+}
+.media-upload-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+.media-upload-text { font-size: 13px; font-weight: 600; color: var(--text-body); margin-bottom: 4px; }
+.media-upload-hint { font-size: 11px; color: var(--text-muted); }
 
 /* ========== JSON TAB ========== */
 .json-output {
@@ -577,13 +743,18 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 </head>
 <body>
 
+<!-- ===== SPLASH SCREEN ===== -->
+<div class="splash" id="splashScreen" onclick="dismissSplash()">
+  <div class="splash-logo">Ch<span class="ai-reveal" id="logoA">a</span>rl<span class="ai-reveal" id="logoI">i</span>e<span class="dot">.</span></div>
+  <div class="splash-subtitle" id="splashSubtitle"><span class="splash-cursor" id="splashCursor"></span></div>
+  <div class="splash-hint" id="splashHint">klik om verder te gaan</div>
+</div>
+
 <!-- ===== COMPACT HEADER ===== -->
 <header class="app-header">
   <div class="header-brand">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" role="img" aria-label="Charlie" style="height: 38px;">
-      <rect x="20" y="30" width="60" height="60" rx="14" fill="#1C054F"/>
-      <text x="50" y="78" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="42" fill="#FAEEDA">C<tspan fill="#3899DD">.</tspan></text>
-      <text x="105" y="86" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="68" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e</text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 38px;">
+      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="header-subtitle">Baloise Intake</span>
   </div>
@@ -652,9 +823,10 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   <div class="buildex-tabs">
     <div class="buildex-tab active" data-tab="0">Overzicht</div>
     <div class="buildex-tab" data-tab="1">Schadegegevens</div>
-    <div class="buildex-tab" data-tab="2">Media</div>
-    <div class="buildex-tab" data-tab="3">Notas</div>
-    <div class="buildex-tab" data-tab="4">JSON Output</div>
+    <div class="buildex-tab" data-tab="2">Documenten</div>
+    <div class="buildex-tab" data-tab="3">Media</div>
+    <div class="buildex-tab" data-tab="4">Notas</div>
+    <div class="buildex-tab" data-tab="5">JSON Output</div>
   </div>
 
   <!-- ===== TAB 0: OVERZICHT ===== -->
@@ -959,8 +1131,12 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
   </div>
 
-  <!-- ===== TAB 2: MEDIA ===== -->
+  <!-- ===== TAB 2: DOCUMENTEN ===== -->
   <div class="tab-content" id="tab2">
+    <div class="doc-toolbar">
+      <span class="doc-toolbar-title">&#128195; Documenten bij dit dossier</span>
+      <span class="doc-count" id="docCount">0 documenten</span>
+    </div>
     <table class="doc-table" id="docTable">
       <thead>
         <tr>
@@ -969,6 +1145,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <th>Type</th>
           <th>Grootte</th>
           <th>Bron</th>
+          <th style="width:90px;">Status</th>
         </tr>
       </thead>
       <tbody id="docTableBody">
@@ -977,8 +1154,25 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <div class="no-docs" id="noDocs">Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.</div>
   </div>
 
-  <!-- ===== TAB 3: NOTAS ===== -->
+  <!-- ===== TAB 3: MEDIA ===== -->
   <div class="tab-content" id="tab3">
+    <div class="doc-toolbar">
+      <span class="doc-toolbar-title">&#128247; Foto's &amp; afbeeldingen</span>
+      <span class="doc-count" id="mediaCount">0 foto's</span>
+    </div>
+    <div class="media-grid" id="mediaGrid">
+    </div>
+    <div class="media-upload-zone" id="mediaUploadZone">
+      <div class="media-upload-icon">&#128247;</div>
+      <div class="media-upload-text">Sleep foto's hierheen of klik om te uploaden</div>
+      <div class="media-upload-hint">JPG, PNG, HEIC — max 10MB per foto</div>
+      <input type="file" class="file-input" id="mediaFileInput" accept="image/*" multiple>
+    </div>
+    <div class="no-docs" id="noMedia">Nog geen foto's toegevoegd aan dit dossier.</div>
+  </div>
+
+  <!-- ===== TAB 4: NOTAS ===== -->
+  <div class="tab-content" id="tab4">
     <div class="notas-toolbar">
       <label><input type="checkbox" id="notasShowSys" checked onchange="renderNotas()"> Toon systeemberichten</label>
       <span style="color:var(--text-muted)">|</span>
@@ -1018,8 +1212,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
   </div>
 
-  <!-- ===== TAB 4: JSON OUTPUT ===== -->
-  <div class="tab-content" id="tab4">
+  <!-- ===== TAB 5: JSON OUTPUT ===== -->
+  <div class="tab-content" id="tab5">
     <div class="json-actions">
       <button class="btn btn-primary" onclick="generateAndCopyJSON()">&#128203; Kopieer naar klembord</button>
       <button class="btn" onclick="downloadJSON()">&#11015; Download JSON</button>
@@ -1044,6 +1238,9 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 <!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/cfb@1.2.2/dist/cfb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 // ========== CONFIGURATION ==========
 const CONFIG = {
@@ -1058,6 +1255,296 @@ async function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function fileToArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ========== CLIENT-SIDE MSG EXTRACTION ==========
+// Parses MSG files in the browser using CFB library
+// Extracts email text bodies, finds embedded PDFs/ZIPs/EMLs
+
+async function extractMsgClientSide(arrayBuffer, filename) {
+  const result = { texts: [], pdfTexts: [], filename };
+
+  try {
+    const cfb = CFB.read(new Uint8Array(arrayBuffer), {type: 'array'});
+    const entries = cfb.FileIndex;
+    const paths = cfb.FullPaths;
+
+    // Single pass: classify entries
+    const bodyEntries = [];
+    const htmlEntries = [];
+    const binaryEntries = [];
+    const filenameEntries = {};
+    const shortNameEntries = {};
+
+    for (let i = 0; i < entries.length; i++) {
+      const name = entries[i].name;
+      if (!name) continue;
+      if (name === '__substg1.0_1000001F' && entries[i].size > 100) bodyEntries.push(i);
+      else if (name === '__substg1.0_10130102' && entries[i].size > 200) htmlEntries.push(i);
+      else if (name === '__substg1.0_37010102' && entries[i].size > 50) binaryEntries.push(i);
+      else if (name === '__substg1.0_3707001F') {
+        const pp = paths[i].substring(0, paths[i].lastIndexOf('/') + 1);
+        filenameEntries[pp] = i;
+      } else if (name === '__substg1.0_3704001F') {
+        const pp = paths[i].substring(0, paths[i].lastIndexOf('/') + 1);
+        if (!filenameEntries[pp]) shortNameEntries[pp] = i;
+      }
+    }
+
+    // Extract subject/sender from OLE properties
+    for (let i = 0; i < entries.length; i++) {
+      const name = entries[i].name;
+      if (name === '__substg1.0_0037001F') { // Subject
+        const entry = CFB.find(cfb, paths[i]);
+        if (entry && entry.content) {
+          const subj = new TextDecoder('utf-16le').decode(new Uint8Array(entry.content)).trim();
+          if (subj) result.texts.push(`Onderwerp: ${subj}`);
+        }
+      }
+      if (name === '__substg1.0_0C1A001F') { // Sender name
+        const entry = CFB.find(cfb, paths[i]);
+        if (entry && entry.content) {
+          const sender = new TextDecoder('utf-16le').decode(new Uint8Array(entry.content)).trim();
+          if (sender) result.texts.push(`Afzender: ${sender}`);
+        }
+      }
+    }
+    result.texts.unshift(`Bestandsnaam: ${filename}`);
+
+    // Extract text bodies
+    const bodies = [];
+    for (const idx of bodyEntries) {
+      const entry = CFB.find(cfb, paths[idx]);
+      if (!entry || !entry.content) continue;
+      const text = new TextDecoder('utf-16le').decode(new Uint8Array(entry.content)).trim();
+      if (text.length > 30 && !(text.length < 300 && /Met vriendelijke groeten|Cordialement/i.test(text))) {
+        bodies.push({ text, size: entries[idx].size });
+      }
+    }
+    bodies.sort((a, b) => b.size - a.size);
+    const uniqueBodies = [];
+    for (const b of bodies) {
+      const isDup = uniqueBodies.some(ub => {
+        const overlap = b.text.substring(0, 200);
+        return ub.text.includes(overlap) || overlap.includes(ub.text.substring(0, 200));
+      });
+      if (!isDup) uniqueBodies.push(b);
+    }
+    if (uniqueBodies.length > 0) {
+      result.texts.push(`\n${'='.repeat(50)}\nE-MAIL INHOUD (${uniqueBodies.length} berichten)\n${'='.repeat(50)}`);
+      uniqueBodies.forEach((b, i) => {
+        result.texts.push(`\n--- E-mail bericht ${i + 1} ---\n${b.text}`);
+      });
+    }
+
+    // HTML fallback if no plain text found
+    if (uniqueBodies.length === 0 && htmlEntries.length > 0) {
+      for (const idx of htmlEntries) {
+        const entry = CFB.find(cfb, paths[idx]);
+        if (!entry || !entry.content) continue;
+        let html = new TextDecoder('utf-8').decode(new Uint8Array(entry.content));
+        if (html.length < 50) html = new TextDecoder('utf-16le').decode(new Uint8Array(entry.content));
+        if (html.length > 50) {
+          const text = html
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<\/div>/gi, '\n')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>')
+            .replace(/&#\d+;/g, '').replace(/\s+/g, ' ').trim();
+          if (text.length > 100) result.texts.push(`\n--- HTML bericht ---\n${text}`);
+        }
+      }
+    }
+
+    // Process binary attachments — find PDFs, ZIPs, EMLs
+    // Process binary attachments — extract text from PDFs, ZIPs, EMLs
+    const pdfPromises = [];
+    const seenKeys = new Set();
+
+    for (const binIdx of binaryEntries) {
+      const entry = CFB.find(cfb, paths[binIdx]);
+      if (!entry || !entry.content) continue;
+      const data = new Uint8Array(entry.content);
+
+      // Find filename
+      const parentPath = paths[binIdx].substring(0, paths[binIdx].lastIndexOf('/') + 1);
+      let attFilename = '';
+      const fnIdx = filenameEntries[parentPath] || shortNameEntries[parentPath];
+      if (fnIdx !== undefined) {
+        const fnEntry = CFB.find(cfb, paths[fnIdx]);
+        if (fnEntry && fnEntry.content) attFilename = new TextDecoder('utf-16le').decode(new Uint8Array(fnEntry.content)).trim();
+      }
+
+      // Determine type by ext or magic bytes
+      let ext = attFilename ? attFilename.split('.').pop().toLowerCase() : '';
+      const magic = data.length > 4 ? Array.from(data.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('') : '';
+
+      if (!ext || !['pdf', 'zip', 'eml', 'msg'].includes(ext)) {
+        if (magic === '25504446') ext = 'pdf';
+        else if (magic === '504b0304') ext = 'zip';
+        else if (data.length > 100 && new TextDecoder('utf-8').decode(data.slice(0, 20)).startsWith('Received:')) ext = 'eml';
+      }
+
+      const dedupeKey = `${ext}:${data.length}`;
+      if (seenKeys.has(dedupeKey)) continue;
+      seenKeys.add(dedupeKey);
+
+      if (ext === 'pdf') {
+        const name = attFilename || `embedded_${pdfPromises.length + 1}.pdf`;
+        pdfPromises.push(extractPdfTextClient(data, name));
+      } else if (ext === 'zip') {
+        const name = attFilename || `embedded_zip.zip`;
+        pdfPromises.push(extractPdfsFromZip(data, name));
+      } else if (ext === 'eml') {
+        // EML — parse MIME to extract PDFs, then extract text from each
+        const emlText = new TextDecoder('utf-8').decode(data);
+        const emlPdfInfos = extractPdfsFromEml(emlText, attFilename);
+        for (const pdfInfo of emlPdfInfos) {
+          try {
+            const pdfBytes = Uint8Array.from(atob(pdfInfo.data), c => c.charCodeAt(0));
+            pdfPromises.push(extractPdfTextClient(pdfBytes, pdfInfo.name));
+          } catch (e) { console.error('EML PDF decode error:', e.message); }
+        }
+      }
+    }
+
+    // Wait for all PDF text extractions to complete
+    const pdfResults = await Promise.all(pdfPromises);
+    for (const res of pdfResults.flat()) {
+      if (res && res.length > 0) result.pdfTexts.push(res);
+    }
+
+    console.log(`[MSG Client] ${filename}: ${uniqueBodies.length} bodies, ${htmlEntries.length} HTML, ${binaryEntries.length} binaries → ${result.pdfTexts.length} PDF texts extracted`);
+
+  } catch (err) {
+    console.error('Client MSG extraction error:', err);
+    result.texts.push(`[Fout bij MSG extractie: ${err.message}]`);
+  }
+
+  return result;
+}
+
+// Extract PDFs from EML (RFC822 MIME) content
+function extractPdfsFromEml(emlText, emlFilename) {
+  const pdfs = [];
+  const seenSizes = new Set(); // deduplicate by base64 length
+  try {
+    // Find MIME boundary — could be nested
+    const boundaries = [];
+    const boundaryMatches = emlText.matchAll(/boundary="([^"]+)"/gi);
+    for (const m of boundaryMatches) boundaries.push(m[1]);
+    if (boundaries.length === 0) {
+      const altMatch = emlText.matchAll(/boundary=([^\s;]+)/gi);
+      for (const m of altMatch) boundaries.push(m[1]);
+    }
+
+    for (const boundary of boundaries) {
+      const parts = emlText.split('--' + boundary);
+      for (const part of parts) {
+        if (!/application\/pdf/i.test(part) && !/application\/octet-stream/i.test(part)) continue;
+        if (!/base64/i.test(part)) continue;
+
+        let name = 'document.pdf';
+        const fnMatch = part.match(/filename="?([^"\r\n;]+)/i);
+        if (fnMatch) name = fnMatch[1].trim();
+        else {
+          const nameMatch = part.match(/name="?([^"\r\n;]+)/i);
+          if (nameMatch) name = nameMatch[1].trim();
+        }
+        if (!/\.pdf$/i.test(name)) continue;
+
+        // Extract base64 data after header separator
+        const headerEnd = part.indexOf('\r\n\r\n');
+        const headerEnd2 = part.indexOf('\n\n');
+        const splitPos = headerEnd > 0 ? headerEnd + 4 : (headerEnd2 > 0 ? headerEnd2 + 2 : -1);
+        if (splitPos < 0) continue;
+
+        const b64Data = part.substring(splitPos).replace(/[\r\n\s]/g, '');
+        if (b64Data.length < 100) continue;
+
+        // Deduplicate by size (same PDF appearing in nested boundaries)
+        const sizeKey = b64Data.length;
+        if (seenSizes.has(sizeKey)) continue;
+        seenSizes.add(sizeKey);
+
+        // Verify it decodes to a PDF (check magic bytes)
+        try {
+          const testChunk = atob(b64Data.substring(0, 8));
+          if (testChunk.charCodeAt(0) === 0x25 && testChunk.charCodeAt(1) === 0x50) {
+            pdfs.push({ name, data: b64Data });
+          }
+        } catch (e) { /* skip invalid base64 */ }
+      }
+    }
+    console.log(`[EML Parse] ${emlFilename}: found ${pdfs.length} unique PDFs`);
+  } catch (err) {
+    console.error('EML parse error:', err);
+  }
+  return pdfs;
+}
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.slice(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+// Initialize pdf.js worker
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+}
+
+// Extract text from a PDF using pdf.js (browser-side)
+async function extractPdfTextClient(data, pdfName) {
+  try {
+    const pdf = await pdfjsLib.getDocument({data}).promise;
+    const textParts = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(' ');
+      if (pageText.trim()) textParts.push(pageText);
+    }
+    const fullText = textParts.join('\n');
+    if (fullText.trim().length > 20) {
+      return `=== PDF: ${pdfName} ===\n${fullText}`;
+    }
+    return '';
+  } catch (err) {
+    console.error('Client PDF extraction error:', pdfName, err.message);
+    return '';
+  }
+}
+
+// Extract PDFs from a ZIP file (browser-side using JSZip)
+async function extractPdfsFromZip(zipData, zipName) {
+  const texts = [];
+  try {
+    const zip = await JSZip.loadAsync(zipData);
+    for (const [filename, zipEntry] of Object.entries(zip.files)) {
+      if (zipEntry.dir || !filename.toLowerCase().endsWith('.pdf')) continue;
+      const pdfData = await zipEntry.async('uint8array');
+      const text = await extractPdfTextClient(pdfData, `${filename} (uit ZIP: ${zipName})`);
+      if (text) texts.push(text);
+    }
+  } catch (err) {
+    console.error('ZIP extraction error:', zipName, err.message);
+  }
+  return texts;
 }
 
 // ========== STATE ==========
@@ -1131,7 +1618,7 @@ document.querySelectorAll('.buildex-tab').forEach(tab => {
     tab.classList.add('active');
     document.querySelector('.tab-content.active').classList.remove('active');
     document.getElementById('tab' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === '4') generateJSON();
+    if (tab.dataset.tab === '5') generateJSON();
   });
 });
 
@@ -1156,7 +1643,7 @@ fileInput.addEventListener('change', e => {
 async function handleFiles(files) {
   for (const file of files) {
     const ext = file.name.split('.').pop().toLowerCase();
-    documents.push({ name: file.name, type: ext, size: file.size, source: 'Upload' });
+    documents.push({ name: file.name, type: ext, size: file.size, source: 'Upload', status: 'uploaded' });
 
     const codeFromFilename = file.name.match(/(26-\d{5,7})/);
     if (codeFromFilename && !state.DossierCode) state.DossierCode = codeFromFilename[1];
@@ -1171,39 +1658,127 @@ async function handleFiles(files) {
 
 async function processFilesViaAPI(files) {
   const modelLabel = selectedModel.split('-').slice(-1)[0];
-  showLoading(true, `Analyseren met Claude ${modelLabel}...`);
-  setStatus('loading', `Bestanden versturen naar Claude API (${selectedModel})...`);
+  showLoading(true, `Documenten verwerken...`);
+  setStatus('loading', `Bestanden lokaal verwerken...`);
 
-  const filesData = await Promise.all(Array.from(files).map(async (file) => ({
-    name: file.name,
-    data: await fileToBase64(file)
-  })));
+  // FULL CLIENT-SIDE EXTRACTION: parse MSG/PDF/ZIP locally, send only text to server
+  const allTexts = [];
 
+  for (const file of Array.from(files)) {
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'msg' && typeof CFB !== 'undefined' && typeof pdfjsLib !== 'undefined') {
+      // Parse MSG client-side: extract email text + PDF text
+      setStatus('loading', `MSG verwerken: ${file.name}...`);
+      try {
+        const arrayBuffer = await fileToArrayBuffer(file);
+        const extracted = await extractMsgClientSide(arrayBuffer, file.name);
+        allTexts.push(...extracted.texts);
+        allTexts.push(...extracted.pdfTexts);
+        console.log(`[Client] ${file.name}: ${extracted.texts.length} text parts, ${extracted.pdfTexts.length} PDF texts`);
+      } catch (err) {
+        console.error('Client MSG parse error:', err);
+        allTexts.push(`=== Bestand: ${file.name} ===\n[Fout bij verwerking: ${err.message}]`);
+      }
+    } else if (ext === 'pdf' && typeof pdfjsLib !== 'undefined') {
+      // Extract PDF text client-side
+      setStatus('loading', `PDF verwerken: ${file.name}...`);
+      try {
+        const arrayBuffer = await fileToArrayBuffer(file);
+        const text = await extractPdfTextClient(new Uint8Array(arrayBuffer), file.name);
+        if (text) allTexts.push(text);
+      } catch (err) {
+        console.error('Client PDF error:', err);
+      }
+    } else {
+      // Unknown type or libraries not loaded — read as text
+      try {
+        const text = await file.text();
+        allTexts.push(`=== Bestand: ${file.name} ===\n${text}`);
+      } catch (e) { /* skip binary files we can't read */ }
+    }
+  }
+
+  if (allTexts.length === 0) {
+    setStatus('error', 'Geen tekst geëxtraheerd uit bestanden');
+    showLoading(false);
+    return;
+  }
+
+  const fullText = allTexts.join('\n\n');
   const startTime = performance.now();
   const endpoint = CONFIG.apiUrl
     ? `${CONFIG.apiUrl}/api/parse`
     : '/.netlify/functions/parse';
 
+  setStatus('loading', `Analyseren met Claude ${modelLabel}... (${(fullText.length / 1024).toFixed(0)}KB tekst)`);
+
+  const requestBody = {
+    text: fullText,
+    model: selectedModel
+  };
+
+  const bodySize = JSON.stringify(requestBody).length;
+  console.log(`[API] Request body: ${(bodySize / 1024).toFixed(0)}KB text-only (was ${Array.from(files).reduce((a,f) => a + f.size, 0) / 1024 / 1024 | 0}MB raw)`);
+
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ files: filesData, model: selectedModel })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`API fout (${response.status}): ${err}`);
+      const errText = await response.text();
+      // Try to parse JSON error
+      try {
+        const errObj = JSON.parse(errText);
+        throw new Error(errObj.error || `API fout (${response.status})`);
+      } catch (e) {
+        if (e.message.includes('API fout') || e.message.includes('Geen')) throw e;
+        throw new Error(`API fout (${response.status}): ${errText.substring(0, 200)}`);
+      }
     }
 
-    const result = await response.json();
+    // Read response as SSE stream (server always returns text/event-stream)
+    const responseText = await response.text();
+    let result = null;
+
+    // Parse SSE events from response text
+    const sseLines = responseText.split('\n');
+    for (const line of sseLines) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const data = JSON.parse(line.substring(6));
+        if (data.type === 'progress') {
+          setStatus('loading', `Claude genereert... (${data.chars} tekens)`);
+        } else if (data.type === 'result') {
+          result = data;
+        } else if (data.type === 'error') {
+          throw new Error(data.error);
+        }
+      } catch (e) {
+        if (e.message && !e.message.includes('Unexpected token') && !e.message.includes('JSON')) throw e;
+      }
+    }
+
+    // If no SSE result found, try parsing as plain JSON (legacy fallback)
+    if (!result) {
+      try {
+        const jsonResult = JSON.parse(responseText);
+        result = jsonResult;
+      } catch (e) {
+        throw new Error('Geen geldig resultaat ontvangen van API');
+      }
+    }
+
     lastApiResponse = result;
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-
     populateFromApiResponse(result);
     showApiInfo(result.meta, elapsed);
     setStatus('loaded', `Verwerkt met ${selectedModel} in ${elapsed}s`);
     showToast(`Dossier geanalyseerd met Claude ${modelLabel}`, 'success');
+
   } catch (err) {
     console.error('API error:', err);
     setStatus('error', `API fout: ${err.message}`);
@@ -1255,6 +1830,9 @@ function populateFromApiResponse(result) {
   }
 
   if (data.Samenvatting) state.Samenvatting = data.Samenvatting;
+
+  // Mark documents as parsed
+  documents.forEach(d => { if (d.status === 'uploaded') d.status = 'parsed'; });
 
   typewriterAnimate();
 }
@@ -1697,22 +2275,26 @@ async function typewriterAnimate() {
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 2: MEDIA =====
+  // ===== TAB 2: DOCUMENTEN =====
   await sleep(400);
   switchToTab(2);
   await sleep(300);
 
   const tbody = document.getElementById('docTableBody');
   const noDocsMsg = document.getElementById('noDocs');
+  const docCountEl = document.getElementById('docCount');
   tbody.innerHTML = '';
   if (documents.length > 0) {
     noDocsMsg.style.display = 'none';
+    if (docCountEl) docCountEl.textContent = `${documents.length} document${documents.length !== 1 ? 'en' : ''}`;
     for (const [idx, doc] of documents.entries()) {
       if (typewriterAbort) break;
       const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
+      const statusClass = doc.status || 'uploaded';
+      const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
       const tr = document.createElement('tr');
       tr.className = 'nota-row-appear';
-      tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td>`;
+      tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
       tbody.appendChild(tr);
       await sleep(200);
     }
@@ -1720,9 +2302,17 @@ async function typewriterAnimate() {
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 3: NOTAS =====
+  // ===== TAB 3: MEDIA =====
   await sleep(400);
   switchToTab(3);
+  await sleep(300);
+  renderMediaGrid();
+
+  if (typewriterAbort) { finishTypewriter(); return; }
+
+  // ===== TAB 4: NOTAS =====
+  await sleep(400);
+  switchToTab(4);
   await sleep(300);
 
   const notasBody = document.getElementById('notasTableBody');
@@ -1767,18 +2357,86 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ========== MEDIA TAB ==========
+// ========== DOCUMENTEN TAB ==========
+let mediaFiles = [];
+
 function renderDocTable() {
   const tbody = document.getElementById('docTableBody');
   const noDocsMsg = document.getElementById('noDocs');
+  const docCount = document.getElementById('docCount');
   tbody.innerHTML = '';
-  if (documents.length === 0) { noDocsMsg.style.display = 'block'; return; }
+  if (documents.length === 0) { noDocsMsg.style.display = 'block'; if (docCount) docCount.textContent = '0 documenten'; return; }
   noDocsMsg.style.display = 'none';
+  if (docCount) docCount.textContent = `${documents.length} document${documents.length !== 1 ? 'en' : ''}`;
   documents.forEach((doc, idx) => {
     const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
+    const statusClass = doc.status || 'uploaded';
+    const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td>`;
+    tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
     tbody.appendChild(tr);
+  });
+}
+
+// ========== MEDIA TAB ==========
+function renderMediaGrid() {
+  const grid = document.getElementById('mediaGrid');
+  const noMedia = document.getElementById('noMedia');
+  const mediaCount = document.getElementById('mediaCount');
+  grid.innerHTML = '';
+
+  const images = mediaFiles.filter(f => /\.(jpg|jpeg|png|gif|heic|webp|bmp)$/i.test(f.name));
+  if (images.length === 0) {
+    noMedia.style.display = 'block';
+    if (mediaCount) mediaCount.textContent = "0 foto's";
+    return;
+  }
+  noMedia.style.display = 'none';
+  if (mediaCount) mediaCount.textContent = `${images.length} foto${images.length !== 1 ? "'s" : ""}`;
+
+  images.forEach((img, idx) => {
+    const card = document.createElement('div');
+    card.className = 'media-card';
+    if (img.dataUrl) {
+      card.innerHTML = `<img src="${img.dataUrl}" alt="${esc(img.name)}"><div class="media-card-info">${esc(img.name)}</div>`;
+    } else {
+      card.innerHTML = `<div style="height:140px;background:#F0F0F0;display:flex;align-items:center;justify-content:center;color:#999;font-size:32px;">&#128247;</div><div class="media-card-info">${esc(img.name)}</div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+// Media upload zone handling
+const mediaUploadZone = document.getElementById('mediaUploadZone');
+const mediaFileInput = document.getElementById('mediaFileInput');
+
+if (mediaUploadZone) {
+  mediaUploadZone.addEventListener('click', () => mediaFileInput.click());
+  ['dragenter', 'dragover'].forEach(evt => {
+    mediaUploadZone.addEventListener(evt, e => { e.preventDefault(); mediaUploadZone.classList.add('drag-over'); });
+  });
+  ['dragleave', 'drop'].forEach(evt => {
+    mediaUploadZone.addEventListener(evt, e => { e.preventDefault(); mediaUploadZone.classList.remove('drag-over'); });
+  });
+  mediaUploadZone.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) handleMediaFiles(e.dataTransfer.files);
+  });
+}
+if (mediaFileInput) {
+  mediaFileInput.addEventListener('change', e => {
+    if (e.target.files.length) handleMediaFiles(e.target.files);
+  });
+}
+
+function handleMediaFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      mediaFiles.push({ name: file.name, size: file.size, type: file.type, dataUrl: reader.result });
+      renderMediaGrid();
+    };
+    reader.readAsDataURL(file);
   });
 }
 
@@ -1885,6 +2543,99 @@ function setApiUrl(url) {
 
 console.log('%c Charlie Dossier Intake v2.0', 'color:#1C054F;font-size:16px;font-weight:bold');
 console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
+
+// ========== SPLASH SCREEN ==========
+let splashDismissed = false;
+
+function dismissSplash() {
+  if (splashDismissed) return;
+  splashDismissed = true;
+  document.getElementById('splashScreen').classList.add('hidden');
+}
+
+(async function splashTypewriter() {
+  const subtitle = document.getElementById('splashSubtitle');
+  const cursor = document.getElementById('splashCursor');
+  const hint = document.getElementById('splashHint');
+  const d = ms => new Promise(r => setTimeout(r, ms));
+
+  async function typeChars(str, speed = 70) {
+    for (const ch of str) {
+      if (splashDismissed) return;
+      const span = document.createElement('span');
+      span.textContent = ch;
+      subtitle.insertBefore(span, cursor);
+      await d(speed + Math.random() * 40);
+    }
+  }
+
+  function getLetterSpans() {
+    return Array.from(subtitle.querySelectorAll('span:not(.splash-cursor)'));
+  }
+
+  async function backspaceChars(count, speed = 35) {
+    for (let i = 0; i < count; i++) {
+      if (splashDismissed) return;
+      const spans = getLetterSpans();
+      if (spans.length === 0) break;
+      spans[spans.length - 1].remove();
+      await d(speed + Math.random() * 20);
+    }
+  }
+
+  await d(600);
+
+  // 1. Type "Virtual companion"
+  await typeChars('Virtual companion');
+  await d(800);
+
+  // 2. Backspace "companion" (9 chars)
+  await backspaceChars(9);
+  await d(300);
+
+  // 3. Type "guide"
+  await typeChars('guide');
+  await d(800);
+
+  // 4. Backspace "guide" (5 chars)
+  await backspaceChars(5);
+  await d(300);
+
+  // 5. Type "assistant" — the final word
+  await typeChars('assistant');
+  await d(400);
+
+  // 6. Hide cursor
+  if (!splashDismissed) cursor.style.display = 'none';
+
+  // 7. Fade the A and I in "assistant" to blue
+  // "assistant" spans: a(0) s(1) s(2) i(3) s(4) t(5) a(6) n(7) t(8)
+  // We want: a at index 0, i at index 3
+  await d(300);
+  if (!splashDismissed) {
+    const spans = getLetterSpans();
+    // "Virtual " = 8 chars, then "assistant" starts at index 8
+    const asstStart = 8;
+    const aiIndices = [asstStart + 0, asstStart + 3]; // 'a' and 'i'
+    for (const idx of aiIndices) {
+      if (spans[idx]) {
+        spans[idx].style.transition = 'color 1.2s ease';
+        spans[idx].style.color = '#3899DD';
+        spans[idx].style.opacity = '0.55';
+      }
+    }
+  }
+
+  // 8. Fade the 'a' and 'i' in Charlie logo to blue
+  await d(400);
+  if (!splashDismissed) document.getElementById('logoA').classList.add('active');
+  await d(200);
+  if (!splashDismissed) document.getElementById('logoI').classList.add('active');
+
+  // 9. Show click hint
+  await d(800);
+  if (!splashDismissed) hint.classList.add('visible');
+})();
 </script>
 </body>
 </html>
