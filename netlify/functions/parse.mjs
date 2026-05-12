@@ -47,7 +47,18 @@ Geef je antwoord UITSLUITEND als een geldig JSON object (geen markdown, geen uit
     }
   ],
   "Notas": ["relevante opmerkingen uit het document"],
-  "Samenvatting": "Korte samenvatting in 2-4 zinnen: wie (schadelijder), wat (type schade), hoe (omstandigheden), wanneer (datum). Inclusief schadentype (bv. waterschade)."
+  "Samenvatting": "Korte samenvatting in 2-4 zinnen: wie (schadelijder), wat (type schade), hoe (omstandigheden), wanneer (datum). Inclusief schadentype (bv. waterschade).",
+  "Documenten": [
+    {
+      "titel": "[dossiernummer]_[document-type]",
+      "type": "opdracht|polis|schadeaangifte|factuur|foto's|samenvatting|ingebrekestelling|mail|offerte|verzekeringscontract|aangifte|brief|overzicht|bestek|[specifiek]",
+      "paginas": "1-3",
+      "bron": "naam van het bronbestand (PDF/MSG)",
+      "beschrijving": "korte beschrijving van de inhoud",
+      "bedrag": "number of null (alleen voor factuur/offerte)"
+    }
+  ],
+  "FotoPages": [5, 8, 9]
 }
 
 Regels:
@@ -69,7 +80,18 @@ Regels:
 - Samenvatting: ALTIJD genereren, ook als informatie beperkt is
 - Het "Claim Snapshot" PDF bevat de schadeclaim details (bedragen, franchise, partijen)
 - Het "Informatie in geval van schade" PDF bevat polis- en dekkingsinfo (kapitaal gebouw, verzekerde bedragen)
-- KapitaalGebouw = verzekerd bedrag gebouw/huurdersaansprakelijkheid uit de polisinfo PDF`;
+- KapitaalGebouw = verzekerd bedrag gebouw/huurdersaansprakelijkheid uit de polisinfo PDF
+
+DOCUMENT STRUCTUUR REGELS:
+- Analyseer ELKE PDF en identificeer de subdocumenten erin (opdracht, polis, facturen, foto's, etc.)
+- Gebruik het patroon [dossiernummer]_[document-type] voor de titel
+- Bij facturen en offertes: ALTIJD het bedrag in de titel zetten, bv. "26-555127_factuur CA Heating 876,80 EUR"
+- Bij mails: context toevoegen, bv. "26-555127_mail AG Insurance - info dossier"
+- Pagina-bereiken (paginas) moeten ALLE pagina's dekken — geen pagina mag ontbreken of dubbel voorkomen
+- Sorteer documenten chronologisch (vroegste datum eerst)
+- FotoPages: geef een array van paginanummers (1-based) die foto's/afbeeldingen bevatten
+- Foto-pagina's herkennen aan: weinig tekst maar veel afbeeldingsinhoud, onderschriften als "foto", "beeld", "afbeelding"
+- Als een PDF pagina's bevat met hoofdzakelijk foto's (bv. schadefoto's, situatiefotos), neem die paginanummers op in FotoPages`;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -114,7 +136,7 @@ export default async (req) => {
         try {
           const response = await anthropic.messages.create({
             model: selectedModel,
-            max_tokens: 4096,
+            max_tokens: 8192,
             stream: true,
             system: SYSTEM_PROMPT,
             messages: [{

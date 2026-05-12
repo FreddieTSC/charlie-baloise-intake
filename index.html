@@ -590,6 +590,19 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 .doc-type-badge.pdf { background: #FEE2E2; color: #B91C1C; }
 .doc-type-badge.msg { background: #DBEAFE; color: #1D4ED8; }
 .doc-type-badge.txt { background: #E5E7EB; color: #374151; }
+.doc-type-badge.jpg, .doc-type-badge.foto { background: #FEF3C7; color: #92400E; }
+.doc-type-badge.opdracht { background: #E0E7FF; color: #3730A3; }
+.doc-type-badge.polis, .doc-type-badge.verzekeringscontract { background: #D1FAE5; color: #065F46; }
+.doc-type-badge.factuur, .doc-type-badge.offerte { background: #FCE7F3; color: #9D174D; }
+.doc-type-badge.schadeaangifte, .doc-type-badge.aangifte { background: #FEF3C7; color: #92400E; }
+.doc-type-badge.mail { background: #DBEAFE; color: #1D4ED8; }
+.doc-type-badge.samenvatting { background: #EDE9FE; color: #5B21B6; }
+.doc-type-badge.brief { background: #E5E7EB; color: #374151; }
+.doc-type-badge.bestek { background: #CFFAFE; color: #155E75; }
+.doc-type-badge.overzicht { background: #F0FDF4; color: #166534; }
+.doc-type-badge.ingebrekestelling { background: #FEE2E2; color: #991B1B; }
+.doc-pages { font-size: 11px; color: #666; font-family: monospace; }
+.doc-desc { font-size: 11px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .no-docs {
   text-align: center;
   padding: 40px;
@@ -1582,12 +1595,13 @@ textarea.form-input { resize: vertical; min-height: 60px; }
         <table class="doc-table" id="docTable">
           <thead>
             <tr>
-              <th style="width:40px;">#</th>
-              <th>Bestandsnaam</th>
-              <th>Type</th>
-              <th>Grootte</th>
+              <th style="width:35px;">#</th>
+              <th>Document</th>
+              <th style="width:100px;">Type</th>
+              <th style="width:60px;">Pag.</th>
+              <th>Beschrijving</th>
               <th>Bron</th>
-              <th style="width:90px;">Status</th>
+              <th style="width:80px;">Status</th>
             </tr>
           </thead>
           <tbody id="docTableBody">
@@ -1692,7 +1706,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
-  <div>Charlie Dossier Intake v2.1 &mdash; CED</div>
+  <div>Charlie Dossier Intake v2.2 &mdash; CED</div>
 </div>
 
 <!-- ===== TOAST ===== -->
@@ -1971,6 +1985,10 @@ if (typeof pdfjsLib !== 'undefined') {
 // Extract text from a PDF using pdf.js (browser-side)
 async function extractPdfTextClient(data, pdfName) {
   try {
+    // Store PDF data for later photo extraction
+    const dataToStore = data instanceof Uint8Array ? data.slice() : new Uint8Array(data);
+    pdfDataStore[pdfName] = dataToStore;
+
     const pdf = await pdfjsLib.getDocument({data}).promise;
     const textParts = [];
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -1981,7 +1999,7 @@ async function extractPdfTextClient(data, pdfName) {
     }
     const fullText = textParts.join('\n');
     if (fullText.trim().length > 20) {
-      return `=== PDF: ${pdfName} ===\n${fullText}`;
+      return `=== PDF: ${pdfName} (${pdf.numPages} pagina's) ===\n${fullText}`;
     }
     return '';
   } catch (err) {
@@ -2048,6 +2066,7 @@ let documents = [];
 let derdeCounter = 0;
 let selectedModel = CONFIG.defaultModel;
 let lastApiResponse = null;
+let pdfDataStore = {}; // Store PDF ArrayBuffers keyed by filename for photo extraction
 
 function emptyLocatie() {
   return { Straat: '', Huisnummer: '', Postcode: '', Woonplaats: '', Land: 'BE' };
@@ -2327,8 +2346,41 @@ function populateFromApiResponse(result) {
 
   if (data.Samenvatting) state.Samenvatting = data.Samenvatting;
 
-  // Mark documents as parsed
-  documents.forEach(d => { if (d.status === 'uploaded') d.status = 'parsed'; });
+  // Handle Documenten (sub-document structure from LLM)
+  if (Array.isArray(data.Documenten) && data.Documenten.length > 0) {
+    // Replace generic document entries with named sub-documents
+    const existingUploads = documents.filter(d => d.status === 'uploaded' && !d.fromLLM);
+    documents = [];
+    data.Documenten.forEach((doc, idx) => {
+      const ext = doc.type === "foto's" ? 'jpg' : 'pdf';
+      documents.push({
+        name: doc.titel || `document_${idx + 1}`,
+        type: ext,
+        size: null,
+        source: doc.bron || 'PDF',
+        status: 'parsed',
+        pages: doc.paginas || '',
+        description: doc.beschrijving || '',
+        docType: doc.type || '',
+        amount: doc.bedrag || null,
+        fromLLM: true
+      });
+    });
+    // Add any uploaded files not covered by LLM analysis
+    existingUploads.forEach(u => {
+      if (!documents.some(d => d.source === u.name)) {
+        documents.push({ ...u, status: 'parsed' });
+      }
+    });
+  } else {
+    // No document structure from LLM — mark existing as parsed
+    documents.forEach(d => { if (d.status === 'uploaded') d.status = 'parsed'; });
+  }
+
+  // Handle FotoPages — extract photos from PDF pages
+  if (Array.isArray(data.FotoPages) && data.FotoPages.length > 0) {
+    extractPhotosFromPdfPages(data.FotoPages);
+  }
 
   typewriterAnimate();
 }
@@ -2862,12 +2914,16 @@ async function typewriterAnimate() {
     if (docCountEl) docCountEl.textContent = `${documents.length} document${documents.length !== 1 ? 'en' : ''}`;
     for (const [idx, doc] of documents.entries()) {
       if (typewriterAbort) break;
-      const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
       const statusClass = doc.status || 'uploaded';
       const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
+      const badgeType = doc.docType || doc.type || '';
+      const badgeLabel = doc.docType ? doc.docType.charAt(0).toUpperCase() + doc.docType.slice(1) : doc.type.toUpperCase();
+      const badgeClass = badgeType.toLowerCase().replace(/['\s]/g, '');
+      const pages = doc.pages || '';
+      const desc = doc.description || '';
       const tr = document.createElement('tr');
       tr.className = 'nota-row-appear';
-      tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(doc.name)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
       tbody.appendChild(tr);
       await sleep(200);
     }
@@ -2932,6 +2988,69 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ========== PHOTO EXTRACTION FROM PDF PAGES ==========
+async function extractPhotosFromPdfPages(pageNumbers) {
+  if (!pageNumbers || pageNumbers.length === 0) return;
+  if (Object.keys(pdfDataStore).length === 0) {
+    console.warn('[Photos] No PDF data stored — cannot extract photos');
+    return;
+  }
+
+  console.log(`[Photos] Extracting ${pageNumbers.length} photo pages: ${pageNumbers.join(', ')}`);
+
+  // Try each stored PDF to find the pages
+  for (const [pdfName, pdfData] of Object.entries(pdfDataStore)) {
+    try {
+      const pdf = await pdfjsLib.getDocument({ data: pdfData.slice() }).promise;
+      const totalPages = pdf.numPages;
+
+      for (const pageNum of pageNumbers) {
+        if (pageNum < 1 || pageNum > totalPages) {
+          console.warn(`[Photos] Page ${pageNum} out of range for ${pdfName} (${totalPages} pages)`);
+          continue;
+        }
+
+        try {
+          const page = await pdf.getPage(pageNum);
+          const scale = 2; // Higher resolution for photos
+          const viewport = page.getViewport({ scale });
+
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          const photoName = `${state.DossierCode || 'dossier'}_foto_pagina_${pageNum}.jpg`;
+
+          mediaFiles.push({
+            name: photoName,
+            size: Math.round(dataUrl.length * 0.75), // approx decoded size
+            type: 'image/jpeg',
+            dataUrl: dataUrl,
+            fromPdf: pdfName,
+            pageNum: pageNum
+          });
+
+          console.log(`[Photos] Rendered page ${pageNum} from ${pdfName} → ${photoName}`);
+        } catch (pageErr) {
+          console.error(`[Photos] Error rendering page ${pageNum}:`, pageErr.message);
+        }
+      }
+
+      // Once we've found pages in the first PDF with enough pages, stop
+      if (totalPages >= Math.max(...pageNumbers)) break;
+    } catch (err) {
+      console.error(`[Photos] Error opening PDF ${pdfName}:`, err.message);
+    }
+  }
+
+  console.log(`[Photos] Total media files after extraction: ${mediaFiles.length}`);
+  renderMediaGrid();
+}
+
 // ========== DOCUMENTEN TAB ==========
 let mediaFiles = [];
 
@@ -2944,11 +3063,15 @@ function renderDocTable() {
   noDocsMsg.style.display = 'none';
   if (docCount) docCount.textContent = `${documents.length} document${documents.length !== 1 ? 'en' : ''}`;
   documents.forEach((doc, idx) => {
-    const sizeStr = doc.size < 1024 ? doc.size + ' B' : doc.size < 1048576 ? (doc.size / 1024).toFixed(1) + ' KB' : (doc.size / 1048576).toFixed(1) + ' MB';
     const statusClass = doc.status || 'uploaded';
     const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
+    const badgeType = doc.docType || doc.type || '';
+    const badgeLabel = doc.docType ? doc.docType.charAt(0).toUpperCase() + doc.docType.slice(1) : doc.type.toUpperCase();
+    const badgeClass = badgeType.toLowerCase().replace(/['\s]/g, '');
+    const pages = doc.pages || '';
+    const desc = doc.description || '';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${idx + 1}</td><td>${esc(doc.name)}</td><td><span class="doc-type-badge ${doc.type}">${doc.type.toUpperCase()}</span></td><td>${sizeStr}</td><td>${esc(doc.source)}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+    tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(doc.name)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
     tbody.appendChild(tr);
   });
 }
@@ -3116,7 +3239,7 @@ function setApiUrl(url) {
   showToast('API URL opgeslagen', 'success');
 }
 
-console.log('%c Charlie Dossier Intake v2.1', 'color:#1C054F;font-size:16px;font-weight:bold');
+console.log('%c Charlie Dossier Intake v2.2', 'color:#1C054F;font-size:16px;font-weight:bold');
 console.log('%c Real-time SSE streaming enabled', 'color:#3899DD;font-size:12px');
 console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 
