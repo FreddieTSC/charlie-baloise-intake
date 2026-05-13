@@ -2886,7 +2886,12 @@ function switchToTab(tabIdx) {
   const tab = document.querySelector(`.buildex-tab[data-tab="${tabIdx}"]`);
   tab.classList.add('active');
   document.querySelector('.tab-content.active').classList.remove('active');
-  document.getElementById('tab' + tabIdx).classList.add('active');
+  const tabContent = document.getElementById('tab' + tabIdx);
+  tabContent.classList.add('active');
+  // Scroll tab content and page back to top
+  tabContent.scrollTop = 0;
+  document.querySelector('.right-panel')?.scrollTo(0, 0);
+  document.querySelector('.buildex-wrapper')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
 async function typewriterAnimate() {
@@ -2963,6 +2968,9 @@ async function typewriterAnimate() {
   await setFieldFast('fLeftSchadeGeval', schadeDisp);
 
   if (typewriterAbort) { finishTypewriter(); return; }
+
+  // Scroll left panel back to top before switching to tabs
+  document.querySelector('.left-panel')?.scrollTo({ top: 0, behavior: 'smooth' });
 
   // ===== TAB 1: ALGEMEEN (Schadegegevens) =====
   await sleep(400);
