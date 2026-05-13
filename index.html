@@ -3187,56 +3187,112 @@ async function extractPhotosFromPdfPages(pageNumbers) {
 
   console.log(`[Photos] Extracting ${pageNumbers.length} photo pages: ${pageNumbers.join(', ')}`);
 
-  // Try each stored PDF to find the pages
+  // Step 1: Render all pages to JPEG
+  const renderedPages = [];
+
   for (const [pdfName, pdfData] of Object.entries(pdfDataStore)) {
     try {
       const pdf = await pdfjsLib.getDocument({ data: pdfData.slice() }).promise;
       const totalPages = pdf.numPages;
 
       for (const pageNum of pageNumbers) {
-        if (pageNum < 1 || pageNum > totalPages) {
-          console.warn(`[Photos] Page ${pageNum} out of range for ${pdfName} (${totalPages} pages)`);
-          continue;
-        }
-
+        if (pageNum < 1 || pageNum > totalPages) continue;
         try {
           const page = await pdf.getPage(pageNum);
-          const scale = 2; // Higher resolution for photos
+          const scale = 2;
           const viewport = page.getViewport({ scale });
-
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const ctx = canvas.getContext('2d');
-
           await page.render({ canvasContext: ctx, viewport }).promise;
-
           const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-          const photoName = `${state.DossierCode || 'dossier'}_foto_pagina_${pageNum}.jpg`;
-
-          mediaFiles.push({
-            name: photoName,
-            size: Math.round(dataUrl.length * 0.75), // approx decoded size
-            type: 'image/jpeg',
-            dataUrl: dataUrl,
-            fromPdf: pdfName,
-            pageNum: pageNum
-          });
-
-          console.log(`[Photos] Rendered page ${pageNum} from ${pdfName} → ${photoName}`);
+          renderedPages.push({ pageNum, dataUrl, pdfName });
+          console.log(`[Photos] Rendered page ${pageNum} from ${pdfName}`);
         } catch (pageErr) {
           console.error(`[Photos] Error rendering page ${pageNum}:`, pageErr.message);
         }
       }
-
-      // Once we've found pages in the first PDF with enough pages, stop
       if (totalPages >= Math.max(...pageNumbers)) break;
     } catch (err) {
       console.error(`[Photos] Error opening PDF ${pdfName}:`, err.message);
     }
   }
 
-  console.log(`[Photos] Total media files after extraction: ${mediaFiles.length}`);
+  if (renderedPages.length === 0) return;
+
+  // Step 2: Classify images via vision API (PHOTO vs DOCUMENT)
+  let classifications = renderedPages.map(p => ({ page: p.pageNum, category: 'PHOTO' })); // default all to PHOTO
+
+  try {
+    console.log(`[Photos] Classifying ${renderedPages.length} pages via vision API...`);
+    const endpoint = CONFIG.apiUrl ? `${CONFIG.apiUrl}/api/classify` : '/.netlify/functions/classify';
+    const classifyResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        images: renderedPages.map(p => ({ page: p.pageNum, dataUrl: p.dataUrl }))
+      })
+    });
+
+    if (classifyResponse.ok) {
+      const classResult = await classifyResponse.json();
+      if (classResult.classifications) {
+        classifications = classResult.classifications;
+        console.log(`[Photos] Classification results:`, classifications);
+      }
+    } else {
+      console.warn('[Photos] Classification API failed, defaulting all to PHOTO');
+    }
+  } catch (err) {
+    console.warn('[Photos] Classification error, defaulting all to PHOTO:', err.message);
+  }
+
+  // Step 3: Route based on classification
+  const classMap = {};
+  for (const c of classifications) classMap[c.page] = c.category;
+
+  let photoCount = 0;
+  let docCount = 0;
+
+  for (const rp of renderedPages) {
+    const category = classMap[rp.pageNum] || 'PHOTO';
+
+    if (category === 'DOCUMENT') {
+      // Add as a document (factuur/offerte scan) in the documents table
+      const docName = `${state.DossierCode || 'dossier'}_scan_pagina_${rp.pageNum}`;
+      documents.push({
+        name: docName,
+        type: 'pdf',
+        size: null,
+        source: rp.pdfName,
+        status: 'parsed',
+        pages: String(rp.pageNum),
+        description: 'Gescand document (factuur/offerte)',
+        docType: 'factuur',
+        amount: null,
+        fromLLM: true
+      });
+      docCount++;
+      console.log(`[Photos] Page ${rp.pageNum} → DOCUMENT (added to documents)`);
+    } else {
+      // Add as a photo in multimedia
+      const photoName = `${state.DossierCode || 'dossier'}_foto_pagina_${rp.pageNum}.jpg`;
+      mediaFiles.push({
+        name: photoName,
+        size: Math.round(rp.dataUrl.length * 0.75),
+        type: 'image/jpeg',
+        dataUrl: rp.dataUrl,
+        fromPdf: rp.pdfName,
+        pageNum: rp.pageNum
+      });
+      photoCount++;
+      console.log(`[Photos] Page ${rp.pageNum} → PHOTO (added to multimedia)`);
+    }
+  }
+
+  console.log(`[Photos] Classification complete: ${photoCount} photos, ${docCount} documents`);
+  if (docCount > 0) renderDocTable();
   renderMediaGrid();
 }
 
