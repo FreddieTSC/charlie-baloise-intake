@@ -747,6 +747,53 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Photo Lightbox */
+.photo-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 5, 79, 0.85);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+.photo-lightbox.open { display: flex; }
+.photo-lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+.photo-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+.photo-lightbox-close:hover { opacity: 1; }
+.photo-lightbox-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(0,0,0,0.5);
+  padding: 6px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 .media-upload-zone {
   border: 2px dashed var(--buildex-border);
   border-radius: 8px;
@@ -1777,6 +1824,13 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
   <div>Charlie Dossier Intake v2.4 &mdash; CED</div>
+</div>
+
+<!-- ===== PHOTO LIGHTBOX ===== -->
+<div class="photo-lightbox" id="photoLightbox" onclick="closePhotoLightbox()">
+  <button class="photo-lightbox-close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="photo-lightbox-caption" id="lightboxCaption"></div>
 </div>
 
 <!-- ===== PDF VIEWER MODAL ===== -->
@@ -3434,6 +3488,24 @@ function renderDocTable() {
 }
 
 // ========== MEDIA TAB ==========
+// ========== PHOTO LIGHTBOX ==========
+function openPhotoLightbox(src, name) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxCaption').textContent = name || '';
+  document.getElementById('photoLightbox').classList.add('open');
+}
+
+function closePhotoLightbox() {
+  document.getElementById('photoLightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('photoLightbox').classList.contains('open')) {
+    closePhotoLightbox();
+  }
+});
+
 function renderMediaGrid() {
   const grid = document.getElementById('mediaGrid');
   const noMedia = document.getElementById('noMedia');
@@ -3454,6 +3526,7 @@ function renderMediaGrid() {
     card.className = 'media-card';
     if (img.dataUrl) {
       card.innerHTML = `<img src="${img.dataUrl}" alt="${esc(img.name)}"><div class="media-card-info">${esc(img.name)}</div>`;
+      card.addEventListener('click', () => openPhotoLightbox(img.dataUrl, img.name));
     } else {
       card.innerHTML = `<div style="height:140px;background:#F0F0F0;display:flex;align-items:center;justify-content:center;color:#999;font-size:32px;">&#128247;</div><div class="media-card-info">${esc(img.name)}</div>`;
     }
