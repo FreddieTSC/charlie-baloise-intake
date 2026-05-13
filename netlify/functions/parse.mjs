@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 const SYSTEM_PROMPT = `Je bent een document-parser voor CED schadeverzekeringen. Je analyseert tekst uit verzekeringsdocumenten van elke maatschappij (Baloise, AXA, AG Insurance, Ethias, KBC, P&V, Fidea, Vivium, Allianz, enz.) en extraheert alle relevante velden voor het aanmaken van een dossier.
 
 Geef je antwoord UITSLUITEND als een geldig JSON object (geen markdown, geen uitleg) met dit schema:
@@ -99,8 +97,24 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
+// OpenRouter model ID mapping
+const MODEL_MAP = {
+  // GPT models
+  'gpt-4.1': 'openai/gpt-4.1',
+  'gpt-4.1-mini': 'openai/gpt-4.1-mini',
+  'gpt-4.1-nano': 'openai/gpt-4.1-nano',
+  'gpt-4o': 'openai/gpt-4o',
+  'gpt-4o-mini': 'openai/gpt-4o-mini',
+  // Claude models
+  'claude-sonnet-4-6': 'anthropic/claude-sonnet-4',
+  'claude-haiku-4-5': 'anthropic/claude-haiku-4-5-20251001',
+  'claude-opus-4': 'anthropic/claude-opus-4',
+  // Reasoning
+  'o3': 'openai/o3',
+  'o4-mini': 'openai/o4-mini',
+};
+
 export default async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
@@ -117,51 +131,88 @@ export default async (req) => {
       return Response.json({ error: 'Geen tekst ontvangen' }, { status: 400, headers: CORS_HEADERS });
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return Response.json({ error: 'ANTHROPIC_API_KEY niet geconfigureerd' }, { status: 500, headers: CORS_HEADERS });
+      return Response.json({ error: 'OPENROUTER_API_KEY niet geconfigureerd' }, { status: 500, headers: CORS_HEADERS });
     }
 
-    const anthropic = new Anthropic({ apiKey });
-    const selectedModel = model || 'claude-sonnet-4-6';
+    const selectedModel = model || 'gpt-4.1';
+    const openRouterModel = MODEL_MAP[selectedModel] || selectedModel;
     const startTime = Date.now();
 
-    console.log(`[Parse] Streaming ${text.length} chars to ${selectedModel}`);
+    console.log(`[Parse] Streaming ${text.length} chars to ${openRouterModel}`);
 
-    // Use STREAMING to prevent Netlify inactivity timeout
-    // Each chunk keeps the connection alive
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const response = await anthropic.messages.create({
-            model: selectedModel,
-            max_tokens: 8192,
-            stream: true,
-            system: SYSTEM_PROMPT,
-            messages: [{
-              role: 'user',
-              content: `Analyseer de volgende documenten en extraheer alle velden voor het DossierRequest. Geef ALLEEN een geldig JSON object terug.\n\n${text}`
-            }]
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': 'https://charlie-baloise-intake.netlify.app',
+              'X-Title': 'Charlie Dossier Intake'
+            },
+            body: JSON.stringify({
+              model: openRouterModel,
+              max_tokens: 8192,
+              stream: true,
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: `Analyseer de volgende documenten en extraheer alle velden voor het DossierRequest. Geef ALLEEN een geldig JSON object terug.\n\n${text}` }
+              ]
+            })
           });
+
+          if (!response.ok) {
+            const errText = await response.text();
+            console.error(`[Parse] OpenRouter error ${response.status}:`, errText);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'error',
+              error: `OpenRouter API fout (${response.status}): ${errText.substring(0, 300)}`
+            })}\n\n`));
+            controller.close();
+            return;
+          }
 
           let fullText = '';
           let inputTokens = 0;
           let outputTokens = 0;
-          let responseModel = selectedModel;
+          let responseModel = openRouterModel;
 
-          for await (const event of response) {
-            if (event.type === 'message_start' && event.message) {
-              responseModel = event.message.model || selectedModel;
-              inputTokens = event.message.usage?.input_tokens || 0;
-            }
-            if (event.type === 'content_block_delta' && event.delta?.text) {
-              fullText += event.delta.text;
-              // Send progress event to keep connection alive
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'progress', chars: fullText.length })}\n\n`));
-            }
-            if (event.type === 'message_delta' && event.usage) {
-              outputTokens = event.usage.output_tokens || 0;
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let sseBuffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split('\n');
+            sseBuffer = lines.pop(); // Keep incomplete line in buffer
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') continue;
+
+              try {
+                const chunk = JSON.parse(data);
+                if (chunk.model) responseModel = chunk.model;
+                if (chunk.usage) {
+                  inputTokens = chunk.usage.prompt_tokens || 0;
+                  outputTokens = chunk.usage.completion_tokens || 0;
+                }
+                const delta = chunk.choices?.[0]?.delta?.content;
+                if (delta) {
+                  fullText += delta;
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'progress', chars: fullText.length })}\n\n`));
+                }
+              } catch (e) {
+                // Skip unparseable chunks
+              }
             }
           }
 
@@ -175,7 +226,7 @@ export default async (req) => {
           } catch (parseErr) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               type: 'error',
-              error: 'Claude response was geen geldig JSON',
+              error: 'LLM response was geen geldig JSON',
               raw: fullText.substring(0, 500)
             })}\n\n`));
             controller.close();
@@ -195,7 +246,7 @@ export default async (req) => {
             }
           })}\n\n`));
 
-          console.log(`[Parse] Done: ${inputTokens} in / ${outputTokens} out, ${elapsed}ms`);
+          console.log(`[Parse] Done: ${inputTokens} in / ${outputTokens} out, ${elapsed}ms, model: ${responseModel}`);
 
         } catch (err) {
           console.error('Stream error:', err);

@@ -175,31 +175,40 @@ body {
 /* ========== MODEL SELECTOR ========== */
 .model-selector {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
-.model-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 10px;
+.model-selector label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.model-dropdown {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
   border: 2px solid #E2E8F0;
   border-radius: 6px;
+  background: var(--bg-white);
+  color: var(--text-dark);
   cursor: pointer;
   transition: all 0.15s;
-  background: var(--bg-white);
-  gap: 1px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  min-width: 160px;
 }
-.model-option:hover { border-color: #CBD5E0; background: #F8FAFC; }
-.model-option input { display: none; }
-.model-option.selected { border-color: var(--ced-blue); background: #EBF5FB; }
-.model-option.selected.haiku { border-color: var(--ced-green); background: #F0FFF0; }
-.model-option.selected.opus { border-color: var(--ced-purple); background: #F3E8FF; }
-.model-name { font-size: 10px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; }
-.model-cost { font-size: 8px; font-weight: 600; letter-spacing: 0.4px; }
-.model-cost.low { color: var(--ced-green); }
-.model-cost.medium { color: var(--ced-blue); }
-.model-cost.high { color: var(--ced-purple); }
+.model-dropdown:hover { border-color: var(--ced-blue); }
+.model-dropdown:focus { border-color: var(--ced-blue); outline: none; box-shadow: 0 0 0 3px rgba(56,153,221,0.15); }
+.model-dropdown optgroup { font-weight: 700; font-size: 11px; color: #333; }
+.model-dropdown option { font-weight: 500; padding: 4px 8px; }
 
 .btn-reset {
   font-family: 'Inter', sans-serif;
@@ -1021,21 +1030,25 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   </div>
 
   <div class="model-selector" id="modelSelector">
-    <label class="model-option haiku" data-model="claude-haiku-4-5-20251001">
-      <input type="radio" name="model" value="claude-haiku-4-5-20251001">
-      <span class="model-name">Haiku</span>
-      <span class="model-cost low">LOW COST</span>
-    </label>
-    <label class="model-option sonnet selected" data-model="claude-sonnet-4-6">
-      <input type="radio" name="model" value="claude-sonnet-4-6" checked>
-      <span class="model-name">Sonnet</span>
-      <span class="model-cost medium">MEDIUM COST</span>
-    </label>
-    <label class="model-option opus" data-model="claude-opus-4-7">
-      <input type="radio" name="model" value="claude-opus-4-7">
-      <span class="model-name">Opus</span>
-      <span class="model-cost high">HIGH COST</span>
-    </label>
+    <label for="modelDropdown">Model</label>
+    <select class="model-dropdown" id="modelDropdown">
+      <optgroup label="OpenAI GPT">
+        <option value="gpt-4.1" selected>GPT-4.1</option>
+        <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+        <option value="gpt-4.1-nano">GPT-4.1 Nano</option>
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o-mini">GPT-4o Mini</option>
+      </optgroup>
+      <optgroup label="OpenAI Reasoning">
+        <option value="o3">o3</option>
+        <option value="o4-mini">o4-mini</option>
+      </optgroup>
+      <optgroup label="Anthropic Claude">
+        <option value="claude-sonnet-4-6">Claude Sonnet 4</option>
+        <option value="claude-haiku-4-5">Claude Haiku 4.5</option>
+        <option value="claude-opus-4">Claude Opus 4</option>
+      </optgroup>
+    </select>
   </div>
 
   <button class="btn-reset" onclick="resetApp()" title="Nieuw dossier">&#x21bb; Reset</button>
@@ -1045,8 +1058,8 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-box">
     <div class="loading-spinner"></div>
-    <div class="loading-text" id="loadingText">Analyseren met Claude...</div>
-    <div class="loading-model" id="loadingModel">claude-sonnet-4-6</div>
+    <div class="loading-text" id="loadingText">Analyseren...</div>
+    <div class="loading-model" id="loadingModel">gpt-4.1</div>
     <div class="loading-progress"><div class="loading-progress-bar" id="loadingProgressBar"></div></div>
   </div>
 </div>
@@ -1781,7 +1794,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </div>
     <span id="statusFiles">0 bestanden verwerkt</span>
   </div>
-  <div>Charlie Dossier Intake v2.2 &mdash; CED</div>
+  <div>Charlie Dossier Intake v2.4 &mdash; CED</div>
 </div>
 
 <!-- ===== PDF VIEWER MODAL ===== -->
@@ -1811,7 +1824,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 // ========== CONFIGURATION ==========
 const CONFIG = {
   apiUrl: localStorage.getItem('charlie_api_url') || '',
-  defaultModel: 'claude-sonnet-4-6'
+  defaultModel: 'gpt-4.1'
 };
 
 async function fileToBase64(file) {
@@ -2173,13 +2186,9 @@ function emptyPartij(type) {
 }
 
 // ========== MODEL SELECTOR ==========
-document.querySelectorAll('.model-option').forEach(opt => {
-  opt.addEventListener('click', () => {
-    document.querySelector('.model-option.selected')?.classList.remove('selected');
-    opt.classList.add('selected');
-    opt.querySelector('input').checked = true;
-    selectedModel = opt.querySelector('input').value;
-  });
+const modelDropdown = document.getElementById('modelDropdown');
+modelDropdown.addEventListener('change', () => {
+  selectedModel = modelDropdown.value;
 });
 
 // ========== TABS ==========
@@ -2233,7 +2242,7 @@ async function handleFiles(files) {
 }
 
 async function processFilesViaAPI(files) {
-  const modelLabel = selectedModel.split('-').slice(-1)[0];
+  const modelLabel = document.getElementById('modelDropdown').selectedOptions[0]?.text || selectedModel;
   showLoading(true, `Documenten verwerken...`);
   setStatus('loading', `Bestanden lokaal verwerken...`);
 
@@ -2287,7 +2296,7 @@ async function processFilesViaAPI(files) {
     ? `${CONFIG.apiUrl}/api/parse`
     : '/.netlify/functions/parse';
 
-  setStatus('loading', `Analyseren met Claude ${modelLabel}... (${(fullText.length / 1024).toFixed(0)}KB tekst)`);
+  setStatus('loading', `Analyseren met ${modelLabel}... (${(fullText.length / 1024).toFixed(0)}KB tekst)`);
 
   const requestBody = {
     text: fullText,
@@ -2341,7 +2350,7 @@ async function processFilesViaAPI(files) {
             if (now - lastProgressUpdate > 200) { // Throttle UI updates to 5/sec
               const elapsed = ((now - startTime) / 1000).toFixed(0);
               setStatus('loading', `Claude genereert... ${data.chars.toLocaleString()} tekens (${elapsed}s)`);
-              document.getElementById('loadingText').textContent = `Claude ${modelLabel} analyseert — ${data.chars.toLocaleString()} tekens gegenereerd...`;
+              document.getElementById('loadingText').textContent = `${modelLabel} analyseert — ${data.chars.toLocaleString()} tekens gegenereerd...`;
               // Estimate progress: typical response is ~3000-8000 chars
               const estimatedTotal = 5000;
               const pct = Math.min(95, (data.chars / estimatedTotal) * 100);
@@ -2383,8 +2392,8 @@ async function processFilesViaAPI(files) {
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
     populateFromApiResponse(result);
     showApiInfo(result.meta, elapsed);
-    setStatus('loaded', `Verwerkt met ${selectedModel} in ${elapsed}s`);
-    showToast(`Dossier geanalyseerd met Claude ${modelLabel}`, 'success');
+    setStatus('loaded', `Verwerkt met ${modelLabel} in ${elapsed}s`);
+    showToast(`Dossier geanalyseerd met ${modelLabel}`, 'success');
 
   } catch (err) {
     console.error('API error:', err);
