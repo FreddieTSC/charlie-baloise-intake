@@ -2203,7 +2203,96 @@ fileInput.addEventListener('change', e => {
 });
 
 // ========== FILE HANDLING ==========
+function clearAllData() {
+  // Reset state to defaults
+  state.DossierCode = '';
+  state.DatumOntvangst = '';
+  state.DatumSchade = null;
+  state.DatumEersteContact = null;
+  state.DatumGepland = null;
+  state.DatumAfsluiting = null;
+  state.Schadelijder = { Info: emptyPartij('Schadelijder'), Partijen: [] };
+  state.LocatieSchade = emptyLocatie();
+  state.SchadeTypeH = '';
+  state.SchadeTypeS = '';
+  state.Schadebedrag = null;
+  state.Claim = null;
+  state.Vrijstelling = null;
+  state.KapitaalGebouw = null;
+  state.Verhaal = '';
+  state.BAVrijeTekst = '';
+  state.Expert = '';
+  state.Beheerder = '';
+  state.Kantoor = 'Premium Noord - ANTWERPEN';
+  state.Netwerk = 'Schade';
+  state.Tarificatie = 'Standaard';
+  state.RoerendOnroerend = '';
+  state.ExternPlatform = '';
+  state.ExpertiseMethode = '';
+  state.ExpertiseMethodeProcedure = '';
+  state.ExterneCommunicatie = '';
+  state.Derden = [];
+  state.Notas = [];
+  state.Samenvatting = '';
+  state.Identificatiefiche = '';
+  state.Verslag = '';
+  state.Foutcode = '';
+  state.JsonString = '';
+
+  // Reset collections
+  documents = [];
+  mediaFiles = [];
+  pdfDataStore = {};
+  derdeCounter = 0;
+  lastApiResponse = null;
+
+  // Clear all form fields
+  document.querySelectorAll('#buildexForm input, #buildexForm textarea, #buildexForm select').forEach(el => {
+    if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+    else el.value = '';
+  });
+
+  // Restore defaults
+  document.getElementById('fKantoor').value = 'Premium Noord - ANTWERPEN';
+  document.getElementById('fNetwerk').value = 'Schade';
+  document.getElementById('fTarificatie').value = 'Standaard';
+  document.getElementById('fSLLand').value = 'BE';
+  document.getElementById('fLocLand').value = 'BE';
+
+  // Clear header
+  document.getElementById('headerDossierCode').textContent = '—';
+  document.getElementById('headerDatumOntvangst').textContent = '—';
+  document.getElementById('headerSchadelijder').textContent = '—';
+  document.getElementById('headerLocatie').textContent = '—';
+  document.getElementById('metaMaatschappij').textContent = '—';
+
+  // Clear tables and grids
+  document.getElementById('docTableBody').innerHTML = '';
+  document.getElementById('notasTableBody').innerHTML = '';
+  document.getElementById('mediaGrid').innerHTML = '';
+  document.getElementById('summaryBox').textContent = '';
+  document.getElementById('noDocs').style.display = 'block';
+  document.getElementById('noMedia').style.display = 'block';
+  const dc = document.getElementById('docCount');
+  if (dc) dc.textContent = '0 documenten';
+  const mc = document.getElementById('mediaCount');
+  if (mc) mc.textContent = "0 foto's";
+  const nc = document.getElementById('notasCount');
+  if (nc) nc.textContent = '0 berichten';
+
+  // Reset partijen table
+  ['ptVerzekerde','ptVerzekerdeRef','ptVerzekerdeTel','ptVerzekerdeEmail','ptExpert','ptMakelaar','ptMakelaarRef','ptMaatschappij','ptMaatschappijRef','ptMaatschappijEmail'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '—';
+  });
+
+  console.log('[Reset] All data cleared for new document');
+}
+
 async function handleFiles(files) {
+  // Clear all existing data before processing new files
+  clearAllData();
+
   for (const file of files) {
     const ext = file.name.split('.').pop().toLowerCase();
     documents.push({ name: file.name, type: ext, size: file.size, source: 'Upload', status: 'uploaded' });
