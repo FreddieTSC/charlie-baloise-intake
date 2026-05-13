@@ -645,30 +645,10 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.pdf-viewer-nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-.pdf-viewer-nav button {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: background 0.15s;
-}
-.pdf-viewer-nav button:hover { background: rgba(255,255,255,0.25); }
-.pdf-viewer-nav button:disabled { opacity: 0.4; cursor: default; }
 .pdf-viewer-page-info {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  min-width: 80px;
-  text-align: center;
+  color: rgba(255,255,255,0.7);
 }
 .pdf-viewer-close {
   background: none;
@@ -1804,11 +1784,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   <div class="pdf-viewer-modal">
     <div class="pdf-viewer-header">
       <span class="pdf-viewer-title" id="pdfViewerTitle">Document</span>
-      <div class="pdf-viewer-nav">
-        <button id="pdfPrevBtn" onclick="pdfViewerNav(-1)">&larr; Vorige</button>
-        <span class="pdf-viewer-page-info" id="pdfPageInfo">1 / 1</span>
-        <button id="pdfNextBtn" onclick="pdfViewerNav(1)">Volgende &rarr;</button>
-      </div>
+      <span class="pdf-viewer-page-info" id="pdfPageInfo"></span>
       <button class="pdf-viewer-close" onclick="closePdfViewer()">&times;</button>
     </div>
     <div class="pdf-viewer-body" id="pdfViewerBody">
@@ -3235,49 +3211,26 @@ async function openPdfViewer(doc) {
     // If no page range specified, show all pages
     const pagesToShow = pageNums.length > 0 ? pageNums.filter(p => p >= 1 && p <= pdf.numPages) : Array.from({ length: pdf.numPages }, (_, i) => i + 1);
 
-    pdfViewerState.pdf = pdf;
-    pdfViewerState.pages = pagesToShow;
-    pdfViewerState.currentIdx = 0;
-
     body.innerHTML = '';
-    await renderPdfViewerPage();
+    document.getElementById('pdfPageInfo').textContent = `${pagesToShow.length} pagina${pagesToShow.length !== 1 ? "'s" : ""}`;
+
+    // Render ALL pages so user can scroll through them
+    for (const pageNum of pagesToShow) {
+      const page = await pdf.getPage(pageNum);
+      const scale = 2;
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      body.appendChild(canvas);
+    }
   } catch (err) {
     body.innerHTML = `<div style="color:#E53E3E;padding:40px;text-align:center;">Fout bij laden PDF: ${err.message}</div>`;
   }
-}
-
-async function renderPdfViewerPage() {
-  const { pdf, pages, currentIdx } = pdfViewerState;
-  if (!pdf || pages.length === 0) return;
-
-  const body = document.getElementById('pdfViewerBody');
-  body.innerHTML = '';
-
-  const pageNum = pages[currentIdx];
-  const page = await pdf.getPage(pageNum);
-  const scale = 2;
-  const viewport = page.getViewport({ scale });
-
-  const canvas = document.createElement('canvas');
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-
-  const ctx = canvas.getContext('2d');
-  await page.render({ canvasContext: ctx, viewport }).promise;
-
-  body.appendChild(canvas);
-
-  // Update nav
-  document.getElementById('pdfPageInfo').textContent = `${currentIdx + 1} / ${pages.length}  (p.${pageNum})`;
-  document.getElementById('pdfPrevBtn').disabled = currentIdx === 0;
-  document.getElementById('pdfNextBtn').disabled = currentIdx === pages.length - 1;
-}
-
-function pdfViewerNav(dir) {
-  const newIdx = pdfViewerState.currentIdx + dir;
-  if (newIdx < 0 || newIdx >= pdfViewerState.pages.length) return;
-  pdfViewerState.currentIdx = newIdx;
-  renderPdfViewerPage();
 }
 
 function closePdfViewer() {
