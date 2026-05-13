@@ -151,7 +151,7 @@ export default async (req) => {
             headers: {
               'Authorization': `Bearer ${apiKey}`,
               'Content-Type': 'application/json',
-              'HTTP-Referer': 'https://charlie-baloise-intake.netlify.app',
+              'HTTP-Referer': 'https://charlie-ced.netlify.app',
               'X-Title': 'Charlie Dossier Intake'
             },
             body: JSON.stringify({

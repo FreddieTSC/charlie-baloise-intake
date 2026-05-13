@@ -601,6 +601,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 }
 .doc-pages { font-size: 11px; color: #666; font-family: monospace; }
 .doc-desc { font-size: 11px; color: #555; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-amount { font-size: 11px; font-weight: 600; color: var(--ced-navy); font-family: 'Inter', monospace; white-space: nowrap; }
 .doc-table tbody tr.clickable { cursor: pointer; }
 .doc-table tbody tr.clickable td:nth-child(2) { color: var(--ced-blue); text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color 0.15s; }
 .doc-table tbody tr.clickable:hover td:nth-child(2) { text-decoration-color: var(--ced-blue); }
@@ -1688,6 +1689,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
               <th style="width:100px;">Type</th>
               <th style="width:60px;">Pag.</th>
               <th>Beschrijving</th>
+              <th style="width:90px;">Bedrag</th>
               <th>Bron</th>
               <th style="width:80px;">Status</th>
             </tr>
@@ -3036,7 +3038,8 @@ async function typewriterAnimate() {
         tr.classList.add('clickable');
         tr.addEventListener('click', () => openPdfViewer(doc));
       }
-      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+      const amountStr = doc.amount ? `€ ${Number(doc.amount).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
+      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td class="doc-amount">${amountStr}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
       tbody.appendChild(tr);
       await sleep(200);
     }
@@ -3318,7 +3321,8 @@ function renderDocTable() {
       tr.className = 'clickable';
       tr.addEventListener('click', () => openPdfViewer(doc));
     }
-    tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+    const amountStr = doc.amount ? `€ ${Number(doc.amount).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
+    tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td class="doc-amount">${amountStr}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
     tbody.appendChild(tr);
   });
 }
