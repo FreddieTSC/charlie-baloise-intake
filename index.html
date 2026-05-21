@@ -226,6 +226,115 @@ body {
 }
 .btn-reset:hover { background: #F0F0F0; border-color: var(--ced-blue); }
 
+/* ========== EDIT & PUSH BUTTONS ========== */
+.btn-action {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+.btn-action.visible { display: inline-flex; }
+.btn-edit {
+  background: var(--bg-white);
+  color: var(--ced-navy);
+  border: 1px solid var(--buildex-border);
+}
+.btn-edit:hover { background: #F0F0F0; border-color: var(--ced-blue); color: var(--ced-blue); }
+.btn-edit.active {
+  background: var(--ced-blue);
+  color: white;
+  border-color: var(--ced-blue);
+}
+.btn-edit.active:hover { background: var(--ced-blue-hover); }
+.btn-push {
+  background: var(--ced-green);
+  color: white;
+}
+.btn-push:hover { background: #78AA2E; }
+.btn-push:active { transform: scale(0.97); }
+.btn-push.pushing {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Edit mode styling */
+.edit-mode .form-input:not(select) {
+  background: #FFFFF0 !important;
+  border-color: var(--ced-blue) !important;
+  cursor: text !important;
+}
+.edit-mode textarea.form-input {
+  background: #FFFFF0 !important;
+  border-color: var(--ced-blue) !important;
+}
+.edit-mode .form-input.readonly {
+  background: #FFFFF0 !important;
+  cursor: text !important;
+}
+
+/* Push success overlay */
+.push-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(28, 5, 79, 0.5);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+.push-overlay.open { display: flex; }
+.push-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(28, 5, 79, 0.3);
+  max-width: 420px;
+  animation: pushModalIn 0.3s ease;
+}
+@keyframes pushModalIn {
+  from { transform: scale(0.9) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.push-modal-icon {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+.push-modal h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ced-navy);
+  margin-bottom: 8px;
+}
+.push-modal p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.push-modal .btn-close-push {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--ced-navy);
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.push-modal .btn-close-push:hover { background: var(--ced-purple); }
+
 /* ========== LOADING OVERLAY ========== */
 .loading-overlay {
   display: none;
@@ -1079,7 +1188,11 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     </select>
   </div>
 
-  <button class="btn-reset" onclick="resetApp()" title="Nieuw dossier">&#x21bb; Reset</button>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn-action btn-edit" id="btnEdit" onclick="toggleEditMode()" title="Formulier bewerken">✎ Bewerken</button>
+    <button class="btn-action btn-push" id="btnPush" onclick="pushToBuildex()" title="Dossier doorsturen naar BuildeX II">Push to BuildeX ▸</button>
+    <button class="btn-reset" onclick="resetApp()" title="Nieuw dossier">&#x21bb; Reset</button>
+  </div>
 </header>
 
 <!-- ===== LOADING OVERLAY ===== -->
@@ -1833,6 +1946,16 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   <div class="photo-lightbox-caption" id="lightboxCaption"></div>
 </div>
 
+<!-- ===== PUSH TO BUILDEX MODAL ===== -->
+<div class="push-overlay" id="pushOverlay" onclick="closePushModal(event)">
+  <div class="push-modal">
+    <div class="push-modal-icon">✅</div>
+    <h3>Dossier verstuurd naar BuildeX II</h3>
+    <p id="pushModalDetails">Dossier <strong id="pushModalDossier">—</strong> is succesvol doorgestuurd.<br>Alle gegevens en documenten zijn verwerkt.</p>
+    <button class="btn-close-push" onclick="closePushModal()">Sluiten</button>
+  </div>
+</div>
+
 <!-- ===== PDF VIEWER MODAL ===== -->
 <div class="pdf-viewer-overlay" id="pdfViewerOverlay">
   <div class="pdf-viewer-modal">
@@ -2339,6 +2462,9 @@ function clearAllData() {
     const el = document.getElementById(id);
     if (el) el.textContent = '—';
   });
+
+  // Hide edit/push buttons
+  hideActionButtons();
 
   console.log('[Reset] All data cleared for new document');
 }
@@ -3223,6 +3349,7 @@ function finishTypewriter() {
   wrapper.classList.remove('typewriter-active');
   syncFormFromState();
   generateSummary();
+  showActionButtons();
 }
 
 document.addEventListener('keydown', e => {
@@ -3660,6 +3787,90 @@ function resetApp() {
   if (!confirm('Alle gegevens wissen en opnieuw beginnen?')) return;
   location.reload();
 }
+
+// ========== EDIT & PUSH TO BUILDEX ==========
+let editMode = false;
+
+function showActionButtons() {
+  document.getElementById('btnEdit').classList.add('visible');
+  document.getElementById('btnPush').classList.add('visible');
+}
+
+function hideActionButtons() {
+  document.getElementById('btnEdit').classList.remove('visible');
+  document.getElementById('btnPush').classList.remove('visible');
+  if (editMode) toggleEditMode();
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  const form = document.getElementById('buildexForm');
+  const btn = document.getElementById('btnEdit');
+
+  if (editMode) {
+    form.classList.add('edit-mode');
+    btn.classList.add('active');
+    btn.innerHTML = '✎ Bewerken (aan)';
+    // Remove readonly from all inputs so user can edit
+    form.querySelectorAll('input.form-input[readonly]').forEach(el => {
+      el.dataset.wasReadonly = 'true';
+      el.removeAttribute('readonly');
+    });
+    showToast('Bewerkingsmodus ingeschakeld — alle velden zijn nu bewerkbaar', 'success');
+  } else {
+    form.classList.remove('edit-mode');
+    btn.classList.remove('active');
+    btn.innerHTML = '✎ Bewerken';
+    // Restore readonly on fields that had it
+    form.querySelectorAll('input.form-input[data-was-readonly]').forEach(el => {
+      el.setAttribute('readonly', '');
+      delete el.dataset.wasReadonly;
+    });
+    // Sync edited values back to state
+    syncStateFromForm();
+    syncFormFromState();
+    showToast('Wijzigingen opgeslagen', 'success');
+  }
+}
+
+function pushToBuildex() {
+  // If in edit mode, save first
+  if (editMode) {
+    toggleEditMode();
+  }
+
+  // Sync form → state one more time
+  syncStateFromForm();
+
+  const btn = document.getElementById('btnPush');
+  btn.classList.add('pushing');
+  btn.innerHTML = '⏳ Versturen...';
+
+  // Simulate push with brief delay
+  setTimeout(() => {
+    btn.classList.remove('pushing');
+    btn.innerHTML = 'Push to BuildeX ▸';
+
+    // Show success modal
+    document.getElementById('pushModalDossier').textContent = state.DossierCode || '(geen code)';
+    document.getElementById('pushOverlay').classList.add('open');
+
+    console.log('[Push] Dossier pushed to BuildeX:', JSON.stringify(state, null, 2));
+    showToast('Dossier succesvol verstuurd naar BuildeX II', 'success');
+  }, 1200);
+}
+
+function closePushModal(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('btn-close-push')) return;
+  document.getElementById('pushOverlay').classList.remove('open');
+}
+
+// Close push modal on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('pushOverlay').classList.contains('open')) {
+    closePushModal();
+  }
+});
 
 // ========== CONFIG HELPERS (call from console) ==========
 function setApiUrl(url) {
