@@ -1,27 +1,35 @@
-const CLASSIFY_PROMPT = `You are an image classifier. Classify each image into exactly one category.
+const CLASSIFY_PROMPT = `You are an image classifier for an insurance claims (schade-expertise) application. Classify each image into exactly one category.
 
 ## Categories
 
-**DOCUMENT** — Only if the image is a photo/scan of a structured business document:
-- Invoice (factuur)
-- Quote/Estimate (offerte/bestek)
+**DOCUMENT** — Any page that is primarily text, forms, tables, or structured information:
+- Invoices (factuur), quotes/estimates (offerte/bestek)
+- Expert reports, intervention reports (verslag, interventie)
+- Technical reports, inspection forms, checklists
+- Letters, correspondence, official forms
+- Insurance documents, policy pages, claim forms
+- Any page with structured text layout: headers, paragraphs, tables, form fields
+- Scanned or printed pages that contain mostly text and/or tables
 
-These have clear characteristics: company letterhead, line items with prices, totals, VAT numbers, document numbers, payment terms, structured tables with amounts.
+Key indicators: company letterhead, structured text paragraphs, form fields, checkboxes, tables, section headers, page numbers, typed or printed text as the dominant content.
 
-**PHOTO** — Everything else, including:
-- Photos of damage, objects, rooms, buildings, people, scenes
-- Photos that happen to contain some text (street signs, labels, handwritten notes, annotations, watermarks, overlaid text)
-- Screenshots of apps, chats, or websites
-- Photos with captions, timestamps, or metadata overlays
+**PHOTO** — Actual photographs of the physical world:
+- Photos of damage (water damage, cracks, mold, broken items)
+- Photos of rooms, buildings, exteriors, interiors
+- Photos of objects, materials, equipment
+- Photos of people or scenes
+- Close-up photos showing physical conditions
+
+Key indicators: perspective/depth, real-world objects, textures, lighting/shadows, camera angle visible. The image captures a physical scene, not a printed/digital page.
 
 ## Critical rule
 
-The presence of text does NOT make something a document. A photo of a damaged wall with a handwritten note "kitchen ceiling" is a PHOTO. A photo of a car with a license plate is a PHOTO. Only structured financial/commercial documents (invoices, quotes) qualify as DOCUMENT.
+Ask yourself: "Is this a photo taken WITH a camera of a real-world scene, or is it a PAGE (printed, scanned, or digital) containing text and structured information?"
 
-## Ask yourself
-
-1. If I printed this on paper, would it look like a business document you'd file in accounting? → DOCUMENT
-2. Is it a photograph of the real world that happens to contain some text? → PHOTO
+- Page with text, tables, forms, checkboxes → DOCUMENT
+- Photo of a room, wall, ceiling, pipe, damage → PHOTO
+- A photo of a damaged wall with some handwritten notes → PHOTO (it's a real-world scene)
+- A scanned form with checkboxes and typed text → DOCUMENT (it's a page)
 
 You will receive multiple images. For EACH image, respond with its classification.
 Respond ONLY with a valid JSON array of objects: [{"page": 1, "category": "PHOTO"}, {"page": 2, "category": "DOCUMENT"}]

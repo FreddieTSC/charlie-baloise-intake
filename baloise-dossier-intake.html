@@ -740,20 +740,15 @@ textarea.form-input { resize: vertical; min-height: 60px; }
           <div class="section-body">
             <div class="form-row">
               <span class="form-label">Hoofdcategorie</span>
-              <select class="form-input" id="fSchadeTypeH">
+              <select class="form-input" id="fSchadeTypeH" onchange="updateSchadeTypeSOptions()">
                 <option value="">—</option>
-                <option value="Brand">Brand</option>
-                <option value="BA Bedrijven">BA Bedrijven</option>
-                <option value="BA Bouw">BA Bouw</option>
-                <option value="Woning">Woning</option>
-                <option value="Auto">Auto</option>
-                <option value="Alle Risico's">Alle Risico's</option>
-                <option value="Technische Verzekering">Technische Verzekering</option>
               </select>
             </div>
             <div class="form-row">
               <span class="form-label">Subcategorie</span>
-              <input type="text" class="form-input" id="fSchadeTypeS" placeholder="bv. Waterschade, Stormschade...">
+              <select class="form-input" id="fSchadeTypeS">
+                <option value="">— kies eerst hoofdcategorie</option>
+              </select>
             </div>
             <div class="form-row">
               <span class="form-label">Roerend/Onroerend</span>
@@ -779,9 +774,9 @@ textarea.form-input { resize: vertical; min-height: 60px; }
                 <option value="Minnelijk">Minnelijk</option>
               </select>
             </div>
-            <div class="form-row">
-              <span class="form-label">Procedure</span>
-              <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+            <div class="form-row" style="align-items:flex-start;">
+              <span class="form-label" style="padding-top:6px;">Procedure</span>
+              <textarea class="form-input" id="fExpertiseMethodeProcedure" rows="3" style="resize:vertical;"></textarea>
             </div>
             <div class="form-row">
               <span class="form-label">Tarificatie</span>
@@ -867,6 +862,119 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ========== SCHADETYPES DATA ==========
+const SCHADETYPES = [
+  { h: 'D', hLabel: 'Diverse', subs: [
+    { s: 'AS', label: 'Bijstand' }, { s: 'AT', label: 'Arbeidsongeval' }, { s: 'BL', label: 'Kwetsuren' },
+    { s: 'BM', label: 'Machinebreuk' }, { s: 'CC', label: 'Calculatiecontrole' },
+    { s: 'CI', label: 'Onderzoek omstandigheden' }, { s: 'LS', label: 'Plaatsonderzoek' },
+    { s: 'ME', label: 'Montage-proeven' }, { s: 'OP', label: 'Productaansprakelijkheid' },
+    { s: 'PE', label: 'Winstderving' }, { s: 'PS', label: 'Hypothecaire schatting summier' },
+    { s: 'SF', label: 'Toezicht-observatie-filature' }, { s: 'SO', label: 'Onderzoek solvabiliteit' },
+    { s: 'TC', label: "Alle bouwplaatsrisico's" }, { s: 'TD', label: "Alle risico's diverse" },
+    { s: 'TE', label: "Alle risico's elektron/inform." }, { s: 'TI', label: 'Derde schatting' },
+    { s: 'TR', label: 'Vervoer' }, { s: 'VO', label: 'Onderzoek diefstal' },
+    { s: 'WA', label: 'Woningaanpassing' }, { s: 'ZZ', label: 'Allerlei' }
+  ]},
+  { h: 'I', hLabel: 'Brand', subs: [
+    { s: 'AS', label: 'Bijstand brandpolis' }, { s: 'BV', label: 'Glasbreuk' },
+    { s: 'DE', label: 'Waterschade' }, { s: 'DI', label: 'Onroerende inbraakschade' },
+    { s: 'DP', label: 'Pollutie - milieuvervuiling' }, { s: 'EP', label: 'Overlopen/opstuwen openbare riolen' },
+    { s: 'EX', label: 'Ontploffing' }, { s: 'FO', label: 'Bliksem' },
+    { s: 'FU', label: 'Rook- en roetschade' }, { s: 'GR', label: 'Hagel' },
+    { s: 'GT', label: 'Aardverschuiving / grondverzakking' }, { s: 'HO', label: 'Aanstoten verzekerde goederen' },
+    { s: 'HS', label: 'Brand getroffen door wild zwijn' }, { s: 'HV', label: 'Aanrijding door voertuig' },
+    { s: 'IN', label: 'Overstroming' }, { s: 'NC', label: 'Brandschade' },
+    { s: 'NE', label: 'Sneeuwdruk' }, { s: 'RE', label: 'Elektrisch risico' },
+    { s: 'TE', label: 'Storm' }, { s: 'TT', label: 'Aardbeving' },
+    { s: 'VA', label: 'Vandalisme' }, { s: 'VO', label: 'Diefstal' },
+    { s: 'VS', label: 'Diefstal speciale voorwerpen en juwelen' }, { s: 'ZZ', label: 'Brandpolis divers' }
+  ]},
+  { h: 'P', hLabel: 'Rechtsbijstand', subs: [
+    { s: 'LS', label: 'Rechtsbijstand - plaatsbeschrijving gebouw' }, { s: 'PJ', label: 'Rechtsbijstand' }
+  ]},
+  { h: 'R', hLabel: 'BA', subs: [
+    { s: 'AS', label: 'BA bijstand' }, { s: 'CA', label: 'BA auto' },
+    { s: 'CE', label: 'BA uitbating' }, { s: 'CF', label: 'BA privaat leven' },
+    { s: 'CG', label: 'BA landbouw' }, { s: 'CI', label: 'BA gebouw' },
+    { s: 'CL', label: 'BA na levering' }, { s: 'CP', label: 'BA professioneel' },
+    { s: 'CR', label: 'BA recall' }, { s: 'CTC', label: 'BA constructiewerken' },
+    { s: 'PR', label: 'BA product' }, { s: 'RE', label: 'BA electriciteit' },
+    { s: 'ZZ', label: 'BA divers' }
+  ]},
+  { h: 'V', hLabel: 'Inspecties', subs: [
+    { s: 'AD', label: 'AXA - desk herbouwwaarde' }, { s: 'AH', label: 'AXA - herbouwwaarde building' },
+    { s: 'AP', label: 'AXA - publieke sector' }, { s: 'AS', label: 'Asbest' },
+    { s: 'BA', label: 'Evaluatie boot' }, { s: 'BD', label: 'Brand-diefstal' },
+    { s: 'BE', label: 'Ethias risico inspectie' }, { s: 'BF', label: 'Brand-diefstal-nieuwb' },
+    { s: 'BG', label: 'Brand-diefstal-nieuwbouw-inhoud' },
+    { s: 'BJ', label: 'Brand+dief+kap kasteel of > 5 gebouwen' },
+    { s: 'BK', label: 'Brand - kap gebouw kasteel of > 5 gebouwen' },
+    { s: 'BL', label: 'AXA - inspectie landbouw' }, { s: 'BN', label: 'Brand-nieuwbouw' },
+    { s: 'BNL', label: 'AXA - brand - nieuwbouw - landbouw' }, { s: 'BR', label: 'Brand (inspectie)' },
+    { s: 'BU', label: 'AXA - building - waardebepaling+brand' },
+    { s: 'DF', label: 'Diefstal (inspectie)' }, { s: 'DN', label: 'Diefstal-nieuwbouw' },
+    { s: 'NB', label: 'Nieuwbouw' }, { s: 'NBL', label: 'AXA - nieuwbouw - landbouw' },
+    { s: 'ND', label: 'NN Insurance - diefstal' }, { s: 'NG', label: 'NN Insurance - kapitaal + diefstal' },
+    { s: 'NK', label: 'NN Insurance - kapitaal' }, { s: 'PH', label: 'Hypotheek' },
+    { s: 'PL', label: 'Plaatsbeschrijving gebouw' }, { s: 'RU', label: 'BDM - inspectie rusthuis' }
+  ]}
+];
+
+function initSchadeTypeDropdowns() {
+  const selH = document.getElementById('fSchadeTypeH');
+  if (!selH) return;
+  SCHADETYPES.forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h.h;
+    opt.textContent = h.h + ' — ' + h.hLabel;
+    selH.appendChild(opt);
+  });
+}
+
+function updateSchadeTypeSOptions(keepValue) {
+  const selH = document.getElementById('fSchadeTypeH');
+  const selS = document.getElementById('fSchadeTypeS');
+  if (!selH || !selS) return;
+  const hCode = selH.value;
+  const prevVal = keepValue || '';
+  selS.innerHTML = '';
+  if (!hCode) { selS.innerHTML = '<option value="">— kies eerst hoofdcategorie</option>'; return; }
+  const group = SCHADETYPES.find(g => g.h === hCode);
+  if (!group) return;
+  selS.innerHTML = '<option value="">—</option>';
+  group.subs.forEach(sub => {
+    const opt = document.createElement('option');
+    opt.value = sub.label;
+    opt.textContent = sub.s + ' — ' + sub.label;
+    selS.appendChild(opt);
+  });
+  if (prevVal) {
+    for (const opt of selS.options) {
+      if (opt.value.toLowerCase() === prevVal.toLowerCase() ||
+          opt.value.toLowerCase().includes(prevVal.toLowerCase()) ||
+          prevVal.toLowerCase().includes(opt.value.toLowerCase())) {
+        selS.value = opt.value; return;
+      }
+    }
+  }
+}
+
+function mapSchadeTypeHToCode(val) {
+  if (!val) return '';
+  const v = val.toLowerCase();
+  for (const g of SCHADETYPES) {
+    if (g.h.toLowerCase() === v || g.hLabel.toLowerCase() === v) return g.h;
+  }
+  if (v === 'brand') return 'I';
+  if (v.startsWith('ba')) return 'R';
+  if (v === 'woning' || v === 'auto') return 'I';
+  if (v.includes('risico') || v.includes('technische')) return 'D';
+  return val;
+}
+
+initSchadeTypeDropdowns();
 
 const state = {
   DossierCode: '',
@@ -1379,9 +1487,12 @@ function parseEmailBody(text) {
   if (/ba\s*bouw/i.test(text)) state.SchadeTypeH = 'BA Bouw';
 
   // Schadetype keywords
-  if (/waterschade/i.test(text) && !state.SchadeTypeS) state.SchadeTypeS = 'Waterschade';
-  if (/brandschade|brand(?!\s*\w)/i.test(text) && !state.SchadeTypeS) state.SchadeTypeS = 'Brandschade';
-  if (/stormschade/i.test(text) && !state.SchadeTypeS) state.SchadeTypeS = 'Stormschade';
+  if (/waterschade/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Waterschade'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
+  if (/brandschade|brand(?!\s*\w)/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Brandschade'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
+  if (/stormschade|storm/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Storm'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
+  if (/glasbreuk/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Glasbreuk'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
+  if (/diefstal|inbraak/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Diefstal'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
+  if (/overstroming/i.test(text) && !state.SchadeTypeS) { state.SchadeTypeS = 'Overstroming'; if (!state.SchadeTypeH) state.SchadeTypeH = 'Brand'; }
 
   // Baloise referentie
   const refMatch = text.match(/(?:ons\s+dossier|ref(?:erentie)?)[:\s]*(B\d{2}[A-Z]?\d+|BREX\s*\d+)/i);
@@ -1584,8 +1695,12 @@ function syncFormFromState() {
   document.getElementById('fLocPostcode').value = state.LocatieSchade.Postcode;
   document.getElementById('fLocWoonplaats').value = state.LocatieSchade.Woonplaats;
   document.getElementById('fLocLand').value = state.LocatieSchade.Land || 'BE';
-  document.getElementById('fSchadeTypeH').value = state.SchadeTypeH;
-  document.getElementById('fSchadeTypeS').value = state.SchadeTypeS;
+  const hCode = mapSchadeTypeHToCode(state.SchadeTypeH);
+  document.getElementById('fSchadeTypeH').value = hCode;
+  updateSchadeTypeSOptions(state.SchadeTypeS);
+  if (state.SchadeTypeS && document.getElementById('fSchadeTypeS').value === '') {
+    document.getElementById('fSchadeTypeS').value = state.SchadeTypeS;
+  }
   document.getElementById('fSchadebedrag').value = state.Schadebedrag ?? '';
   document.getElementById('fClaim').value = state.Claim ?? '';
   document.getElementById('fVrijstelling').value = state.Vrijstelling ?? '';
@@ -1666,7 +1781,9 @@ function syncStateFromForm() {
   state.LocatieSchade.Postcode = document.getElementById('fLocPostcode').value;
   state.LocatieSchade.Woonplaats = document.getElementById('fLocWoonplaats').value;
   state.LocatieSchade.Land = document.getElementById('fLocLand').value || 'BE';
-  state.SchadeTypeH = document.getElementById('fSchadeTypeH').value;
+  const hVal = document.getElementById('fSchadeTypeH').value;
+  const hGroup = SCHADETYPES.find(g => g.h === hVal);
+  state.SchadeTypeH = hGroup ? hGroup.hLabel : hVal;
   state.SchadeTypeS = document.getElementById('fSchadeTypeS').value;
   state.Schadebedrag = parseFloat(document.getElementById('fSchadebedrag').value) || null;
   state.Claim = parseFloat(document.getElementById('fClaim').value) || null;
