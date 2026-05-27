@@ -279,6 +279,142 @@ body {
   background: #FFFFF0 !important;
   cursor: text !important;
 }
+/* Editable table cells in edit mode */
+.edit-mode .doc-table td[contenteditable="true"] {
+  background: #FFFFF0;
+  border: 1px dashed var(--ced-blue);
+  cursor: text;
+  outline: none;
+  padding: 8px 12px;
+  border-radius: 2px;
+  min-width: 60px;
+}
+.edit-mode .doc-table td[contenteditable="true"]:focus {
+  background: #FFFDE0;
+  border-color: var(--ced-navy);
+  box-shadow: 0 0 0 2px rgba(56,153,221,0.2);
+}
+/* Editable media card name */
+.edit-mode .media-card-info[contenteditable="true"] {
+  background: #FFFFF0;
+  border: 1px dashed var(--ced-blue);
+  cursor: text;
+  outline: none;
+  border-radius: 3px;
+  padding: 4px 6px;
+}
+.edit-mode .media-card-info[contenteditable="true"]:focus {
+  background: #FFFDE0;
+  border-color: var(--ced-navy);
+}
+/* Editable summary box */
+.edit-mode .summary-box[contenteditable="true"] {
+  border: 1px dashed var(--ced-blue) !important;
+  background: #FFFFF0 !important;
+  cursor: text;
+  outline: none;
+}
+.edit-mode .summary-box[contenteditable="true"]:focus {
+  border-color: var(--ced-navy) !important;
+  box-shadow: 0 0 0 2px rgba(56,153,221,0.2);
+}
+/* Edit indicator badge on changed cells */
+.edit-changed {
+  position: relative;
+}
+.edit-changed::after {
+  content: '✎';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 9px;
+  color: var(--ced-blue);
+  opacity: 0.7;
+}
+/* Changelog badge in push modal */
+.changelog-summary {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  font-size: 12px;
+  color: var(--text-body);
+  text-align: left;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.changelog-summary .cl-count {
+  font-weight: 700;
+  color: var(--ced-navy);
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+.changelog-summary .cl-item {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid #F0F0F0;
+  font-size: 11px;
+}
+.changelog-summary .cl-field { font-weight: 600; color: var(--ced-purple); min-width: 120px; }
+.changelog-summary .cl-old { color: #E53E3E; text-decoration: line-through; }
+.changelog-summary .cl-new { color: var(--ced-green); font-weight: 500; }
+
+/* Editable doc table inputs */
+.doc-edit-input {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px dashed var(--ced-blue);
+  border-radius: 3px;
+  background: #FFFFF0;
+  color: var(--text-body);
+  box-sizing: border-box;
+}
+.doc-edit-input:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--ced-blue);
+  background: white;
+}
+.doc-edit-type { max-width: 100px; }
+.doc-edit-pages { max-width: 70px; }
+.doc-edit-amount { max-width: 90px; text-align: right; }
+
+/* Editable media names */
+.media-edit-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px dashed var(--ced-blue);
+  border-radius: 3px;
+  background: #FFFFF0;
+  color: var(--text-body);
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+.media-edit-name:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--ced-blue);
+  background: white;
+}
+
+/* Editable summary */
+.edit-mode .summary-box {
+  border: 1px dashed var(--ced-blue) !important;
+  background: #FFFFF0 !important;
+  cursor: text;
+  outline: none;
+}
+.edit-mode .summary-box:focus {
+  border-style: solid !important;
+  background: white !important;
+}
 
 /* Push success overlay */
 .push-overlay {
@@ -1952,6 +2088,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
     <div class="push-modal-icon">✅</div>
     <h3>Dossier verstuurd naar BuildeX II</h3>
     <p id="pushModalDetails">Dossier <strong id="pushModalDossier">—</strong> is succesvol doorgestuurd.<br>Alle gegevens en documenten zijn verwerkt.</p>
+    <div class="changelog-summary" id="pushChangelog" style="display:none;"></div>
     <button class="btn-close-push" onclick="closePushModal()">Sluiten</button>
   </div>
 </div>
@@ -3790,6 +3927,100 @@ function resetApp() {
 
 // ========== EDIT & PUSH TO BUILDEX ==========
 let editMode = false;
+let preEditSnapshot = null;
+let changeLog = [];
+
+function captureSnapshot() {
+  return {
+    timestamp: new Date().toISOString(),
+    state: JSON.parse(JSON.stringify(state)),
+    documents: JSON.parse(JSON.stringify(documents)),
+    mediaFiles: mediaFiles.map(m => ({ name: m.name, size: m.size, type: m.type, fromPdf: m.fromPdf, pageNum: m.pageNum })),
+    samenvatting: document.getElementById('summaryBox').textContent
+  };
+}
+
+function detectChanges(before, after) {
+  const changes = [];
+
+  // Compare state fields (flat)
+  const flatFields = ['DossierCode','DatumOntvangst','DatumSchade','DatumEersteContact','SchadeTypeH','SchadeTypeS',
+    'Schadebedrag','Claim','Vrijstelling','KapitaalGebouw','Verhaal','BAVrijeTekst','ExpertiseMethode',
+    'ExpertiseMethodeProcedure','Tarificatie','RoerendOnroerend','Kantoor','Netwerk','Expert','Beheerder'];
+  for (const f of flatFields) {
+    const bv = String(before.state[f] ?? '');
+    const av = String(after.state[f] ?? '');
+    if (bv !== av) changes.push({ section: 'Dossier', field: f, original: bv, changed: av });
+  }
+
+  // Compare Schadelijder
+  const slFields = ['Naam','Voornaam','Polis','Taal','Telefoon','Email'];
+  for (const f of slFields) {
+    const bv = String(before.state.Schadelijder?.Info?.[f] ?? '');
+    const av = String(after.state.Schadelijder?.Info?.[f] ?? '');
+    if (bv !== av) changes.push({ section: 'Schadelijder', field: f, original: bv, changed: av });
+  }
+  const slLocFields = ['Straat','Huisnummer','Postcode','Woonplaats','Land'];
+  for (const f of slLocFields) {
+    const bv = String(before.state.Schadelijder?.Info?.Locatie?.[f] ?? '');
+    const av = String(after.state.Schadelijder?.Info?.Locatie?.[f] ?? '');
+    if (bv !== av) changes.push({ section: 'Schadelijder.Locatie', field: f, original: bv, changed: av });
+  }
+
+  // Compare LocatieSchade
+  for (const f of slLocFields) {
+    const bv = String(before.state.LocatieSchade?.[f] ?? '');
+    const av = String(after.state.LocatieSchade?.[f] ?? '');
+    if (bv !== av) changes.push({ section: 'LocatieSchade', field: f, original: bv, changed: av });
+  }
+
+  // Compare documents
+  const maxDocs = Math.max(before.documents.length, after.documents.length);
+  for (let i = 0; i < maxDocs; i++) {
+    const bd = before.documents[i];
+    const ad = after.documents[i];
+    if (!bd && ad) { changes.push({ section: 'Documenten', field: `doc[${i}]`, original: '(nieuw)', changed: ad.name }); continue; }
+    if (bd && !ad) { changes.push({ section: 'Documenten', field: `doc[${i}]`, original: bd.name, changed: '(verwijderd)' }); continue; }
+    if (bd && ad) {
+      for (const f of ['name','docType','description','pages','amount']) {
+        const bv = String(bd[f] ?? '');
+        const av = String(ad[f] ?? '');
+        if (bv !== av) changes.push({ section: 'Documenten', field: `doc[${i}].${f}`, original: bv, changed: av });
+      }
+    }
+  }
+
+  // Compare media files (names)
+  const maxMedia = Math.max(before.mediaFiles.length, after.mediaFiles.length);
+  for (let i = 0; i < maxMedia; i++) {
+    const bm = before.mediaFiles[i];
+    const am = after.mediaFiles[i];
+    if (bm && am && bm.name !== am.name) {
+      changes.push({ section: 'Media', field: `foto[${i}].name`, original: bm.name, changed: am.name });
+    }
+  }
+
+  // Compare samenvatting
+  if (before.samenvatting !== after.samenvatting) {
+    changes.push({ section: 'Samenvatting', field: 'tekst', original: before.samenvatting, changed: after.samenvatting });
+  }
+
+  // Compare Derden
+  const maxDerden = Math.max((before.state.Derden||[]).length, (after.state.Derden||[]).length);
+  for (let i = 0; i < maxDerden; i++) {
+    const bd = before.state.Derden?.[i];
+    const ad = after.state.Derden?.[i];
+    if (bd && ad) {
+      for (const f of ['Type','Naam','Voornaam','Referte','Email','Telefoon','Code','Correspondent']) {
+        const bv = String(bd.Info?.[f] ?? '');
+        const av = String(ad.Info?.[f] ?? '');
+        if (bv !== av) changes.push({ section: `Derden[${i}]`, field: f, original: bv, changed: av });
+      }
+    }
+  }
+
+  return changes;
+}
 
 function showActionButtons() {
   document.getElementById('btnEdit').classList.add('visible');
@@ -3800,6 +4031,8 @@ function hideActionButtons() {
   document.getElementById('btnEdit').classList.remove('visible');
   document.getElementById('btnPush').classList.remove('visible');
   if (editMode) toggleEditMode();
+  changeLog = [];
+  preEditSnapshot = null;
 }
 
 function toggleEditMode() {
@@ -3808,56 +4041,215 @@ function toggleEditMode() {
   const btn = document.getElementById('btnEdit');
 
   if (editMode) {
+    // Capture snapshot BEFORE any edits
+    preEditSnapshot = captureSnapshot();
+    changeLog = [];
+
     form.classList.add('edit-mode');
     btn.classList.add('active');
     btn.innerHTML = '✎ Bewerken (aan)';
-    // Remove readonly from all inputs so user can edit
+
+    // Remove readonly from all inputs
     form.querySelectorAll('input.form-input[readonly]').forEach(el => {
       el.dataset.wasReadonly = 'true';
       el.removeAttribute('readonly');
     });
-    showToast('Bewerkingsmodus ingeschakeld — alle velden zijn nu bewerkbaar', 'success');
+
+    // Make summary editable
+    const summaryBox = document.getElementById('summaryBox');
+    summaryBox.contentEditable = 'true';
+    summaryBox.dataset.editableActive = 'true';
+
+    // Re-render doc table and media grid in editable mode
+    renderDocTableEditable();
+    renderMediaGridEditable();
+
+    showToast('Bewerkingsmodus — alle velden, documenten en foto\'s zijn aanpasbaar', 'success');
   } else {
     form.classList.remove('edit-mode');
     btn.classList.remove('active');
     btn.innerHTML = '✎ Bewerken';
-    // Restore readonly on fields that had it
+
+    // Restore readonly
     form.querySelectorAll('input.form-input[data-was-readonly]').forEach(el => {
       el.setAttribute('readonly', '');
       delete el.dataset.wasReadonly;
     });
-    // Sync edited values back to state
+
+    // Save summary edits back to state
+    const summaryBox = document.getElementById('summaryBox');
+    summaryBox.contentEditable = 'false';
+    delete summaryBox.dataset.editableActive;
+    state.Samenvatting = summaryBox.textContent;
+
+    // Sync editable doc table back to documents array
+    syncDocTableToArray();
+    syncMediaGridToArray();
+
+    // Sync form fields back to state
     syncStateFromForm();
+
+    // Detect all changes
+    const afterSnapshot = captureSnapshot();
+    changeLog = detectChanges(preEditSnapshot, afterSnapshot);
+
+    if (changeLog.length > 0) {
+      showToast(`${changeLog.length} wijziging${changeLog.length !== 1 ? 'en' : ''} opgeslagen`, 'success');
+      console.log('[Edit] Changes detected:', changeLog);
+    } else {
+      showToast('Geen wijzigingen gedetecteerd', 'success');
+    }
+
+    // Re-render normal (non-editable) tables
     syncFormFromState();
-    showToast('Wijzigingen opgeslagen', 'success');
+    renderDocTable();
+    renderMediaGrid();
   }
 }
 
+function renderDocTableEditable() {
+  const tbody = document.getElementById('docTableBody');
+  tbody.innerHTML = '';
+  if (documents.length === 0) return;
+
+  documents.forEach((doc, idx) => {
+    const statusClass = doc.status || 'uploaded';
+    const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
+    const displayName = stripDossierPrefix(doc.name);
+    const amountVal = doc.amount ? Number(doc.amount).toFixed(2) : '';
+    const tr = document.createElement('tr');
+    tr.dataset.docIdx = idx;
+    tr.innerHTML = `<td>${idx + 1}</td><td><input type="text" class="doc-edit-input" data-field="name" value="${esc(displayName)}"></td><td><input type="text" class="doc-edit-input doc-edit-type" data-field="docType" value="${esc(doc.docType || doc.type || '')}"></td><td><input type="text" class="doc-edit-input doc-edit-pages" data-field="pages" value="${esc(doc.pages || '')}"></td><td><input type="text" class="doc-edit-input" data-field="description" value="${esc(doc.description || '')}"></td><td><input type="text" class="doc-edit-input doc-edit-amount" data-field="amount" value="${amountVal}" placeholder="0.00"></td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function syncDocTableToArray() {
+  const rows = document.querySelectorAll('#docTableBody tr[data-doc-idx]');
+  rows.forEach(tr => {
+    const idx = parseInt(tr.dataset.docIdx);
+    if (!documents[idx]) return;
+    tr.querySelectorAll('.doc-edit-input').forEach(input => {
+      const field = input.dataset.field;
+      let val = input.value.trim();
+      if (field === 'amount') {
+        documents[idx][field] = val ? parseFloat(val) : null;
+      } else if (field === 'name') {
+        const origName = documents[idx].name;
+        const prefixMatch = origName.match(/^(\d{2}-\d{5,7}_)/);
+        documents[idx].name = prefixMatch ? prefixMatch[1] + val : val;
+      } else {
+        documents[idx][field] = val || '';
+      }
+    });
+  });
+}
+
+function renderMediaGridEditable() {
+  const grid = document.getElementById('mediaGrid');
+  grid.innerHTML = '';
+  const images = mediaFiles.filter(f => /\.(jpg|jpeg|png|gif|heic|webp|bmp)$/i.test(f.name));
+  if (images.length === 0) return;
+
+  images.forEach((img, idx) => {
+    const card = document.createElement('div');
+    card.className = 'media-card';
+    card.dataset.mediaIdx = idx;
+    const imgEl = img.dataUrl
+      ? `<img src="${img.dataUrl}" alt="${esc(img.name)}">`
+      : `<div style="height:140px;background:#F0F0F0;display:flex;align-items:center;justify-content:center;color:#999;font-size:32px;">&#128247;</div>`;
+    card.innerHTML = `${imgEl}<input type="text" class="media-edit-name" value="${esc(img.name)}" data-media-idx="${idx}">`;
+    if (img.dataUrl) {
+      card.querySelector('img').addEventListener('click', () => openPhotoLightbox(img.dataUrl, img.name));
+    }
+    grid.appendChild(card);
+  });
+}
+
+function syncMediaGridToArray() {
+  document.querySelectorAll('.media-edit-name').forEach(input => {
+    const idx = parseInt(input.dataset.mediaIdx);
+    const images = mediaFiles.filter(f => /\.(jpg|jpeg|png|gif|heic|webp|bmp)$/i.test(f.name));
+    if (images[idx]) {
+      images[idx].name = input.value.trim() || images[idx].name;
+    }
+  });
+}
+
 function pushToBuildex() {
-  // If in edit mode, save first
   if (editMode) {
-    toggleEditMode();
+    toggleEditMode(); // This captures changeLog
+  } else if (preEditSnapshot) {
+    // Re-detect changes even if edit mode already closed
+    syncStateFromForm();
+    const afterSnapshot = captureSnapshot();
+    changeLog = detectChanges(preEditSnapshot, afterSnapshot);
   }
 
-  // Sync form → state one more time
   syncStateFromForm();
 
   const btn = document.getElementById('btnPush');
   btn.classList.add('pushing');
   btn.innerHTML = '⏳ Versturen...';
 
-  // Simulate push with brief delay
   setTimeout(() => {
     btn.classList.remove('pushing');
     btn.innerHTML = 'Push to BuildeX ▸';
 
-    // Show success modal
+    // Generate and download changelog if there are changes
+    if (changeLog.length > 0) {
+      downloadChangelog();
+    }
+
+    // Show success modal with change count
     document.getElementById('pushModalDossier').textContent = state.DossierCode || '(geen code)';
+    const detailEl = document.getElementById('pushModalDetails');
+    const clDiv = document.getElementById('pushChangelog');
+    if (changeLog.length > 0) {
+      detailEl.innerHTML = `Dossier <strong>${esc(state.DossierCode || '—')}</strong> is succesvol doorgestuurd.<br><span style="color:var(--ced-blue);font-weight:600;">${changeLog.length} handmatige correctie${changeLog.length !== 1 ? 's' : ''}</span> opgeslagen voor prompt-verbetering.`;
+      // Build visual changelog
+      let clHtml = `<span class="cl-count">${changeLog.length} correctie${changeLog.length !== 1 ? 's' : ''} door dossierbeheerder</span>`;
+      changeLog.slice(0, 20).forEach(c => {
+        const oldShort = (c.original || '').length > 40 ? c.original.slice(0, 40) + '…' : (c.original || '(leeg)');
+        const newShort = (c.changed || '').length > 40 ? c.changed.slice(0, 40) + '…' : (c.changed || '(leeg)');
+        clHtml += `<div class="cl-item"><span class="cl-field">${esc(c.section)}.${esc(c.field)}</span><span class="cl-old">${esc(oldShort)}</span> → <span class="cl-new">${esc(newShort)}</span></div>`;
+      });
+      if (changeLog.length > 20) clHtml += `<div style="color:#999;font-size:11px;padding-top:6px;">+${changeLog.length - 20} meer…</div>`;
+      clHtml += `<div style="margin-top:8px;font-size:10px;color:var(--ced-green);">📥 Corrections JSON gedownload</div>`;
+      clDiv.innerHTML = clHtml;
+      clDiv.style.display = 'block';
+    } else {
+      detailEl.innerHTML = `Dossier <strong>${esc(state.DossierCode || '—')}</strong> is succesvol doorgestuurd.<br>Geen handmatige correcties — LLM output was correct.`;
+      clDiv.style.display = 'none';
+    }
     document.getElementById('pushOverlay').classList.add('open');
 
-    console.log('[Push] Dossier pushed to BuildeX:', JSON.stringify(state, null, 2));
-    showToast('Dossier succesvol verstuurd naar BuildeX II', 'success');
+    console.log('[Push] Dossier pushed to BuildeX:', state.DossierCode);
+    console.log('[Push] Changelog:', changeLog);
+    showToast('Dossier verstuurd naar BuildeX II', 'success');
   }, 1200);
+}
+
+function downloadChangelog() {
+  const report = {
+    dossierCode: state.DossierCode,
+    model: document.getElementById('apiModel')?.textContent || document.getElementById('modelDropdown')?.value || 'unknown',
+    timestamp: new Date().toISOString(),
+    totalChanges: changeLog.length,
+    changes: changeLog,
+    originalLLMOutput: preEditSnapshot ? preEditSnapshot.state : null
+  };
+
+  const json = JSON.stringify(report, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${state.DossierCode || 'dossier'}_corrections_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  console.log('[Changelog] Downloaded:', report);
 }
 
 function closePushModal(e) {
