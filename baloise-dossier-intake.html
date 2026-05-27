@@ -1407,10 +1407,13 @@ function parseEmailBody(text) {
     }
   }
 
-  // Omstandigheden from email
+  // Omstandigheden from email (avoid duplicating if already present)
   const omstMatch = text.match(/omstandigheden[:\s]+(.+)/i);
   if (omstMatch) {
-    state.BAVrijeTekst = state.BAVrijeTekst ? state.BAVrijeTekst + '. ' + omstMatch[1].trim() : omstMatch[1].trim();
+    const omstText = omstMatch[1].trim();
+    if (!state.BAVrijeTekst || !state.BAVrijeTekst.includes(omstText)) {
+      state.BAVrijeTekst = state.BAVrijeTekst ? state.BAVrijeTekst + '. ' + omstText : omstText;
+    }
   }
 
   // Risico adres from email
