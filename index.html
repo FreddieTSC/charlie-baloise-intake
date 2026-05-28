@@ -130,6 +130,9 @@ body {
   gap: 16px;
   box-shadow: var(--shadow-sm);
   flex-wrap: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 900;
 }
 .header-brand {
   display: flex;
@@ -1162,39 +1165,78 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 .tab-placeholder-text { font-size: 13px; max-width: 400px; }
 
 /* ========== PARTIJEN TABLE ========== */
+.partijen-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .partijen-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 11px;
   margin-bottom: 4px;
 }
 .partijen-table th {
   background: var(--ced-navy);
   color: #fff;
   font-weight: 600;
-  padding: 5px 10px;
+  padding: 5px 8px;
   text-align: left;
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 .partijen-table th:first-child { border-radius: 4px 0 0 0; }
 .partijen-table th:last-child { border-radius: 0 4px 0 0; }
 .partijen-table td {
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-bottom: 1px solid #EEE;
   font-size: 11px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.partijen-table td:first-child { white-space: nowrap; max-width: none; }
 .partijen-table tbody tr:hover { background: #F0F5FF; }
-.partij-type-badge {
-  font-size: 9px;
+.partijen-table .pt-empty { color: #CCC; }
+/* Group header rows (Verzekerde, Derde) */
+.partijen-table tr.pt-group td {
+  background: #FEFCE8;
+  border-bottom: 1px solid #FDE68A;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #E2E8F0;
+}
+.partijen-table tr.pt-group td:first-child { font-weight: 600; color: var(--text-primary); }
+/* Indented child rows */
+.partijen-table tr.pt-child td:first-child { padding-left: 22px; color: var(--text-secondary); }
+/* Party type label — plain text, no badge */
+.pt-type {
+  font-size: 11px;
+  white-space: nowrap;
+}
+/* Editable inputs in partijen table */
+.pt-edit-input {
+  font-size: 11px;
+  font-family: inherit;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  color: inherit;
+  outline: none;
+  cursor: default;
+}
+.pt-edit-input[readonly] { pointer-events: none; }
+.pt-edit-input.pt-empty { color: #CCC; }
+/* SearchableSelect inside table */
+.partijen-table .search-select-wrap { display: block; }
+.partijen-table .search-select-wrap::after { right: 2px; font-size: 9px; top: 50%; transform: translateY(-50%); }
+.edit-mode .pt-edit-input:not([readonly]) {
+  border-bottom: 1px dashed var(--ced-blue);
+  cursor: text;
+  background: #FAFEFF;
 }
 
 /* ========== TYPEWRITER EFFECT ========== */
@@ -1862,47 +1904,59 @@ select.dropdown-active {
         <div class="form-section">
           <div class="section-header">Partijen</div>
           <div class="section-body" style="padding:0;">
+            <div class="partijen-table-wrap">
             <table class="partijen-table" id="partijenTable">
               <thead>
                 <tr>
-                  <th style="width:130px;">Type</th>
+                  <th style="width:100px;">Hoedanigheid</th>
                   <th>Naam</th>
-                  <th>Referte / Polis</th>
+                  <th>Adres</th>
+                  <th>Woonplaats</th>
                   <th>Telefoon</th>
-                  <th>Email</th>
+                  <th>GSM</th>
+                  <th>E-mail</th>
                 </tr>
               </thead>
               <tbody id="partijenTableBody">
-                <tr>
-                  <td><span class="partij-type-badge verzekerde">Verzekerde</span></td>
+                <tr class="pt-group">
+                  <td><span class="pt-type">Verzekerde</span></td>
                   <td id="ptVerzekerde">&mdash;</td>
-                  <td id="ptVerzekerdeRef">&mdash;</td>
-                  <td id="ptVerzekerdeTel">&mdash;</td>
-                  <td id="ptVerzekerdeEmail">&mdash;</td>
+                  <td id="ptVerzekerdeAdres" class="pt-empty">&mdash;</td>
+                  <td id="ptVerzekerdeWoonplaats" class="pt-empty">&mdash;</td>
+                  <td id="ptVerzekerdeTel" class="pt-empty">&mdash;</td>
+                  <td id="ptVerzekerdeGSM" class="pt-empty">&mdash;</td>
+                  <td id="ptVerzekerdeEmail" class="pt-empty">&mdash;</td>
                 </tr>
-                <tr>
-                  <td><span class="partij-type-badge expert">Expert</span></td>
-                  <td id="ptExpert">&mdash;</td>
-                  <td>&mdash;</td>
-                  <td>&mdash;</td>
-                  <td>&mdash;</td>
+                <tr class="pt-child">
+                  <td><span class="pt-type">Makelaar</span></td>
+                  <td><input class="pt-edit-input pt-empty" id="ptMakelaar" value="—" readonly></td>
+                  <td id="ptMakelaarAdres" class="pt-empty">&mdash;</td>
+                  <td id="ptMakelaarWoonplaats" class="pt-empty">&mdash;</td>
+                  <td id="ptMakelaarTel" class="pt-empty">&mdash;</td>
+                  <td id="ptMakelaarGSM" class="pt-empty">&mdash;</td>
+                  <td id="ptMakelaarEmail" class="pt-empty">&mdash;</td>
                 </tr>
-                <tr>
-                  <td><span class="partij-type-badge makelaar">Makelaar</span></td>
-                  <td id="ptMakelaar">&mdash;</td>
-                  <td id="ptMakelaarRef">&mdash;</td>
-                  <td>&mdash;</td>
-                  <td>&mdash;</td>
+                <tr class="pt-child">
+                  <td><span class="pt-type">Maatschappij</span></td>
+                  <td><input class="pt-edit-input pt-empty" id="ptMaatschappij" value="—" readonly></td>
+                  <td id="ptMaatschappijAdres" class="pt-empty">&mdash;</td>
+                  <td id="ptMaatschappijWoonplaats" class="pt-empty">&mdash;</td>
+                  <td id="ptMaatschappijTel" class="pt-empty">&mdash;</td>
+                  <td id="ptMaatschappijGSM" class="pt-empty">&mdash;</td>
+                  <td id="ptMaatschappijEmail" class="pt-empty">&mdash;</td>
                 </tr>
-                <tr>
-                  <td><span class="partij-type-badge maatschappij">Maatschappij</span></td>
-                  <td id="ptMaatschappij">—</td>
-                  <td id="ptMaatschappijRef">&mdash;</td>
-                  <td>&mdash;</td>
-                  <td id="ptMaatschappijEmail">&mdash;</td>
+                <tr class="pt-child">
+                  <td><span class="pt-type">Expert</span></td>
+                  <td><input class="pt-edit-input pt-empty" id="ptExpert" value="—" readonly></td>
+                  <td id="ptExpertAdres" class="pt-empty">&mdash;</td>
+                  <td id="ptExpertWoonplaats" class="pt-empty">&mdash;</td>
+                  <td id="ptExpertTel" class="pt-empty">&mdash;</td>
+                  <td id="ptExpertGSM" class="pt-empty">&mdash;</td>
+                  <td id="ptExpertEmail" class="pt-empty">&mdash;</td>
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -1967,9 +2021,9 @@ select.dropdown-active {
                       <option value="Minnelijk">Minnelijk</option>
                     </select>
                   </div>
-                  <div class="form-row">
-                    <span class="form-label">Procedure</span>
-                    <input type="text" class="form-input" id="fExpertiseMethodeProcedure">
+                  <div class="form-row" style="align-items:flex-start;">
+                    <span class="form-label" style="padding-top:6px;">Procedure</span>
+                    <textarea class="form-input" id="fExpertiseMethodeProcedure" rows="3" style="resize:vertical;"></textarea>
                   </div>
                   <div class="form-row">
                     <span class="form-label">Tarificatie</span>
@@ -2615,8 +2669,8 @@ class SearchableSelect {
     });
   }
 
-  enable() { this._disabled = false; this.input.style.cursor = "pointer"; }
-  disable() { this._disabled = true; this.input.style.cursor = ""; this.close(); }
+  enable() { this._disabled = false; this.input.removeAttribute('readonly'); this.input.style.cursor = "pointer"; }
+  disable() { this._disabled = true; this.input.setAttribute('readonly', ''); this.input.style.cursor = ""; this.close(); }
 
   toggle() { this.visible ? this.close() : this.open(); }
 
@@ -2698,7 +2752,8 @@ class SearchableSelect {
   }
 }
 
-let ssVm, ssMk, ssEx;
+let ssVm, ssMk, ssEx, ssPtMk, ssPtVm, ssPtEx;
+let dynamicPtSelects = [];
 
 function initSearchableSelects() {
   ssVm = new SearchableSelect(document.getElementById("fMaatschappijNaam"), LOOKUP_VM, {
@@ -2708,7 +2763,13 @@ function initSearchableSelects() {
       document.getElementById("fExternPlatform").value = item[1];
       document.getElementById("metaMaatschappij").textContent = item[1];
       const maat = state.Derden.find(d => d.Info.Type === "Maatschappij");
-      if (maat) { maat.Info.Naam = item[1]; maat.Info.Email = item[5] || ""; }
+      if (maat) {
+        maat.Info.Naam = item[1]; maat.Info.Email = item[5] || "";
+        maat.Info.Telefoon = item[6] || "";
+        maat.Info.Locatie.Straat = item[4] || "";
+        maat.Info.Locatie.Postcode = item[3] || "";
+        maat.Info.Locatie.Woonplaats = item[2] || "";
+      }
     }
   });
   ssMk = new SearchableSelect(document.getElementById("fMakelaarNaam"), LOOKUP_MK, {
@@ -2722,6 +2783,7 @@ function initSearchableSelects() {
         mak.Info.Naam = item[1]; mak.Info.Code = item[0];
         mak.Info.Locatie.Straat = item[4] || ""; mak.Info.Locatie.Postcode = item[3] || "";
         mak.Info.Locatie.Woonplaats = item[2] || "";
+        mak.Info.Email = item[5] || ""; mak.Info.Telefoon = item[6] || "";
       }
     }
   });
@@ -2729,6 +2791,52 @@ function initSearchableSelects() {
     onSelect: (item) => {
       document.getElementById("fAlgExpert").value = item[1];
       state.Expert = item[1];
+      state.ExpertData = { woonplaats: item[2] || '', postcode: item[3] || '', adres: item[4] || '', email: item[5] || '', telefoon: item[6] || '' };
+    }
+  });
+
+  // Partijen table — inline SearchableSelect for Makelaar, Maatschappij, Expert
+  ssPtMk = new SearchableSelect(document.getElementById("ptMakelaar"), LOOKUP_MK, {
+    onSelect: (item) => {
+      let mak = state.Derden.find(d => d.Info.Type === "Makelaar");
+      if (!mak) { mak = { Info: emptyPartij("Makelaar"), Partijen: [] }; state.Derden.push(mak); }
+      mak.Info.Naam = item[1]; mak.Info.Code = item[0];
+      mak.Info.Email = item[5] || ""; mak.Info.Telefoon = item[6] || "";
+      mak.Info.Locatie.Straat = item[4] || ""; mak.Info.Locatie.Postcode = item[3] || "";
+      mak.Info.Locatie.Woonplaats = item[2] || "";
+      // Sync left panel
+      if (ssMk) ssMk.input.value = item[1];
+      document.getElementById("fMakelaarCode").value = item[0];
+      document.getElementById("fMakelaarStraat").value = item[4] || "";
+      document.getElementById("fMakelaarPostcode").value = item[3] || "";
+      document.getElementById("fMakelaarWoonplaats").value = item[2] || "";
+      syncFormFromState();
+    }
+  });
+  ssPtVm = new SearchableSelect(document.getElementById("ptMaatschappij"), LOOKUP_VM, {
+    onSelect: (item) => {
+      let maat = state.Derden.find(d => d.Info.Type === "Maatschappij");
+      if (!maat) { maat = { Info: emptyPartij("Maatschappij"), Partijen: [] }; state.Derden.push(maat); }
+      maat.Info.Naam = item[1]; maat.Info.Email = item[5] || "";
+      maat.Info.Telefoon = item[6] || "";
+      maat.Info.Locatie.Straat = item[4] || ""; maat.Info.Locatie.Postcode = item[3] || "";
+      maat.Info.Locatie.Woonplaats = item[2] || "";
+      // Sync left panel
+      if (ssVm) ssVm.input.value = item[1];
+      document.getElementById("fMaatschappijEmail").value = item[5] || "";
+      document.getElementById("fExternPlatform").value = item[1];
+      document.getElementById("metaMaatschappij").textContent = item[1];
+      syncFormFromState();
+    }
+  });
+  ssPtEx = new SearchableSelect(document.getElementById("ptExpert"), LOOKUP_EX, {
+    onSelect: (item) => {
+      state.Expert = item[1];
+      state.ExpertData = { woonplaats: item[2] || '', postcode: item[3] || '', adres: item[4] || '', email: item[5] || '', telefoon: item[6] || '' };
+      // Sync left panel
+      if (ssEx) ssEx.input.value = item[1];
+      document.getElementById("fAlgExpert").value = item[1];
+      syncFormFromState();
     }
   });
 }
@@ -2885,6 +2993,7 @@ const state = {
   Verhaal: '',
   BAVrijeTekst: '',
   Expert: '',
+  ExpertData: {},
   Beheerder: '',
   Kantoor: 'Premium Noord - ANTWERPEN',
   Netwerk: 'Schade',
@@ -2980,6 +3089,7 @@ function clearAllData() {
   state.Verhaal = '';
   state.BAVrijeTekst = '';
   state.Expert = '';
+  state.ExpertData = {};
   state.Beheerder = '';
   state.Kantoor = 'Premium Noord - ANTWERPEN';
   state.Netwerk = 'Schade';
@@ -3253,9 +3363,13 @@ function populateFromApiResponse(result) {
     'SchadeTypeH', 'SchadeTypeS', 'Schadebedrag', 'Claim', 'Vrijstelling',
     'KapitaalGebouw', 'Verhaal', 'BAVrijeTekst', 'ExpertiseMethode',
     'ExpertiseMethodeProcedure', 'Tarificatie', 'RoerendOnroerend',
-    'Kantoor', 'Netwerk'
+    'Kantoor', 'Netwerk', 'Expert', 'Beheerder'
   ];
   simpleFields.forEach(f => { if (data[f] !== undefined && data[f] !== null && data[f] !== '') state[f] = data[f]; });
+
+  if (data.ExpertData && typeof data.ExpertData === 'object') {
+    state.ExpertData = { ...state.ExpertData, ...data.ExpertData };
+  }
 
   if (Array.isArray(data.Derden)) {
     data.Derden.forEach(d => {
@@ -3452,31 +3566,109 @@ function syncFormFromState() {
   document.getElementById('headerLocatie').textContent = locParts.join(' ') || '—';
 
   // Sync Partijen table in Algemeen tab
+  function ptCell(el, val) {
+    const v = val || '—';
+    if (el.tagName === 'INPUT') { el.value = v; } else { el.textContent = v; }
+    el.title = v !== '—' ? v : '';
+    el.classList.toggle('pt-empty', v === '—');
+  }
   const slNaam = [state.Schadelijder.Info.Voornaam, state.Schadelijder.Info.Naam].filter(Boolean).join(' ');
-  document.getElementById('ptVerzekerde').textContent = slNaam || '—';
-  document.getElementById('ptVerzekerdeRef').textContent = state.Schadelijder.Info.Polis || '—';
-  document.getElementById('ptVerzekerdeTel').textContent = state.Schadelijder.Info.Telefoon || '—';
-  document.getElementById('ptVerzekerdeEmail').textContent = state.Schadelijder.Info.Email || '—';
-  document.getElementById('ptExpert').textContent = state.Expert || '—';
-  const makPt = state.Derden.find(d => d.Info.Type === 'Makelaar');
-  document.getElementById('ptMakelaar').textContent = makPt?.Info.Naam || '—';
-  document.getElementById('ptMakelaarRef').textContent = makPt?.Info.Referte || '—';
-  const maatPt = state.Derden.find(d => d.Info.Type === 'Maatschappij');
-  document.getElementById('ptMaatschappij').textContent = maatPt?.Info.Naam || '—';
-  document.getElementById('metaMaatschappij').textContent = maatPt?.Info.Naam || '—';
-  document.getElementById('ptMaatschappijRef').textContent = maatPt?.Info.Referte || '—';
-  document.getElementById('ptMaatschappijEmail').textContent = maatPt?.Info.Email || '—';
+  const slLoc = state.Schadelijder.Info.Locatie;
+  const slAdres = [slLoc.Straat, slLoc.Huisnummer].filter(Boolean).join(' ');
+  ptCell(document.getElementById('ptVerzekerde'), slNaam);
+  ptCell(document.getElementById('ptVerzekerdeAdres'), slAdres);
+  ptCell(document.getElementById('ptVerzekerdeWoonplaats'), [slLoc.Postcode, slLoc.Woonplaats].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptVerzekerdeTel'), state.Schadelijder.Info.Telefoon);
+  ptCell(document.getElementById('ptVerzekerdeGSM'), state.Schadelijder.Info.Mobiel);
+  ptCell(document.getElementById('ptVerzekerdeEmail'), state.Schadelijder.Info.Email);
 
-  // Add Derde rows to Partijen table
+  const makPt = state.Derden.find(d => d.Info.Type === 'Makelaar');
+  const makLoc = makPt?.Info.Locatie || {};
+  ptCell(document.getElementById('ptMakelaar'), makPt?.Info.Naam);
+  ptCell(document.getElementById('ptMakelaarAdres'), [makLoc.Straat, makLoc.Huisnummer].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptMakelaarWoonplaats'), [makLoc.Postcode, makLoc.Woonplaats].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptMakelaarTel'), makPt?.Info.Telefoon);
+  ptCell(document.getElementById('ptMakelaarGSM'), makPt?.Info.Mobiel);
+  ptCell(document.getElementById('ptMakelaarEmail'), makPt?.Info.Email);
+
+  const maatPt = state.Derden.find(d => d.Info.Type === 'Maatschappij');
+  const maatLoc = maatPt?.Info.Locatie || {};
+  ptCell(document.getElementById('ptMaatschappij'), maatPt?.Info.Naam);
+  document.getElementById('metaMaatschappij').textContent = maatPt?.Info.Naam || '—';
+  ptCell(document.getElementById('ptMaatschappijAdres'), [maatLoc.Straat, maatLoc.Huisnummer].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptMaatschappijWoonplaats'), [maatLoc.Postcode, maatLoc.Woonplaats].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptMaatschappijTel'), maatPt?.Info.Telefoon);
+  ptCell(document.getElementById('ptMaatschappijGSM'), maatPt?.Info.Mobiel);
+  ptCell(document.getElementById('ptMaatschappijEmail'), maatPt?.Info.Email);
+
+  ptCell(document.getElementById('ptExpert'), state.Expert);
+  const exd = state.ExpertData || {};
+  ptCell(document.getElementById('ptExpertAdres'), exd.adres);
+  ptCell(document.getElementById('ptExpertWoonplaats'), [exd.postcode, exd.woonplaats].filter(Boolean).join(' '));
+  ptCell(document.getElementById('ptExpertTel'), exd.telefoon);
+  ptCell(document.getElementById('ptExpertGSM'), '');
+  ptCell(document.getElementById('ptExpertEmail'), exd.email);
+
+  // Add Derde/Tegenpartij rows to Partijen table (grouped + indented)
   const ptBody = document.getElementById('partijenTableBody');
+  // Cleanup dynamic SearchableSelects before removing rows
+  dynamicPtSelects.forEach(ss => { if (ss && ss.panel) ss.panel.remove(); });
+  dynamicPtSelects = [];
   ptBody.querySelectorAll('.derde-pt-row').forEach(r => r.remove());
   const otherDerden = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
-  otherDerden.forEach(d => {
+  // Separate into Derde (group headers) and experts/sub-parties (children)
+  const derdeGroups = otherDerden.filter(d => !(d.Info.Type || '').toLowerCase().includes('expert'));
+  const derdeChildren = otherDerden.filter(d => (d.Info.Type || '').toLowerCase().includes('expert'));
+  // Render group headers first, then children
+  [...derdeGroups, ...derdeChildren].forEach(d => {
     const tr = document.createElement('tr');
-    tr.className = 'derde-pt-row';
+    const isChild = (d.Info.Type || '').toLowerCase().includes('expert');
+    tr.className = 'derde-pt-row ' + (isChild ? 'pt-child' : 'pt-group');
     const naam = [d.Info.Voornaam, d.Info.Naam].filter(Boolean).join(' ');
-    tr.innerHTML = `<td><span class="partij-type-badge derde">${esc(d.Info.Type || 'Derde')}</span></td><td>${esc(naam)}</td><td>${esc(d.Info.Polis || '—')}</td><td>${esc(d.Info.Telefoon || '—')}</td><td>${esc(d.Info.Email || '—')}</td>`;
-    ptBody.appendChild(tr);
+    const loc = d.Info.Locatie || {};
+    const adres = [loc.Straat, loc.Huisnummer].filter(Boolean).join(' ');
+    const woonplaats = [loc.Postcode, loc.Woonplaats].filter(Boolean).join(' ');
+    const label = d.Info.Type || 'Derde';
+
+    // For expert-type rows, make Naam editable via SearchableSelect
+    if (isChild) {
+      const tdType = document.createElement('td');
+      tdType.innerHTML = `<span class="pt-type">${esc(label)}</span>`;
+      const tdNaam = document.createElement('td');
+      const inp = document.createElement('input');
+      inp.className = 'pt-edit-input' + (naam ? '' : ' pt-empty');
+      inp.value = naam || '—';
+      inp.setAttribute('readonly', '');
+      tdNaam.appendChild(inp);
+      tr.appendChild(tdType);
+      tr.appendChild(tdNaam);
+      tr.insertAdjacentHTML('beforeend',
+        `<td class="${adres ? '' : 'pt-empty'}" title="${esc(adres)}">${esc(adres || '—')}</td><td class="${woonplaats ? '' : 'pt-empty'}" title="${esc(woonplaats)}">${esc(woonplaats || '—')}</td><td class="${d.Info.Telefoon ? '' : 'pt-empty'}">${esc(d.Info.Telefoon || '—')}</td><td class="${d.Info.Mobiel ? '' : 'pt-empty'}">${esc(d.Info.Mobiel || '—')}</td><td class="${d.Info.Email ? '' : 'pt-empty'}" title="${esc(d.Info.Email || '')}">${esc(d.Info.Email || '—')}</td>`);
+      ptBody.appendChild(tr);
+
+      // Create SearchableSelect for this expert row
+      const dRef = d; // closure reference
+      const trRef = tr;
+      const ss = new SearchableSelect(inp, LOOKUP_EX, {
+        onSelect: (item) => {
+          dRef.Info.Naam = item[1]; dRef.Info.Code = item[0] || '';
+          dRef.Info.Email = item[5] || ''; dRef.Info.Telefoon = item[6] || '';
+          dRef.Info.Locatie.Straat = item[4] || ''; dRef.Info.Locatie.Postcode = item[3] || '';
+          dRef.Info.Locatie.Woonplaats = item[2] || '';
+          // Update row cells directly
+          const cells = trRef.querySelectorAll('td');
+          if (cells[2]) { cells[2].textContent = item[4] || '—'; cells[2].title = item[4] || ''; cells[2].classList.toggle('pt-empty', !item[4]); }
+          if (cells[3]) { const wp = [item[3], item[2]].filter(Boolean).join(' '); cells[3].textContent = wp || '—'; cells[3].title = wp; cells[3].classList.toggle('pt-empty', !wp); }
+          if (cells[4]) { cells[4].textContent = item[6] || '—'; cells[4].classList.toggle('pt-empty', !item[6]); }
+          if (cells[6]) { cells[6].textContent = item[5] || '—'; cells[6].title = item[5] || ''; cells[6].classList.toggle('pt-empty', !item[5]); }
+        }
+      });
+      if (editMode) ss.enable(); else ss.disable();
+      dynamicPtSelects.push(ss);
+    } else {
+      tr.innerHTML = `<td><span class="pt-type">${esc(label)}</span></td><td>${esc(naam || '—')}</td><td class="${adres ? '' : 'pt-empty'}" title="${esc(adres)}">${esc(adres || '—')}</td><td class="${woonplaats ? '' : 'pt-empty'}" title="${esc(woonplaats)}">${esc(woonplaats || '—')}</td><td class="${d.Info.Telefoon ? '' : 'pt-empty'}">${esc(d.Info.Telefoon || '—')}</td><td class="${d.Info.Mobiel ? '' : 'pt-empty'}">${esc(d.Info.Mobiel || '—')}</td><td class="${d.Info.Email ? '' : 'pt-empty'}" title="${esc(d.Info.Email || '')}">${esc(d.Info.Email || '—')}</td>`;
+      ptBody.appendChild(tr);
+    }
   });
 
   // Sync Gegevens CED fields in Algemeen tab
@@ -3902,20 +4094,50 @@ async function typewriterAnimate() {
   await sleep(300);
 
   // Partijen table update
+  function ptCellTw(id, val) { const el = document.getElementById(id); if (!el) return; const v = val || '—'; if (el.tagName === 'INPUT') { el.value = v; } else { el.textContent = v; } el.title = v !== '—' ? v : ''; el.classList.toggle('pt-empty', v === '—'); }
   const slFullName = [state.Schadelijder.Info.Voornaam, state.Schadelijder.Info.Naam].filter(Boolean).join(' ');
-  document.getElementById('ptVerzekerde').textContent = slFullName || '—';
-  document.getElementById('ptVerzekerdeRef').textContent = state.Schadelijder.Info.Polis || '—';
-  document.getElementById('ptVerzekerdeTel').textContent = state.Schadelijder.Info.Telefoon || '—';
-  document.getElementById('ptVerzekerdeEmail').textContent = state.Schadelijder.Info.Email || '—';
-  document.getElementById('ptExpert').textContent = state.Expert || '—';
+  const slLocTw = state.Schadelijder.Info.Locatie;
+  ptCellTw('ptVerzekerde', slFullName);
+  ptCellTw('ptVerzekerdeAdres', [slLocTw.Straat, slLocTw.Huisnummer].filter(Boolean).join(' '));
+  ptCellTw('ptVerzekerdeWoonplaats', [slLocTw.Postcode, slLocTw.Woonplaats].filter(Boolean).join(' '));
+  ptCellTw('ptVerzekerdeTel', state.Schadelijder.Info.Telefoon);
+  ptCellTw('ptVerzekerdeGSM', state.Schadelijder.Info.Mobiel);
+  ptCellTw('ptVerzekerdeEmail', state.Schadelijder.Info.Email);
+  ptCellTw('ptExpert', state.Expert);
   const makPtTw = state.Derden.find(d => d.Info.Type === 'Makelaar');
-  document.getElementById('ptMakelaar').textContent = makPtTw?.Info.Naam || '—';
-  document.getElementById('ptMakelaarRef').textContent = makPtTw?.Info.Referte || '—';
+  const makLocTw = makPtTw?.Info.Locatie || {};
+  ptCellTw('ptMakelaar', makPtTw?.Info.Naam);
+  ptCellTw('ptMakelaarAdres', [makLocTw.Straat, makLocTw.Huisnummer].filter(Boolean).join(' '));
+  ptCellTw('ptMakelaarWoonplaats', [makLocTw.Postcode, makLocTw.Woonplaats].filter(Boolean).join(' '));
+  ptCellTw('ptMakelaarTel', makPtTw?.Info.Telefoon);
+  ptCellTw('ptMakelaarGSM', makPtTw?.Info.Mobiel);
+  ptCellTw('ptMakelaarEmail', makPtTw?.Info.Email);
   const maatPtTw = state.Derden.find(d => d.Info.Type === 'Maatschappij');
-  document.getElementById('ptMaatschappij').textContent = maatPtTw?.Info.Naam || '—';
+  const maatLocTw = maatPtTw?.Info.Locatie || {};
+  ptCellTw('ptMaatschappij', maatPtTw?.Info.Naam);
   document.getElementById('metaMaatschappij').textContent = maatPtTw?.Info.Naam || '—';
-  document.getElementById('ptMaatschappijRef').textContent = maatPtTw?.Info.Referte || '—';
-  document.getElementById('ptMaatschappijEmail').textContent = maatPtTw?.Info.Email || '—';
+  ptCellTw('ptMaatschappijAdres', [maatLocTw.Straat, maatLocTw.Huisnummer].filter(Boolean).join(' '));
+  ptCellTw('ptMaatschappijWoonplaats', [maatLocTw.Postcode, maatLocTw.Woonplaats].filter(Boolean).join(' '));
+  ptCellTw('ptMaatschappijTel', maatPtTw?.Info.Telefoon);
+  ptCellTw('ptMaatschappijGSM', maatPtTw?.Info.Mobiel);
+  ptCellTw('ptMaatschappijEmail', maatPtTw?.Info.Email);
+  // Derde rows (grouped + indented)
+  const ptBodyTw = document.getElementById('partijenTableBody');
+  ptBodyTw.querySelectorAll('.derde-pt-row').forEach(r => r.remove());
+  const otherDerdenTw = state.Derden.filter(d => d.Info.Type !== 'Maatschappij' && d.Info.Type !== 'Makelaar');
+  const dGroupsTw = otherDerdenTw.filter(d => !(d.Info.Type || '').toLowerCase().includes('expert'));
+  const dChildsTw = otherDerdenTw.filter(d => (d.Info.Type || '').toLowerCase().includes('expert'));
+  [...dGroupsTw, ...dChildsTw].forEach(d => {
+    const tr = document.createElement('tr');
+    const isChild = (d.Info.Type || '').toLowerCase().includes('expert');
+    tr.className = 'derde-pt-row ' + (isChild ? 'pt-child' : 'pt-group');
+    const nm = [d.Info.Voornaam, d.Info.Naam].filter(Boolean).join(' ');
+    const lc = d.Info.Locatie || {};
+    const ad = [lc.Straat, lc.Huisnummer].filter(Boolean).join(' ');
+    const wp = [lc.Postcode, lc.Woonplaats].filter(Boolean).join(' ');
+    tr.innerHTML = `<td><span class="pt-type">${esc(d.Info.Type||'Derde')}</span></td><td>${esc(nm||'—')}</td><td class="${ad?'':'pt-empty'}" title="${esc(ad)}">${esc(ad||'—')}</td><td class="${wp?'':'pt-empty'}" title="${esc(wp)}">${esc(wp||'—')}</td><td class="${d.Info.Telefoon?'':'pt-empty'}">${esc(d.Info.Telefoon||'—')}</td><td class="${d.Info.Mobiel?'':'pt-empty'}">${esc(d.Info.Mobiel||'—')}</td><td class="${d.Info.Email?'':'pt-empty'}" title="${esc(d.Info.Email||'')}">${esc(d.Info.Email||'—')}</td>`;
+    ptBodyTw.appendChild(tr);
+  });
   await sleep(200);
 
   // Animate SchadeType dropdowns like a real user selecting
@@ -3942,7 +4164,7 @@ async function typewriterAnimate() {
   await setFieldFast('fKapitaalGebouw', state.KapitaalGebouw);
 
   await setFieldFast('fExpertiseMethode', state.ExpertiseMethode);
-  await typeIntoField(document.getElementById('fExpertiseMethodeProcedure'), state.ExpertiseMethodeProcedure, 18);
+  await typeIntoTextarea(document.getElementById('fExpertiseMethodeProcedure'), state.ExpertiseMethodeProcedure, 6);
   await setFieldFast('fTarificatie', state.Tarificatie);
   await typeIntoTextarea(document.getElementById('fBAVrijeTekst'), state.BAVrijeTekst, 6);
   await typeIntoTextarea(document.getElementById('fVerhaal'), state.Verhaal, 6);
@@ -3955,6 +4177,13 @@ async function typewriterAnimate() {
     const exQuery = state.Expert.substring(0, 5).toUpperCase();
     await animateSearchSelect(ssEx, exQuery, state.Expert, { typeDelay: 80, pauseOnTarget: 400 });
     document.getElementById('fAlgExpert').value = state.Expert;
+    // Update expert row in partijen table with lookup data
+    const exdTw = state.ExpertData || {};
+    ptCellTw('ptExpert', state.Expert);
+    ptCellTw('ptExpertAdres', exdTw.adres);
+    ptCellTw('ptExpertWoonplaats', [exdTw.postcode, exdTw.woonplaats].filter(Boolean).join(' '));
+    ptCellTw('ptExpertTel', exdTw.telefoon);
+    ptCellTw('ptExpertEmail', exdTw.email);
   }
 
   if (typewriterAbort) { finishTypewriter(); return; }
@@ -4408,7 +4637,8 @@ function generateJSON() {
     Schadebedrag: state.Schadebedrag, Claim: state.Claim,
     Vrijstelling: state.Vrijstelling, KapitaalGebouw: state.KapitaalGebouw,
     Verhaal: state.Verhaal, BAVrijeTekst: state.BAVrijeTekst,
-    Expert: state.Expert, Beheerder: state.Beheerder,
+    Expert: state.Expert, ExpertData: state.ExpertData || {},
+    Beheerder: state.Beheerder,
     Kantoor: state.Kantoor, Netwerk: state.Netwerk,
     Tarificatie: state.Tarificatie, RoerendOnroerend: state.RoerendOnroerend,
     ExternPlatform: state.ExternPlatform,
@@ -4623,6 +4853,11 @@ function toggleEditMode() {
     if (ssVm) ssVm.enable();
     if (ssMk) ssMk.enable();
     if (ssEx) ssEx.enable();
+    // Enable table searchable selects
+    if (ssPtMk) ssPtMk.enable();
+    if (ssPtVm) ssPtVm.enable();
+    if (ssPtEx) ssPtEx.enable();
+    dynamicPtSelects.forEach(ss => ss.enable());
 
     // Make summary editable
     const summaryBox = document.getElementById('summaryBox');
@@ -4653,6 +4888,11 @@ function toggleEditMode() {
     if (ssVm) ssVm.disable();
     if (ssMk) ssMk.disable();
     if (ssEx) ssEx.disable();
+    // Disable table searchable selects
+    if (ssPtMk) ssPtMk.disable();
+    if (ssPtVm) ssPtVm.disable();
+    if (ssPtEx) ssPtEx.disable();
+    dynamicPtSelects.forEach(ss => ss.disable());
 
     // Save summary edits back to state
     const summaryBox = document.getElementById('summaryBox');
