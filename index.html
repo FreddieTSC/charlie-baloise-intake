@@ -794,6 +794,39 @@ body {
 select.form-input { padding: 3px 6px; }
 textarea.form-input { resize: vertical; min-height: 60px; }
 
+/* Confidence indicators */
+.confidence-low {
+  border-left: 3px solid var(--warning) !important;
+  background: #FFF7ED !important;
+}
+.confidence-low::after { content: '⚠'; }
+.confidence-medium {
+  border-left: 3px solid #FCD34D !important;
+  background: #FFFBEB !important;
+}
+/* Confidence tooltip */
+.confidence-low[title], .confidence-medium[title] { cursor: help; }
+/* Partijen table confidence */
+.partijen-table td.confidence-low {
+  border-left: 3px solid var(--warning);
+  background: #FFF7ED;
+}
+.partijen-table td.confidence-medium {
+  border-left: 3px solid #FCD34D;
+  background: #FFFBEB;
+}
+/* Confidence badge in meta bar */
+.confidence-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  margin-left: 8px;
+}
+.confidence-badge.low { background: #FED7AA; color: #9A3412; }
+.confidence-badge.medium { background: #FEF3C7; color: #92400E; }
+
 /* Derde partij cards */
 .derde-card {
   border: 1px solid var(--buildex-section);
@@ -3009,7 +3042,8 @@ const state = {
   Identificatiefiche: '',
   Verslag: '',
   Foutcode: '',
-  JsonString: ''
+  JsonString: '',
+  Confidence: {}
 };
 
 let documents = [];
@@ -3367,6 +3401,11 @@ function populateFromApiResponse(result) {
   ];
   simpleFields.forEach(f => { if (data[f] !== undefined && data[f] !== null && data[f] !== '') state[f] = data[f]; });
 
+  // Import confidence scores
+  if (data.Confidence && typeof data.Confidence === 'object') {
+    state.Confidence = { ...data.Confidence };
+  }
+
   if (data.ExpertData && typeof data.ExpertData === 'object') {
     state.ExpertData = { ...state.ExpertData, ...data.ExpertData };
   }
@@ -3679,6 +3718,67 @@ function syncFormFromState() {
   renderDerden();
   renderNotas();
   generateSummary();
+  applyConfidenceHighlights();
+}
+
+// Confidence field → form element ID(s) mapping
+const CONFIDENCE_FIELD_MAP = {
+  DossierCode: ['fDossierCode'],
+  DatumSchade: ['fDatumSchade'],
+  DatumOntvangst: ['fDatumOntvangst'],
+  SchadelijderNaam: ['fSchadelijderNaam', 'fSchadelijderVoornaam'],
+  SchadelijderAdres: ['fSLStraat', 'fSLNr', 'fSLPostcode', 'fSLWoonplaats'],
+  SchadeTypeH: ['fSchadeTypeH'],
+  SchadeTypeS: ['fSchadeTypeS'],
+  Schadebedrag: ['fSchadebedrag'],
+  Claim: ['fClaim'],
+  Vrijstelling: ['fVrijstelling'],
+  KapitaalGebouw: ['fKapitaalGebouw'],
+  ExpertiseMethode: ['fExpertiseMethode'],
+  RoerendOnroerend: ['fRoerendOnroerend'],
+  Tarificatie: ['fTarificatie'],
+  Maatschappij: ['fMaatschappijNaam', 'fExternPlatform'],
+  Makelaar: ['fMakelaarNaam'],
+  BAVrijeTekst: ['fBAVrijeTekst']
+};
+
+function applyConfidenceHighlights() {
+  // Clear all existing confidence classes
+  document.querySelectorAll('.confidence-low, .confidence-medium').forEach(el => {
+    el.classList.remove('confidence-low', 'confidence-medium');
+    el.removeAttribute('data-confidence');
+  });
+
+  const conf = state.Confidence;
+  if (!conf || Object.keys(conf).length === 0) return;
+
+  let lowCount = 0, medCount = 0;
+
+  for (const [field, level] of Object.entries(conf)) {
+    if (level === 'high') continue;
+    const ids = CONFIDENCE_FIELD_MAP[field];
+    if (!ids) continue;
+
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const cls = level === 'low' ? 'confidence-low' : 'confidence-medium';
+      el.classList.add(cls);
+      el.setAttribute('data-confidence', level);
+      const labels = { low: 'Lage zekerheid — controleer dit veld', medium: 'Matige zekerheid — mogelijk afgeleid' };
+      el.title = (el.title ? el.title + ' — ' : '') + labels[level];
+    }
+    if (level === 'low') lowCount++;
+    else if (level === 'medium') medCount++;
+  }
+
+  // Update status bar with confidence summary
+  if (lowCount > 0 || medCount > 0) {
+    const parts = [];
+    if (lowCount > 0) parts.push(`${lowCount} onzeker`);
+    if (medCount > 0) parts.push(`${medCount} matig`);
+    console.log(`[Confidence] ${parts.join(', ')} velden gemarkeerd`);
+  }
 }
 
 function syncStateFromForm() {
@@ -4649,7 +4749,8 @@ function generateJSON() {
     Notas: state.Notas,
     Identificatiefiche: state.Identificatiefiche,
     Verslag: state.Verslag,
-    Foutcode: state.Foutcode, JsonString: state.JsonString
+    Foutcode: state.Foutcode, JsonString: state.JsonString,
+    Confidence: state.Confidence || {}
   };
   const json = JSON.stringify(output, null, 2);
   document.getElementById('jsonOutput').value = json;

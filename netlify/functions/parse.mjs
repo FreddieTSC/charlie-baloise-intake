@@ -56,7 +56,26 @@ Geef je antwoord UITSLUITEND als een geldig JSON object (geen markdown, geen uit
       "bedrag": "number of null (alleen voor factuur/offerte)"
     }
   ],
-  "FotoPages": [5, 8, 9]
+  "FotoPages": [5, 8, 9],
+  "Confidence": {
+    "DossierCode": "high|medium|low",
+    "DatumSchade": "high|medium|low",
+    "DatumOntvangst": "high|medium|low",
+    "SchadelijderNaam": "high|medium|low",
+    "SchadelijderAdres": "high|medium|low",
+    "SchadeTypeH": "high|medium|low",
+    "SchadeTypeS": "high|medium|low",
+    "Schadebedrag": "high|medium|low",
+    "Claim": "high|medium|low",
+    "Vrijstelling": "high|medium|low",
+    "KapitaalGebouw": "high|medium|low",
+    "ExpertiseMethode": "high|medium|low",
+    "RoerendOnroerend": "high|medium|low",
+    "Tarificatie": "high|medium|low",
+    "Maatschappij": "high|medium|low",
+    "Makelaar": "high|medium|low",
+    "BAVrijeTekst": "high|medium|low"
+  }
 }
 
 Regels:
@@ -89,7 +108,15 @@ DOCUMENT STRUCTUUR REGELS:
 - Sorteer documenten chronologisch (vroegste datum eerst)
 - FotoPages: geef een array van paginanummers (1-based) die foto's/afbeeldingen bevatten
 - Foto-pagina's herkennen aan: weinig tekst maar veel afbeeldingsinhoud, onderschriften als "foto", "beeld", "afbeelding"
-- Als een PDF pagina's bevat met hoofdzakelijk foto's (bv. schadefoto's, situatiefotos), neem die paginanummers op in FotoPages`;
+- Als een PDF pagina's bevat met hoofdzakelijk foto's (bv. schadefoto's, situatiefotos), neem die paginanummers op in FotoPages
+
+CONFIDENCE REGELS:
+- Geef voor elk kernveld in het Confidence object aan hoe zeker je bent over de waarde
+- "high" = letterlijk gevonden in het document, geen twijfel
+- "medium" = afgeleid of deels gevonden (bv. adres uit context, schadetype geïnterpreteerd)
+- "low" = geraden, niet gevonden, of tegenstrijdige informatie in het document
+- Als een veld leeg is (null of ""), geef dan "low" tenzij het logisch leeg hoort te zijn
+- Makelaar/Maatschappij: "low" als alleen een vaag vermoeden, "high" als expliciet vermeld met naam`;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
