@@ -7251,6 +7251,16 @@ console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 // ========== SPLASH SCREEN ==========
 let splashDismissed = false;
 
+// If launched from the Demo button, skip the splash entirely and start the film
+const __charlieDemoAutostart = (sessionStorage.getItem('charlie_demo_autostart') === '1');
+if (__charlieDemoAutostart) {
+  sessionStorage.removeItem('charlie_demo_autostart');
+  splashDismissed = true; // suppresses the splash typewriter animation below
+  const __sp = document.getElementById('splashScreen');
+  if (__sp) __sp.classList.add('hidden');
+  setTimeout(() => runDemoFilm(), 250);
+}
+
 function dismissSplash() {
   if (splashDismissed) return;
   splashDismissed = true;
@@ -7359,16 +7369,6 @@ function backToChoice() {
   await d(800);
   if (!splashDismissed) hint.classList.add('visible');
 })();
-
-// ========== DEMO AUTOSTART (after splash) ==========
-if (sessionStorage.getItem('charlie_demo_autostart') === '1') {
-  sessionStorage.removeItem('charlie_demo_autostart');
-  // Let the splash play briefly as a branded intro, then launch the demo film
-  setTimeout(() => {
-    dismissSplash();
-    setTimeout(runDemoFilm, 700);
-  }, 3200);
-}
 </script>
 </body>
 </html>
