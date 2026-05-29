@@ -4749,6 +4749,7 @@ async function runDemoFilm() {
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
   const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = 'none';
+  const ddb = document.querySelector('.choice-demo-btn'); if (ddb) ddb.style.display = 'none';
   const overlay = document.getElementById('demoOverlay');
   overlay.classList.add('active');
   const steps = buildDemoSteps();
@@ -4772,6 +4773,7 @@ async function runDemoFilm() {
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
     const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = '';
+    const ddb = document.querySelector('.choice-demo-btn'); if (ddb) ddb.style.display = '';
     demoClearSpotlight();
     demoShowChoice();
     demoState.running = false;
