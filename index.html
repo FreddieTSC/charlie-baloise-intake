@@ -239,38 +239,79 @@ body {
   background: linear-gradient(90deg, var(--ced-blue), var(--ced-green));
   transition: width 0.6s linear;
 }
-/* Caption bar (bottom) */
+/* Soft bottom scrim so the narration reads as an overlay layer above the app */
+.demo-overlay::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 300px;
+  background: linear-gradient(to top, rgba(15, 8, 35, 0.38), rgba(15, 8, 35, 0));
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  pointer-events: none;
+}
+.demo-overlay.active::before { opacity: 1; }
+
+/* Caption — a light, frosted voice-over bubble (clearly NOT an app element) */
 .demo-caption {
   position: absolute;
   left: 50%;
-  bottom: 88px;
-  transform: translateX(-50%) translateY(12px);
-  max-width: 760px;
-  width: calc(100% - 64px);
-  background: rgba(28, 5, 79, 0.94);
+  bottom: 92px;
+  transform: translateX(-50%) translateY(26px);
+  max-width: 600px;
+  width: calc(100% - 80px);
+  background: rgba(22, 11, 48, 0.58);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
   color: #fff;
-  border-radius: 14px;
-  padding: 18px 26px;
-  box-shadow: 0 12px 40px rgba(28, 5, 79, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 14px 28px 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.38);
   opacity: 0;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2, .7, .2, 1);
   text-align: center;
 }
 .demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* "DEMO" narrator marker with a gently pulsing dot */
+.demo-caption .dc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 9px;
+}
+.demo-caption .dc-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #7FC2F0;
+  animation: dcPulse 1.8s infinite;
+}
+@keyframes dcPulse {
+  0% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(127, 194, 240, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0); }
+}
 .demo-caption .dc-title {
   font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #7FC2F0;
-  margin-bottom: 6px;
+  color: #8FCBF2;
+  margin-bottom: 7px;
 }
 .demo-caption .dc-body {
   font-family: 'Inter', sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.95);
 }
 /* Control bar (bottom center) */
 .demo-controls {
@@ -2282,6 +2323,7 @@ select.dropdown-active {
 <div class="demo-overlay" id="demoOverlay">
   <div class="demo-progress"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
   <div class="demo-caption" id="demoCaption">
+    <div class="dc-tag"><span class="dc-dot"></span> Demo narration</div>
     <div class="dc-title" id="demoCaptionTitle"></div>
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
@@ -4418,12 +4460,18 @@ function demoWaitNext() {
 
 async function demoSetCaption(title, body) {
   const cap = document.getElementById('demoCaption');
+  const isVisible = cap.classList.contains('show');
+  // Gently fade the old caption out before swapping (slower, less abrupt)
   cap.classList.remove('show');
-  await new Promise(r => setTimeout(r, 250));
+  await new Promise(r => setTimeout(r, isVisible ? 520 : 60));
   if (demoState.abort) return;
   document.getElementById('demoCaptionTitle').textContent = title || '';
   document.getElementById('demoCaptionBody').textContent = body || '';
+  // brief tick so the transition animates from the hidden state (setTimeout works in background tabs; rAF does not)
+  await new Promise(r => setTimeout(r, 40));
   cap.classList.add('show');
+  // let the fade-in (0.8s) settle before the step continues
+  await new Promise(r => setTimeout(r, 400));
 }
 
 function demoSpotlight(el) {
