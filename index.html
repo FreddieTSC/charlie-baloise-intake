@@ -1649,24 +1649,34 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
 /* Confidence indicators */
 .confidence-low {
-  border-left: 3px solid var(--warning) !important;
-  background: #FFF7ED !important;
+  border: 1.5px solid #ED8936 !important;
+  background: #FFE2C2 !important;
+  box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.22) !important;
+  color: #7C2D12 !important;
+  font-weight: 600 !important;
+  animation: confidencePulse 1.8s ease-in-out infinite;
 }
-.confidence-low::after { content: '⚠'; }
 .confidence-medium {
-  border-left: 3px solid #FCD34D !important;
-  background: #FFFBEB !important;
+  border: 1.5px solid #E0A93C !important;
+  background: #FFF1CC !important;
+  box-shadow: 0 0 0 3px rgba(224, 169, 60, 0.18) !important;
+  color: #92400E !important;
+  font-weight: 600 !important;
+}
+@keyframes confidencePulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.18) !important; }
+  50% { box-shadow: 0 0 0 5px rgba(237, 137, 54, 0.40) !important; }
 }
 /* Confidence tooltip */
 .confidence-low[title], .confidence-medium[title] { cursor: help; }
 /* Partijen table confidence */
 .partijen-table td.confidence-low {
-  border-left: 3px solid var(--warning);
-  background: #FFF7ED;
+  border: 1.5px solid #ED8936;
+  background: #FFE2C2;
 }
 .partijen-table td.confidence-medium {
-  border-left: 3px solid #FCD34D;
-  background: #FFFBEB;
+  border: 1.5px solid #E0A93C;
+  background: #FFF1CC;
 }
 /* Confidence badge in meta bar */
 .confidence-badge {
@@ -4390,7 +4400,14 @@ const SAMPLE_DOSSIER = {
     { titel: '26-602007_polis brandverzekering', type: 'polis', paginas: '2-4', bron: 'polis.pdf', beschrijving: 'Brandpolis met dekkingen en kapitalen', bedrag: null },
     { titel: '26-602007_schadeaangifte', type: 'schadeaangifte', paginas: '5-6', bron: 'aangifte.pdf', beschrijving: 'Ingevulde schadeaangifte door verzekerde', bedrag: null },
     { titel: '26-602007_factuur herstelling 18500,00 EUR', type: 'factuur', paginas: '7', bron: 'factuur.pdf', beschrijving: 'Bestek herstelling brand- en rookschade', bedrag: 18500 }
-  ]
+  ],
+  // Confidence per field — low/medium fields are highlighted orange/yellow in the form
+  Confidence: {
+    Schadebedrag: 'low',
+    KapitaalGebouw: 'low',
+    Vrijstelling: 'medium',
+    Makelaar: 'low'
+  }
   // No FotoPages — demo media is injected directly into mediaFiles
 };
 
@@ -4626,7 +4643,15 @@ function buildDemoSteps() {
     },
     async () => {
       switchToTab(1);
-      await demoSetCaption('Uncertainty made visible', 'Fields Charlie is less sure about turn orange — so the handler can check them at a glance.');
+      applyConfidenceHighlights();
+      // bring a low-confidence field into view and spotlight it so the orange is obvious
+      const lc = document.getElementById('fSchadebedrag');
+      if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
+      await demoSetCaption('Uncertainty made visible', 'Fields Charlie is less sure about turn orange (and yellow for "maybe") — so the handler checks them at a glance.');
+    },
+    async () => {
+      demoClearSpotlight();
+      await demoSetCaption('Confidence per field', 'These highlights come straight from the LLM: it reports how confident it is for each field it fills in.');
     },
     async () => {
       switchToTab(1);
