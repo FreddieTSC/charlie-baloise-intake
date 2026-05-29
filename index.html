@@ -4406,32 +4406,12 @@ Karel Vermeulen`;
 
 // Build a few placeholder "schadefoto" images on canvas
 function buildDemoMedia() {
-  const specs = [
-    { c1: '#5B6B7B', c2: '#2D3A47', label: '📷 Keuken — brandhaard' },
-    { c1: '#7A6E5D', c2: '#4A4136', label: '📷 Leefruimte — rookschade' },
-    { c1: '#6B7B6B', c2: '#3A473A', label: '📷 Gang — roetneerslag' }
-  ];
-  return specs.map((s, i) => {
-    const cv = document.createElement('canvas');
-    cv.width = 640; cv.height = 440;
-    const ctx = cv.getContext('2d');
-    const g = ctx.createLinearGradient(0, 0, 640, 440);
-    g.addColorStop(0, s.c1); g.addColorStop(1, s.c2);
-    ctx.fillStyle = g; ctx.fillRect(0, 0, 640, 440);
-    // subtle noise/texture
-    for (let n = 0; n < 600; n++) {
-      ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
-      ctx.fillRect(Math.random() * 640, Math.random() * 440, 2, 2);
-    }
-    // label plate
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.fillRect(0, 380, 640, 60);
-    ctx.fillStyle = '#fff';
-    ctx.font = '600 22px Inter, sans-serif';
-    ctx.fillText(s.label, 24, 418);
-    const dataUrl = cv.toDataURL('image/jpeg', 0.85);
-    return { name: `26-602007_foto_${i + 1}.jpg`, size: Math.round(dataUrl.length * 0.75), type: 'image/jpeg', dataUrl, fromMsg: 'opdracht.msg' };
-  });
+  // Real fire/smoke-damage photos (public-domain interior photos, RCE / Wikimedia Commons)
+  return [
+    { name: '26-602007_keuken_brandhaard.jpg', src: 'demo/26-602007_keuken_brandhaard.jpg', size: 224513 },
+    { name: '26-602007_leefruimte_rookschade.jpg', src: 'demo/26-602007_leefruimte_rookschade.jpg', size: 273096 },
+    { name: '26-602007_gang_roetneerslag.jpg', src: 'demo/26-602007_gang_roetneerslag.jpg', size: 444462 }
+  ].map(it => ({ name: it.name, size: it.size, type: 'image/jpeg', dataUrl: it.src, fromMsg: 'opdracht.msg' }));
 }
 
 let demoState = { running: false, abort: false, advance: false, step: 0, total: 0 };
