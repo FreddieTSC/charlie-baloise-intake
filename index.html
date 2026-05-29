@@ -322,6 +322,197 @@ body {
   transition: box-shadow 0.3s ease;
 }
 
+/* ========== CHARLIE BIJSTUREN (self-service prompt — demo) ========== */
+.tune-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8600;
+  background: var(--bg-page, #F4F6F9);
+  display: none;
+  flex-direction: column;
+}
+.tune-view.visible { display: flex; }
+.tune-header {
+  background: var(--bg-white, #fff);
+  border-bottom: 3px solid var(--ced-navy);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.tune-header-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ced-blue);
+}
+.tune-header-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  margin-left: auto;
+  background: #EAF7EE;
+  border: 1px solid #BBE5C7;
+  color: #1B7A3D;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.tune-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 24px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+.tune-panel {
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 14px rgba(28, 5, 79, 0.06);
+  align-self: start;
+}
+.tune-panel h3 {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ced-navy);
+  margin: 0 0 4px;
+}
+.tune-panel .tune-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  margin-bottom: 16px;
+}
+.tune-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tune-tab {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border, #E2E8F0);
+  background: #fff;
+  color: var(--text-body, #333);
+  cursor: pointer;
+}
+.tune-tab.active { background: var(--ced-navy); color: #fff; border-color: var(--ced-navy); }
+.tune-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-light, #EDF2F7);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-body, #333);
+  background: #FCFCFD;
+}
+.tune-rule .tr-dot { color: var(--ced-green, #86BC34); font-weight: 700; flex-shrink: 0; }
+.tune-rule .tr-tag {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: #1B7A3D;
+  background: #EAF7EE;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+@keyframes tuneRuleIn { from { opacity: 0; transform: translateY(-6px); background: #EAF7EE; } to { opacity: 1; transform: none; } }
+.tune-rule.new { animation: tuneRuleIn 0.5s ease; border-color: #BBE5C7; }
+.tune-newrule { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border, #E2E8F0); }
+.tune-newrule label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  margin-bottom: 8px;
+}
+.tune-newrule textarea {
+  width: 100%;
+  min-height: 64px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-body, #333);
+  resize: vertical;
+  background: #FCFCFD;
+}
+.tune-newrule-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.tune-prompt-status { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-muted, #999); }
+.tune-add-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--ced-navy);
+  color: #fff;
+  cursor: pointer;
+}
+.tune-add-btn:hover { background: var(--ced-purple); }
+.tune-test-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-light, #EDF2F7);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.tune-test-row .tt-name { font-weight: 600; color: var(--ced-navy); }
+.tune-test-row .tt-detail { font-size: 11px; color: var(--text-secondary, #666); margin-top: 2px; }
+.tune-test-row .tt-status { margin-left: auto; flex-shrink: 0; font-size: 18px; }
+.tune-test-row .tt-status.pending { width: 16px; height: 16px; border: 2px solid var(--border, #E2E8F0); border-top-color: var(--ced-blue); border-radius: 50%; animation: replySpin 0.8s linear infinite; }
+.tune-test-row.pass { border-color: #BBE5C7; background: #F6FBF7; }
+.tune-test-row .tt-status.pass { color: var(--ced-green, #86BC34); }
+.tune-test-btn {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--ced-blue);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.tune-test-summary {
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1B7A3D;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.tune-test-summary.show { opacity: 1; }
+
 /* ========== REPLY GENERATOR VIEW ========== */
 .reply-view {
   position: fixed;
@@ -2144,6 +2335,69 @@ select.dropdown-active {
       <div class="reply-learned-foot">
         <button class="reply-btn" onclick="clearLearnedCorrections()">Alles wissen</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHARLIE BIJSTUREN (self-service prompt — demo) ===== -->
+<div class="tune-view" id="tuneView">
+  <div class="tune-header">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
+      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+    </svg>
+    <span class="tune-header-title">Charlie bijsturen</span>
+    <span class="tune-header-sub" id="tunePromptBadge">✦ Beheerd door de dossierbeheerder — geen IT nodig</span>
+  </div>
+  <div class="tune-body">
+    <!-- LEFT: instructies -->
+    <div class="tune-panel">
+      <h3>Instructies in gewone taal</h3>
+      <div class="tune-sub">Schrijf zelf hoe Charlie moet werken. De regel gaat meteen mee in Charlie's prompt.</div>
+      <div class="tune-tabs">
+        <div class="tune-tab active" id="tuneTabDossier" onclick="demoTuneSwitchTab('dossier')">Dossier-regels</div>
+        <div class="tune-tab" id="tuneTabReply" onclick="demoTuneSwitchTab('reply')">Antwoord-regels</div>
+      </div>
+      <div id="tuneRulesDossier">
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Woonplaats altijd in HOOFDLETTERS schrijven.</span><span class="tr-tag">actief</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Bedragen zonder valutasymbool, met punt als duizendscheiding.</span><span class="tr-tag">actief</span></div>
+      </div>
+      <div id="tuneRulesReply" style="display:none;">
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Sluit elk antwoord af met "Team CED Schaderegeling".</span><span class="tr-tag">actief</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Verwijs naar "uw makelaar of maatschappij", niet enkel de maatschappij.</span><span class="tr-tag">actief</span></div>
+      </div>
+      <div class="tune-newrule">
+        <label for="tuneNewRule">Nieuwe instructie</label>
+        <textarea id="tuneNewRule" placeholder="bv. Bij Baloise: haal het schadereferte uit de onderwerpregel, na 'SIN-'."></textarea>
+        <div class="tune-newrule-actions">
+          <span class="tune-prompt-status" id="tunePromptStatus">Charlie's prompt — 4 regels actief</span>
+          <button class="tune-add-btn" onclick="demoTuneAddCurrent()">+ Toevoegen aan Charlie</button>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT: testen -->
+    <div class="tune-panel">
+      <h3>Testen op voorbeelden</h3>
+      <div class="tune-sub">Een nieuwe manier van testen: probeer de regel meteen uit op echte voorbeeld-opdrachten — zonder ontwikkelaars.</div>
+      <div id="tuneTestRows">
+        <div class="tune-test-row" data-detail="Referte SIN-2026-77421 uit onderwerp gehaald">
+          <div><div class="tt-name">Baloise — Brandschade Lindelaan</div><div class="tt-detail">Onderwerp: “… SIN-2026-77421 …”</div></div>
+          <span class="tt-status idle">•</span>
+        </div>
+        <div class="tune-test-row" data-detail="Referte SIN-2026-80512 uit onderwerp gehaald">
+          <div><div class="tt-name">AG Insurance — Waterschade Gent</div><div class="tt-detail">Onderwerp: “… SIN-2026-80512 …”</div></div>
+          <span class="tt-status idle">•</span>
+        </div>
+        <div class="tune-test-row" data-detail="Referte SIN-2026-81120 uit onderwerp gehaald">
+          <div><div class="tt-name">KBC — Stormschade Brugge</div><div class="tt-detail">Onderwerp: “… SIN-2026-81120 …”</div></div>
+          <span class="tt-status idle">•</span>
+        </div>
+        <div class="tune-test-row" data-detail="Referte SIN-2026-82001 uit onderwerp gehaald">
+          <div><div class="tt-name">Ethias — Brandschade Luik</div><div class="tt-detail">Onderwerp: “… SIN-2026-82001 …”</div></div>
+          <span class="tt-status idle">•</span>
+        </div>
+      </div>
+      <button class="tune-test-btn" onclick="demoTuneRunTest()">▶ Test de nieuwe regel op alle voorbeelden</button>
+      <div class="tune-test-summary" id="tuneTestSummary">✓ 4/4 voorbeelden correct — de regel werkt. Klaar voor gebruik.</div>
     </div>
   </div>
 </div>
@@ -4175,6 +4429,83 @@ async function demoWaitForTypewriter() {
   }
 }
 
+// ---- "Charlie bijsturen" (self-service prompt) demo helpers ----
+function demoCountTuneRules() {
+  return document.querySelectorAll('#tuneRulesDossier .tune-rule, #tuneRulesReply .tune-rule').length;
+}
+function demoTuneReset() {
+  document.getElementById('tuneTabDossier').classList.add('active');
+  document.getElementById('tuneTabReply').classList.remove('active');
+  document.getElementById('tuneRulesDossier').style.display = '';
+  document.getElementById('tuneRulesReply').style.display = 'none';
+  document.querySelectorAll('.tune-rule.demo-added').forEach(e => e.remove());
+  document.getElementById('tuneNewRule').value = '';
+  document.querySelectorAll('#tuneTestRows .tune-test-row').forEach(r => {
+    r.classList.remove('pass');
+    const st = r.querySelector('.tt-status');
+    st.className = 'tt-status idle'; st.textContent = '•';
+    const applied = r.querySelector('.tt-applied'); if (applied) applied.remove();
+  });
+  document.getElementById('tuneTestSummary').classList.remove('show');
+  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} regels actief`;
+}
+function demoTuneSwitchTab(which) {
+  const isDossier = which === 'dossier';
+  document.getElementById('tuneTabDossier').classList.toggle('active', isDossier);
+  document.getElementById('tuneTabReply').classList.toggle('active', !isDossier);
+  document.getElementById('tuneRulesDossier').style.display = isDossier ? '' : 'none';
+  document.getElementById('tuneRulesReply').style.display = isDossier ? 'none' : '';
+}
+async function demoType(el, text, speed = 42) {
+  el.value = '';
+  for (const ch of text) {
+    if (demoState.abort || demoState.skip) { el.value = text; break; }
+    el.value += ch;
+    await new Promise(r => setTimeout(r, demoState.paused ? speed * 3 : speed));
+  }
+}
+function demoTuneAddRule(text, tab) {
+  const listId = tab === 'reply' ? 'tuneRulesReply' : 'tuneRulesDossier';
+  const div = document.createElement('div');
+  div.className = 'tune-rule new demo-added';
+  div.innerHTML = `<span class="tr-dot">✓</span><span>${esc(text)}</span><span class="tr-tag">zojuist toegevoegd</span>`;
+  document.getElementById(listId).appendChild(div);
+  document.getElementById('tuneNewRule').value = '';
+  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} regels actief · zojuist bijgewerkt`;
+  showToast("Charlie's prompt bijgewerkt — geen IT nodig", 'success');
+}
+function demoTuneAddCurrent() {
+  const v = document.getElementById('tuneNewRule').value.trim();
+  if (!v) return;
+  const tab = document.getElementById('tuneTabReply').classList.contains('active') ? 'reply' : 'dossier';
+  demoTuneAddRule(v, tab);
+}
+async function demoTuneRunTest() {
+  const rows = Array.from(document.querySelectorAll('#tuneTestRows .tune-test-row'));
+  document.getElementById('tuneTestSummary').classList.remove('show');
+  rows.forEach(r => { r.classList.remove('pass'); const st = r.querySelector('.tt-status'); st.className = 'tt-status idle'; st.textContent = '•'; const a = r.querySelector('.tt-applied'); if (a) a.remove(); });
+  for (const r of rows) {
+    if (demoState.abort) break;
+    const st = r.querySelector('.tt-status');
+    st.className = 'tt-status pending'; st.textContent = '';
+    await demoSleep(550);
+    st.className = 'tt-status pass'; st.textContent = '✓';
+    r.classList.add('pass');
+    const detail = r.getAttribute('data-detail');
+    if (detail && !r.querySelector('.tt-applied')) {
+      const d = document.createElement('div');
+      d.className = 'tt-applied';
+      d.style.cssText = 'color: var(--ced-green, #86BC34); font-size:11px; font-weight:600; margin-top:3px;';
+      d.textContent = '✓ ' + detail;
+      r.querySelector('div').appendChild(d);
+    }
+    await demoSleep(250);
+  }
+  document.getElementById('tuneTestSummary').classList.add('show');
+}
+function demoOpenTune() { demoTuneReset(); document.getElementById('tuneView').classList.add('visible'); }
+function demoCloseTune() { document.getElementById('tuneView').classList.remove('visible'); }
+
 function buildDemoScenes() {
   return [
     { run: async () => {
@@ -4262,6 +4593,36 @@ function buildDemoScenes() {
         await demoSleep(500);
       } },
     { run: async () => {
+        await demoSetCaption('Zelf bijsturen — zonder IT', 'Soms wil de beheerder dat Charlie iets structureel anders aanpakt. Vroeger ging dat via een ticket naar IT. Nu doet de beheerder dat zélf.');
+        await demoSleep(6500);
+        demoOpenTune();
+        await demoSleep(1500);
+      } },
+    { run: async () => {
+        demoTuneSwitchTab('dossier');
+        await demoSetCaption('Een regel in gewone taal', 'De beheerder schrijft zelf een instructie. Die gaat meteen mee in Charlie’s prompt — geen ontwikkelaar nodig.');
+        await demoSleep(2500);
+        const ta = document.getElementById('tuneNewRule');
+        await demoType(ta, 'Bij Baloise: haal het schadereferte uit de onderwerpregel, na "SIN-".', 38);
+        await demoSleep(1200);
+        demoTuneAddRule(ta.value || 'Bij Baloise: haal het schadereferte uit de onderwerpregel, na "SIN-".', 'dossier');
+        await demoSleep(3500);
+      } },
+    { run: async () => {
+        await demoSetCaption('Een nieuwe manier van testen', 'En de beheerder test de regel meteen op een set echte voorbeeld-opdrachten — direct resultaat, zonder te wachten op IT.');
+        await demoSleep(2500);
+        await demoTuneRunTest();
+        await demoSleep(4500);
+      } },
+    { run: async () => {
+        await demoSetCaption('Eén plek voor alles', 'Dezelfde aanpak geldt voor de antwoorden: ook die regels beheert de beheerder hier zelf.');
+        await demoSleep(1500);
+        demoTuneSwitchTab('reply');
+        await demoSleep(5000);
+        demoCloseTune();
+        await demoSleep(500);
+      } },
+    { run: async () => {
         demoShowChoice();
         const cards = document.querySelectorAll('.choice-card');
         await demoSetCaption('Tweede functie', 'Charlie kan ook automatisch antwoorden op de meest voorkomende vragen van klanten en makelaars.');
@@ -4328,6 +4689,7 @@ async function runDemoFilm() {
     await new Promise(r => setTimeout(r, 400));
     document.getElementById('demoCaption').classList.remove('show');
     document.getElementById('demoOverlay').classList.remove('active');
+    document.getElementById('tuneView').classList.remove('visible');
     demoClearSpotlight();
     demoShowChoice();
     demoState.running = false;
