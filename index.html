@@ -4781,8 +4781,18 @@ async function runDemoFilm() {
 }
 
 function startDemo() {
-  sessionStorage.setItem('charlie_demo_autostart', '1');
-  location.reload();
+  if (demoState.running) return;
+  // Light reset for a clean run — no page reload (avoids the splash flash/glitch)
+  try {
+    documents = [];
+    mediaFiles = [];
+    if (typeof state === 'object') {
+      state.Confidence = {};
+      state.Derden = [];
+      state.Notas = [];
+    }
+  } catch (e) {}
+  runDemoFilm();
 }
 
 // ========== I18N (NL / EN / FR) ==========
@@ -7258,15 +7268,8 @@ console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 // ========== SPLASH SCREEN ==========
 let splashDismissed = false;
 
-// If launched from the Demo button, skip the splash entirely and start the film
-const __charlieDemoAutostart = (sessionStorage.getItem('charlie_demo_autostart') === '1');
-if (__charlieDemoAutostart) {
-  sessionStorage.removeItem('charlie_demo_autostart');
-  splashDismissed = true; // suppresses the splash typewriter animation below
-  const __sp = document.getElementById('splashScreen');
-  if (__sp) __sp.classList.add('hidden');
-  setTimeout(() => runDemoFilm(), 250);
-}
+// Clean up any stale demo-autostart flag from older versions (demo now runs in-place, no reload)
+try { sessionStorage.removeItem('charlie_demo_autostart'); } catch (e) {}
 
 function dismissSplash() {
   if (splashDismissed) return;
