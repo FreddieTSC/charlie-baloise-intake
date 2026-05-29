@@ -199,6 +199,128 @@ body {
   color: var(--text-secondary, #666);
   line-height: 1.5;
 }
+.choice-demo-btn {
+  margin-top: 8px;
+  background: none;
+  border: 1px solid #CFE6FB;
+  color: var(--ced-navy);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.choice-demo-btn:hover { background: #EEF6FF; border-color: var(--ced-blue); transform: translateY(-2px); }
+
+/* ========== DEMO FILM OVERLAY ========== */
+.demo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  pointer-events: none;
+  display: none;
+}
+.demo-overlay.active { display: block; }
+/* Progress bar (top) */
+.demo-progress {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: rgba(28, 5, 79, 0.12);
+}
+.demo-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--ced-blue), var(--ced-green));
+  transition: width 0.6s linear;
+}
+/* Caption bar (bottom) */
+.demo-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%) translateY(12px);
+  max-width: 760px;
+  width: calc(100% - 64px);
+  background: rgba(28, 5, 79, 0.94);
+  color: #fff;
+  border-radius: 14px;
+  padding: 18px 26px;
+  box-shadow: 0 12px 40px rgba(28, 5, 79, 0.35);
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  text-align: center;
+}
+.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.demo-caption .dc-title {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7FC2F0;
+  margin-bottom: 6px;
+}
+.demo-caption .dc-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+/* Control bar (bottom center) */
+.demo-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 30px;
+  padding: 8px 14px;
+  box-shadow: 0 6px 20px rgba(28, 5, 79, 0.18);
+  pointer-events: auto;
+}
+.demo-ctrl-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--ced-navy);
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+.demo-ctrl-btn:hover { background: var(--bg-page, #F4F6F9); }
+.demo-scene-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  padding: 0 10px;
+  border-left: 1px solid var(--border, #E2E8F0);
+  white-space: nowrap;
+}
+/* Spotlight highlight for elements during demo */
+.demo-spotlight {
+  position: relative;
+  z-index: 10040;
+  box-shadow: 0 0 0 4px rgba(56, 153, 221, 0.55), 0 0 0 9999px rgba(28, 5, 79, 0.0);
+  border-radius: 10px;
+  transition: box-shadow 0.3s ease;
+}
 
 /* ========== REPLY GENERATOR VIEW ========== */
 .reply-view {
@@ -1927,6 +2049,22 @@ select.dropdown-active {
       <div class="choice-card-title">Reply Generator</div>
       <div class="choice-card-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</div>
     </div>
+  </div>
+  <button class="choice-demo-btn" onclick="startDemo()">▶ Bekijk de demo <span style="opacity:.6;font-weight:400;">(±6 min)</span></button>
+</div>
+
+<!-- ===== DEMO FILM OVERLAY ===== -->
+<div class="demo-overlay" id="demoOverlay">
+  <div class="demo-progress"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
+  <div class="demo-caption" id="demoCaption">
+    <div class="dc-title" id="demoCaptionTitle"></div>
+    <div class="dc-body" id="demoCaptionBody"></div>
+  </div>
+  <div class="demo-controls">
+    <button class="demo-ctrl-btn" id="demoPauseBtn" onclick="demoTogglePause()">⏸ Pauze</button>
+    <button class="demo-ctrl-btn" onclick="demoSkip()">⏭ Volgende</button>
+    <button class="demo-ctrl-btn" onclick="demoExit()">✕ Sluiten</button>
+    <span class="demo-scene-label" id="demoSceneLabel">Scène 1</span>
   </div>
 </div>
 
@@ -3866,6 +4004,340 @@ function clearLearnedCorrections() {
     if (e.dataTransfer.files.length) handleReplyFile(e.dataTransfer.files[0]);
   });
 })();
+
+// ========== DEMO FILM ==========
+const SAMPLE_DOSSIER = {
+  DossierCode: '26-602007',
+  DatumOntvangst: '2026-05-20',
+  DatumSchade: '2026-05-15',
+  DatumEersteContact: '2026-05-18',
+  Schadelijder: {
+    Info: {
+      Type: 'Schadelijder', Naam: 'Vermeulen', Voornaam: 'Karel',
+      Polis: 'B-4458821', Taal: 'NLD', Telefoon: '03 234 56 78', Email: 'karel.vermeulen@telenet.be',
+      Locatie: { Straat: 'Lindelaan', Huisnummer: '23', Postcode: '2018', Woonplaats: 'ANTWERPEN', Land: 'BE' }
+    },
+    Partijen: []
+  },
+  LocatieSchade: { Straat: 'Lindelaan', Huisnummer: '23', Postcode: '2018', Woonplaats: 'ANTWERPEN', Land: 'BE' },
+  SchadeTypeH: 'Brand',
+  SchadeTypeS: 'Brandschade',
+  Schadebedrag: 18500,
+  Claim: 18500,
+  Vrijstelling: 250,
+  KapitaalGebouw: 320000,
+  ExpertiseMethode: 'Tegensprekelijk',
+  Tarificatie: 'Standaard',
+  RoerendOnroerend: 'Beide',
+  BAVrijeTekst: 'Brand ontstaan in de keuken door kortsluiting van een toestel. Rookschade in de leefruimte en aangrenzende gang. Geen gewonden.',
+  Verhaal: 'Mogelijk verhaal op fabrikant van het defecte toestel — te onderzoeken.',
+  Expert: 'CED Expertise',
+  Derden: [
+    {
+      Info: {
+        Type: 'Maatschappij', Naam: 'Baloise', Referte: 'SIN-2026-77421',
+        Correspondent: 'Dienst Brand', Email: 'brand@baloise.be', Telefoon: '078 15 50 50',
+        Locatie: { Straat: 'Posthofbrug', Huisnummer: '16', Postcode: '2600', Woonplaats: 'ANTWERPEN', Land: 'BE' }
+      }, Partijen: []
+    },
+    {
+      Info: {
+        Type: 'Makelaar', Naam: 'Verzekeringen De Brabandere', Code: 'MK-1182',
+        Email: 'info@debrabandere.be', Telefoon: '051 20 30 40',
+        Locatie: { Straat: 'Marktplein', Huisnummer: '5', Postcode: '8800', Woonplaats: 'ROESELARE', Land: 'BE' }
+      }, Partijen: []
+    }
+  ],
+  Notas: [
+    'Polisperiode loopt van 01/01/2026 tot 31/12/2026.',
+    'Schadelijder is overdag telefonisch bereikbaar na 17u.',
+    'Expertise gepland in onderling overleg met de maatschappij.'
+  ],
+  Samenvatting: 'Karel Vermeulen meldt brandschade aan zijn woning in de Lindelaan te Antwerpen, ontstaan op 15 mei 2026 door kortsluiting van een keukentoestel. Er is rook- en brandschade in de keuken en leefruimte. De schade wordt tegensprekelijk geëxpertiseerd; het geraamde schadebedrag bedraagt € 18.500.',
+  Documenten: [
+    { titel: '26-602007_opdracht Baloise', type: 'opdracht', paginas: '1', bron: 'opdracht.msg', beschrijving: 'Opdracht tot expertise van de maatschappij', bedrag: null },
+    { titel: '26-602007_polis brandverzekering', type: 'polis', paginas: '2-4', bron: 'polis.pdf', beschrijving: 'Brandpolis met dekkingen en kapitalen', bedrag: null },
+    { titel: '26-602007_schadeaangifte', type: 'schadeaangifte', paginas: '5-6', bron: 'aangifte.pdf', beschrijving: 'Ingevulde schadeaangifte door verzekerde', bedrag: null },
+    { titel: '26-602007_factuur herstelling 18500,00 EUR', type: 'factuur', paginas: '7', bron: 'factuur.pdf', beschrijving: 'Bestek herstelling brand- en rookschade', bedrag: 18500 }
+  ]
+  // No FotoPages — demo media is injected directly into mediaFiles
+};
+
+const SAMPLE_REPLY_MAIL = `Onderwerp: Vraag verslag dossier 26-602007
+
+Beste,
+
+Kan u mij het expertiseverslag van mijn dossier (brandschade Lindelaan) bezorgen?
+Ik zou graag een kopie ontvangen voor mijn administratie.
+
+Alvast bedankt,
+Karel Vermeulen`;
+
+// Build a few placeholder "schadefoto" images on canvas
+function buildDemoMedia() {
+  const specs = [
+    { c1: '#5B6B7B', c2: '#2D3A47', label: '📷 Keuken — brandhaard' },
+    { c1: '#7A6E5D', c2: '#4A4136', label: '📷 Leefruimte — rookschade' },
+    { c1: '#6B7B6B', c2: '#3A473A', label: '📷 Gang — roetneerslag' }
+  ];
+  return specs.map((s, i) => {
+    const cv = document.createElement('canvas');
+    cv.width = 640; cv.height = 440;
+    const ctx = cv.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 640, 440);
+    g.addColorStop(0, s.c1); g.addColorStop(1, s.c2);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 640, 440);
+    // subtle noise/texture
+    for (let n = 0; n < 600; n++) {
+      ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
+      ctx.fillRect(Math.random() * 640, Math.random() * 440, 2, 2);
+    }
+    // label plate
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(0, 380, 640, 60);
+    ctx.fillStyle = '#fff';
+    ctx.font = '600 22px Inter, sans-serif';
+    ctx.fillText(s.label, 24, 418);
+    const dataUrl = cv.toDataURL('image/jpeg', 0.85);
+    return { name: `26-602007_foto_${i + 1}.jpg`, size: Math.round(dataUrl.length * 0.75), type: 'image/jpeg', dataUrl, fromMsg: 'opdracht.msg' };
+  });
+}
+
+let demoState = { running: false, paused: false, skip: false, abort: false, scene: 0, total: 0 };
+let demoLsSnapshot = null;
+
+function demoSleep(ms) {
+  return new Promise(resolve => {
+    let remaining = ms;
+    const tick = 120;
+    const iv = setInterval(() => {
+      if (demoState.abort || demoState.skip) { clearInterval(iv); resolve(); return; }
+      if (!demoState.paused) remaining -= tick;
+      if (remaining <= 0) { clearInterval(iv); resolve(); }
+    }, tick);
+  });
+}
+
+async function demoSetCaption(title, body) {
+  const cap = document.getElementById('demoCaption');
+  cap.classList.remove('show');
+  await new Promise(r => setTimeout(r, 250));
+  if (demoState.abort) return;
+  document.getElementById('demoCaptionTitle').textContent = title || '';
+  document.getElementById('demoCaptionBody').textContent = body || '';
+  cap.classList.add('show');
+}
+
+function demoSpotlight(el) {
+  document.querySelectorAll('.demo-spotlight').forEach(e => e.classList.remove('demo-spotlight'));
+  if (el) el.classList.add('demo-spotlight');
+}
+function demoClearSpotlight() {
+  document.querySelectorAll('.demo-spotlight').forEach(e => e.classList.remove('demo-spotlight'));
+}
+
+function updateDemoProgress() {
+  const pct = demoState.total ? Math.round((demoState.scene - 1) / demoState.total * 100) : 0;
+  document.getElementById('demoProgressBar').style.width = pct + '%';
+}
+
+function demoTogglePause() {
+  demoState.paused = !demoState.paused;
+  document.getElementById('demoPauseBtn').innerHTML = demoState.paused ? '▶ Verder' : '⏸ Pauze';
+}
+function demoSkip() { demoState.skip = true; typewriterAbort = true; }
+function demoExit() {
+  demoState.abort = true; typewriterAbort = true;
+  demoRestoreLs();
+  window.__demoMode = false;
+  location.reload();
+}
+
+function demoRestoreLs() {
+  try {
+    if (demoLsSnapshot === null) localStorage.removeItem(REPLY_LS_KEY);
+    else localStorage.setItem(REPLY_LS_KEY, demoLsSnapshot);
+  } catch (e) {}
+}
+
+function demoShowChoice() {
+  document.getElementById('replyView').classList.remove('visible');
+  document.getElementById('choiceScreen').classList.add('visible');
+}
+
+async function demoWaitForTypewriter() {
+  const wrapper = document.getElementById('buildexForm');
+  await new Promise(r => setTimeout(r, 400));
+  while (wrapper.classList.contains('typewriter-active')) {
+    if (demoState.abort || demoState.skip) typewriterAbort = true;
+    await new Promise(r => setTimeout(r, 200));
+    if (demoState.abort) break;
+  }
+}
+
+function buildDemoScenes() {
+  return [
+    { run: async () => {
+        demoShowChoice();
+        await demoSetCaption('Welkom', 'Charlie is de digitale assistent van CED voor het aanmaken van schadedossiers en het beantwoorden van mails.');
+        await demoSleep(6500);
+      } },
+    { run: async () => {
+        const cards = document.querySelectorAll('.choice-card');
+        await demoSetCaption('Twee functies', 'Links: een volledig dossier aanmaken uit een opdracht. Rechts: automatisch antwoorden op veelvoorkomende vragen.');
+        if (cards[0]) demoSpotlight(cards[0]);
+        await demoSleep(3500);
+        if (cards[1]) demoSpotlight(cards[1]);
+        await demoSleep(3500);
+        demoClearSpotlight();
+      } },
+    { run: async () => {
+        chooseDossier();
+        showBuildex();
+        const iz = document.getElementById('intakeZone');
+        if (iz) demoSpotlight(iz);
+        await demoSetCaption('Intake', 'De beheerder sleept de opdracht-mail (.msg) van de verzekeraar in Charlie — inclusief alle PDF-bijlagen.');
+        await demoSleep(5000);
+        demoClearSpotlight();
+      } },
+    { run: async () => {
+        mediaFiles = buildDemoMedia();
+        populateFromApiResponse({ data: SAMPLE_DOSSIER });
+        const caps = [
+          ['Analyse', 'Charlie leest de e-mail én alle PDF-bijlagen en haalt automatisch alle gegevens eruit.'],
+          ['Kerngegevens', 'Dossiernummer, schadelijder, polis en datums worden automatisch ingevuld.'],
+          ['Slimme herkenning', 'Maatschappij en makelaar worden herkend uit meer dan 6.000 kantoren.'],
+          ['Classificatie', 'Het schadetype en de bedragen worden automatisch bepaald.'],
+          ['Documenten & foto’s', 'Documenten worden herkend en gesorteerd; foto’s komen apart in Multimedia.']
+        ];
+        const wrapper = document.getElementById('buildexForm');
+        await new Promise(r => setTimeout(r, 500));
+        let i = 0;
+        while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.skip) {
+          const c = caps[Math.min(i, caps.length - 1)];
+          await demoSetCaption(c[0], c[1]);
+          let waited = 0;
+          while (waited < 6500 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.skip) {
+            if (!demoState.paused) waited += 150;
+            await new Promise(r => setTimeout(r, 150));
+          }
+          i++;
+        }
+        if (demoState.skip) typewriterAbort = true;
+        await demoWaitForTypewriter();
+      } },
+    { run: async () => {
+        switchToTab(0);
+        await demoSetCaption('Samenvatting', 'Charlie schrijft een korte, leesbare samenvatting van het volledige dossier.');
+        await demoSleep(7000);
+      } },
+    { run: async () => {
+        switchToTab(1);
+        await demoSetCaption('Onzekerheid in beeld', 'Velden waar Charlie minder zeker over is, kleuren oranje — zo controleert de beheerder ze in één oogopslag.');
+        await demoSleep(6500);
+        await demoSetCaption('Partijen', 'Alle betrokkenen — maatschappij, makelaar, expert — staan overzichtelijk samen en zijn bewerkbaar met slimme zoeklijsten.');
+        await demoSleep(6500);
+      } },
+    { run: async () => {
+        switchToTab(3);
+        await demoSetCaption('Documenten', 'Elk document wordt herkend, chronologisch geordend en voorzien van type en bedrag.');
+        await demoSleep(6500);
+      } },
+    { run: async () => {
+        switchToTab(8);
+        await demoSetCaption('Multimedia', 'Foto’s uit de mail en de PDF’s komen automatisch hier terecht, los van de documenten.');
+        await demoSleep(6500);
+      } },
+    { run: async () => {
+        switchToTab(1);
+        toggleEditMode();
+        await demoSetCaption('Bewerken', 'Niets staat vast: de beheerder kan elk veld aanpassen voordat het dossier verdergaat.');
+        await demoSleep(5500);
+        const claimEl = document.getElementById('fClaim');
+        if (claimEl) claimEl.value = '18750';
+        await demoSetCaption('Push naar BuildeX', 'Met één klik gaat het dossier naar BuildeX II — en correcties worden bewaard zodat Charlie blijft leren.');
+        pushToBuildex();
+        await demoSleep(7000);
+        closePushModal();
+        await demoSleep(500);
+      } },
+    { run: async () => {
+        demoShowChoice();
+        const cards = document.querySelectorAll('.choice-card');
+        await demoSetCaption('Tweede functie', 'Charlie kan ook automatisch antwoorden op de meest voorkomende vragen van klanten en makelaars.');
+        if (cards[1]) demoSpotlight(cards[1]);
+        await demoSleep(4500);
+        demoClearSpotlight();
+        chooseReply();
+        await demoSleep(800);
+      } },
+    { run: async () => {
+        document.getElementById('replyDrop').style.display = 'none';
+        document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
+        document.getElementById('replyMailPreview').classList.add('visible');
+        await demoSetCaption('Inkomende vraag', 'Een klant vraagt om het expertiseverslag van zijn dossier.');
+        await demoSleep(5000);
+        currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
+        showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
+        await demoSetCaption('Automatisch antwoord', 'Charlie herkent het type vraag en genereert meteen het juiste standaard-antwoord, klaar om te versturen.');
+        await demoSleep(6500);
+      } },
+    { run: async () => {
+        const ta = document.getElementById('replyTextarea');
+        if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
+        const cm = document.getElementById('replyComment');
+        if (cm) cm.value = 'Altijd afsluiten met de teamnaam.';
+        await demoSetCaption('Bewerken & leren', 'De beheerder verfijnt het antwoord en klikt op "Opslaan & leren".');
+        await demoSleep(5000);
+        saveReplyCorrection();
+        await demoSetCaption('Charlie leert', 'Elke correctie maakt zowel de herkenning als de antwoorden steeds beter.');
+        await demoSleep(6000);
+      } },
+    { run: async () => {
+        demoRestoreLs(); updateLearnedCount();
+        demoShowChoice();
+        await demoSetCaption('Klaar', 'Charlie: sneller dossiers, slimmere antwoorden — en het leert elke dag bij.');
+        await demoSleep(7000);
+      } }
+  ];
+}
+
+async function runDemoFilm() {
+  if (demoState.running) return;
+  demoState = { running: true, paused: false, skip: false, abort: false, scene: 0, total: 0 };
+  window.__demoMode = true;
+  demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
+  document.getElementById('demoPauseBtn').innerHTML = '⏸ Pauze';
+  const overlay = document.getElementById('demoOverlay');
+  overlay.classList.add('active');
+  const scenes = buildDemoScenes();
+  demoState.total = scenes.length;
+  for (let s = 0; s < scenes.length; s++) {
+    if (demoState.abort) break;
+    demoState.scene = s + 1;
+    demoState.skip = false;
+    typewriterAbort = false;
+    updateDemoProgress();
+    document.getElementById('demoSceneLabel').textContent = `Scène ${s + 1}/${scenes.length}`;
+    try { await scenes[s].run(); } catch (e) { console.error('[Demo] scene error:', e); }
+  }
+  if (!demoState.abort) {
+    document.getElementById('demoProgressBar').style.width = '100%';
+    demoRestoreLs();
+    window.__demoMode = false;
+    await new Promise(r => setTimeout(r, 400));
+    document.getElementById('demoCaption').classList.remove('show');
+    document.getElementById('demoOverlay').classList.remove('active');
+    demoClearSpotlight();
+    demoShowChoice();
+    demoState.running = false;
+  }
+}
+
+function startDemo() {
+  sessionStorage.setItem('charlie_demo_autostart', '1');
+  location.reload();
+}
 
 // ========== STATE ==========
 const state = {
@@ -6020,6 +6492,7 @@ function pushToBuildex() {
 }
 
 function downloadChangelog() {
+  if (window.__demoMode) return; // suppress file download during demo film
   const report = {
     dossierCode: state.DossierCode,
     model: document.getElementById('apiModel')?.textContent || document.getElementById('modelDropdown')?.value || 'unknown',
@@ -6176,6 +6649,16 @@ function backToChoice() {
   await d(800);
   if (!splashDismissed) hint.classList.add('visible');
 })();
+
+// ========== DEMO AUTOSTART (after splash) ==========
+if (sessionStorage.getItem('charlie_demo_autostart') === '1') {
+  sessionStorage.removeItem('charlie_demo_autostart');
+  // Let the splash play briefly as a branded intro, then launch the demo film
+  setTimeout(() => {
+    dismissSplash();
+    setTimeout(runDemoFilm, 700);
+  }, 3200);
+}
 </script>
 </body>
 </html>
