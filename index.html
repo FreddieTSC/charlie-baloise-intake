@@ -304,6 +304,8 @@ body {
   transition: background 0.15s ease;
 }
 .demo-ctrl-btn:hover { background: var(--bg-page, #F4F6F9); }
+.demo-ctrl-btn.primary { background: var(--ced-navy); color: #fff; }
+.demo-ctrl-btn.primary:hover { background: var(--ced-purple); }
 .demo-scene-label {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
@@ -2241,7 +2243,7 @@ select.dropdown-active {
       <div class="choice-card-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</div>
     </div>
   </div>
-  <button class="choice-demo-btn" onclick="startDemo()">▶ Bekijk de demo <span style="opacity:.6;font-weight:400;">(±6 min)</span></button>
+  <button class="choice-demo-btn" onclick="startDemo()">▶ Watch the demo <span style="opacity:.6;font-weight:400;">(click to advance)</span></button>
 </div>
 
 <!-- ===== DEMO FILM OVERLAY ===== -->
@@ -2252,10 +2254,9 @@ select.dropdown-active {
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
   <div class="demo-controls">
-    <button class="demo-ctrl-btn" id="demoPauseBtn" onclick="demoTogglePause()">⏸ Pauze</button>
-    <button class="demo-ctrl-btn" onclick="demoSkip()">⏭ Volgende</button>
-    <button class="demo-ctrl-btn" onclick="demoExit()">✕ Sluiten</button>
-    <span class="demo-scene-label" id="demoSceneLabel">Scène 1</span>
+    <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()">Next ▶</button>
+    <button class="demo-ctrl-btn" onclick="demoExit()">✕ Close</button>
+    <span class="demo-scene-label" id="demoSceneLabel">Step 1</span>
   </div>
 </div>
 
@@ -2345,59 +2346,59 @@ select.dropdown-active {
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
       <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
-    <span class="tune-header-title">Charlie bijsturen</span>
-    <span class="tune-header-sub" id="tunePromptBadge">✦ Beheerd door de dossierbeheerder — geen IT nodig</span>
+    <span class="tune-header-title">Tune Charlie</span>
+    <span class="tune-header-sub" id="tunePromptBadge">✦ Managed by the claims handler — no IT needed</span>
   </div>
   <div class="tune-body">
-    <!-- LEFT: instructies -->
+    <!-- LEFT: instructions -->
     <div class="tune-panel">
-      <h3>Instructies in gewone taal</h3>
-      <div class="tune-sub">Schrijf zelf hoe Charlie moet werken. De regel gaat meteen mee in Charlie's prompt.</div>
+      <h3>Instructions in plain language</h3>
+      <div class="tune-sub">Write how Charlie should work, yourself. The rule goes straight into Charlie's prompt.</div>
       <div class="tune-tabs">
-        <div class="tune-tab active" id="tuneTabDossier" onclick="demoTuneSwitchTab('dossier')">Dossier-regels</div>
-        <div class="tune-tab" id="tuneTabReply" onclick="demoTuneSwitchTab('reply')">Antwoord-regels</div>
+        <div class="tune-tab active" id="tuneTabDossier" onclick="demoTuneSwitchTab('dossier')">File rules</div>
+        <div class="tune-tab" id="tuneTabReply" onclick="demoTuneSwitchTab('reply')">Reply rules</div>
       </div>
       <div id="tuneRulesDossier">
-        <div class="tune-rule"><span class="tr-dot">✓</span><span>Woonplaats altijd in HOOFDLETTERS schrijven.</span><span class="tr-tag">actief</span></div>
-        <div class="tune-rule"><span class="tr-dot">✓</span><span>Bedragen zonder valutasymbool, met punt als duizendscheiding.</span><span class="tr-tag">actief</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Always write the city in CAPITALS.</span><span class="tr-tag">active</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Amounts without currency symbol, with a dot as thousands separator.</span><span class="tr-tag">active</span></div>
       </div>
       <div id="tuneRulesReply" style="display:none;">
-        <div class="tune-rule"><span class="tr-dot">✓</span><span>Sluit elk antwoord af met "Team CED Schaderegeling".</span><span class="tr-tag">actief</span></div>
-        <div class="tune-rule"><span class="tr-dot">✓</span><span>Verwijs naar "uw makelaar of maatschappij", niet enkel de maatschappij.</span><span class="tr-tag">actief</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Close every reply with "Team CED Claims".</span><span class="tr-tag">active</span></div>
+        <div class="tune-rule"><span class="tr-dot">✓</span><span>Refer to "your broker or insurer", not just the insurer.</span><span class="tr-tag">active</span></div>
       </div>
       <div class="tune-newrule">
-        <label for="tuneNewRule">Nieuwe instructie</label>
-        <textarea id="tuneNewRule" placeholder="bv. Bij Baloise: haal het schadereferte uit de onderwerpregel, na 'SIN-'."></textarea>
+        <label for="tuneNewRule">New instruction</label>
+        <textarea id="tuneNewRule" placeholder="e.g. For Baloise: take the claim reference from the subject line, after 'SIN-'."></textarea>
         <div class="tune-newrule-actions">
-          <span class="tune-prompt-status" id="tunePromptStatus">Charlie's prompt — 4 regels actief</span>
-          <button class="tune-add-btn" onclick="demoTuneAddCurrent()">+ Toevoegen aan Charlie</button>
+          <span class="tune-prompt-status" id="tunePromptStatus">Charlie's prompt — 4 rules active</span>
+          <button class="tune-add-btn" onclick="demoTuneAddCurrent()">+ Add to Charlie</button>
         </div>
       </div>
     </div>
-    <!-- RIGHT: testen -->
+    <!-- RIGHT: testing -->
     <div class="tune-panel">
-      <h3>Testen op voorbeelden</h3>
-      <div class="tune-sub">Een nieuwe manier van testen: probeer de regel meteen uit op echte voorbeeld-opdrachten — zonder ontwikkelaars.</div>
+      <h3>Test on examples</h3>
+      <div class="tune-sub">A new way of testing: try the rule instantly on real example assignments — without developers.</div>
       <div id="tuneTestRows">
-        <div class="tune-test-row" data-detail="Referte SIN-2026-77421 uit onderwerp gehaald">
-          <div><div class="tt-name">Baloise — Brandschade Lindelaan</div><div class="tt-detail">Onderwerp: “… SIN-2026-77421 …”</div></div>
+        <div class="tune-test-row" data-detail="Reference SIN-2026-77421 extracted from subject">
+          <div><div class="tt-name">Baloise — Fire damage Lindelaan</div><div class="tt-detail">Subject: “… SIN-2026-77421 …”</div></div>
           <span class="tt-status idle">•</span>
         </div>
-        <div class="tune-test-row" data-detail="Referte SIN-2026-80512 uit onderwerp gehaald">
-          <div><div class="tt-name">AG Insurance — Waterschade Gent</div><div class="tt-detail">Onderwerp: “… SIN-2026-80512 …”</div></div>
+        <div class="tune-test-row" data-detail="Reference SIN-2026-80512 extracted from subject">
+          <div><div class="tt-name">AG Insurance — Water damage Ghent</div><div class="tt-detail">Subject: “… SIN-2026-80512 …”</div></div>
           <span class="tt-status idle">•</span>
         </div>
-        <div class="tune-test-row" data-detail="Referte SIN-2026-81120 uit onderwerp gehaald">
-          <div><div class="tt-name">KBC — Stormschade Brugge</div><div class="tt-detail">Onderwerp: “… SIN-2026-81120 …”</div></div>
+        <div class="tune-test-row" data-detail="Reference SIN-2026-81120 extracted from subject">
+          <div><div class="tt-name">KBC — Storm damage Bruges</div><div class="tt-detail">Subject: “… SIN-2026-81120 …”</div></div>
           <span class="tt-status idle">•</span>
         </div>
-        <div class="tune-test-row" data-detail="Referte SIN-2026-82001 uit onderwerp gehaald">
-          <div><div class="tt-name">Ethias — Brandschade Luik</div><div class="tt-detail">Onderwerp: “… SIN-2026-82001 …”</div></div>
+        <div class="tune-test-row" data-detail="Reference SIN-2026-82001 extracted from subject">
+          <div><div class="tt-name">Ethias — Fire damage Liège</div><div class="tt-detail">Subject: “… SIN-2026-82001 …”</div></div>
           <span class="tt-status idle">•</span>
         </div>
       </div>
-      <button class="tune-test-btn" onclick="demoTuneRunTest()">▶ Test de nieuwe regel op alle voorbeelden</button>
-      <div class="tune-test-summary" id="tuneTestSummary">✓ 4/4 voorbeelden correct — de regel werkt. Klaar voor gebruik.</div>
+      <button class="tune-test-btn" onclick="demoTuneRunTest()">▶ Test the new rule on all examples</button>
+      <div class="tune-test-summary" id="tuneTestSummary">✓ 4/4 examples correct — the rule works. Ready to use.</div>
     </div>
   </div>
 </div>
@@ -4357,18 +4358,27 @@ function buildDemoMedia() {
   });
 }
 
-let demoState = { running: false, paused: false, skip: false, abort: false, scene: 0, total: 0 };
+let demoState = { running: false, abort: false, advance: false, step: 0, total: 0 };
 let demoLsSnapshot = null;
 
-function demoSleep(ms) {
+// Sleep used inside animations; resolves early when the user clicks Next or exits
+function demoAnimSleep(ms) {
   return new Promise(resolve => {
     let remaining = ms;
-    const tick = 120;
+    const tick = 80;
     const iv = setInterval(() => {
-      if (demoState.abort || demoState.skip) { clearInterval(iv); resolve(); return; }
-      if (!demoState.paused) remaining -= tick;
+      if (demoState.abort || demoState.advance) { clearInterval(iv); resolve(); return; }
+      remaining -= tick;
       if (remaining <= 0) { clearInterval(iv); resolve(); }
     }, tick);
+  });
+}
+// Wait until the user clicks Next (or exits)
+function demoWaitNext() {
+  return new Promise(resolve => {
+    const iv = setInterval(() => {
+      if (demoState.abort || demoState.advance) { clearInterval(iv); resolve(); }
+    }, 80);
   });
 }
 
@@ -4391,17 +4401,13 @@ function demoClearSpotlight() {
 }
 
 function updateDemoProgress() {
-  const pct = demoState.total ? Math.round((demoState.scene - 1) / demoState.total * 100) : 0;
+  const pct = demoState.total ? Math.round(demoState.step / demoState.total * 100) : 0;
   document.getElementById('demoProgressBar').style.width = pct + '%';
 }
 
-function demoTogglePause() {
-  demoState.paused = !demoState.paused;
-  document.getElementById('demoPauseBtn').innerHTML = demoState.paused ? '▶ Verder' : '⏸ Pauze';
-}
-function demoSkip() { demoState.skip = true; typewriterAbort = true; }
+function demoNext() { demoState.advance = true; typewriterAbort = true; }
 function demoExit() {
-  demoState.abort = true; typewriterAbort = true;
+  demoState.abort = true; demoState.advance = true; typewriterAbort = true;
   demoRestoreLs();
   window.__demoMode = false;
   location.reload();
@@ -4423,7 +4429,7 @@ async function demoWaitForTypewriter() {
   const wrapper = document.getElementById('buildexForm');
   await new Promise(r => setTimeout(r, 400));
   while (wrapper.classList.contains('typewriter-active')) {
-    if (demoState.abort || demoState.skip) typewriterAbort = true;
+    if (demoState.abort || demoState.advance) typewriterAbort = true;
     await new Promise(r => setTimeout(r, 200));
     if (demoState.abort) break;
   }
@@ -4447,7 +4453,7 @@ function demoTuneReset() {
     const applied = r.querySelector('.tt-applied'); if (applied) applied.remove();
   });
   document.getElementById('tuneTestSummary').classList.remove('show');
-  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} regels actief`;
+  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} rules active`;
 }
 function demoTuneSwitchTab(which) {
   const isDossier = which === 'dossier';
@@ -4459,20 +4465,20 @@ function demoTuneSwitchTab(which) {
 async function demoType(el, text, speed = 42) {
   el.value = '';
   for (const ch of text) {
-    if (demoState.abort || demoState.skip) { el.value = text; break; }
+    if (demoState.abort || demoState.advance) { el.value = text; break; }
     el.value += ch;
-    await new Promise(r => setTimeout(r, demoState.paused ? speed * 3 : speed));
+    await new Promise(r => setTimeout(r, speed));
   }
 }
 function demoTuneAddRule(text, tab) {
   const listId = tab === 'reply' ? 'tuneRulesReply' : 'tuneRulesDossier';
   const div = document.createElement('div');
   div.className = 'tune-rule new demo-added';
-  div.innerHTML = `<span class="tr-dot">✓</span><span>${esc(text)}</span><span class="tr-tag">zojuist toegevoegd</span>`;
+  div.innerHTML = `<span class="tr-dot">✓</span><span>${esc(text)}</span><span class="tr-tag">just added</span>`;
   document.getElementById(listId).appendChild(div);
   document.getElementById('tuneNewRule').value = '';
-  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} regels actief · zojuist bijgewerkt`;
-  showToast("Charlie's prompt bijgewerkt — geen IT nodig", 'success');
+  document.getElementById('tunePromptStatus').textContent = `Charlie's prompt — ${demoCountTuneRules()} rules active · just updated`;
+  showToast("Charlie's prompt updated — no IT needed", 'success');
 }
 function demoTuneAddCurrent() {
   const v = document.getElementById('tuneNewRule').value.trim();
@@ -4488,7 +4494,7 @@ async function demoTuneRunTest() {
     if (demoState.abort) break;
     const st = r.querySelector('.tt-status');
     st.className = 'tt-status pending'; st.textContent = '';
-    await demoSleep(550);
+    await demoAnimSleep(550);
     st.className = 'tt-status pass'; st.textContent = '✓';
     r.classList.add('pass');
     const detail = r.getAttribute('data-detail');
@@ -4499,194 +4505,181 @@ async function demoTuneRunTest() {
       d.textContent = '✓ ' + detail;
       r.querySelector('div').appendChild(d);
     }
-    await demoSleep(250);
+    await demoAnimSleep(250);
   }
   document.getElementById('tuneTestSummary').classList.add('show');
 }
 function demoOpenTune() { demoTuneReset(); document.getElementById('tuneView').classList.add('visible'); }
 function demoCloseTune() { document.getElementById('tuneView').classList.remove('visible'); }
 
-function buildDemoScenes() {
+// Each step sets up its caption/animation, then the engine waits for the user to click Next.
+function buildDemoSteps() {
   return [
-    { run: async () => {
-        demoShowChoice();
-        await demoSetCaption('Welkom', 'Charlie is de digitale assistent van CED voor het aanmaken van schadedossiers en het beantwoorden van mails.');
-        await demoSleep(6500);
-      } },
-    { run: async () => {
-        const cards = document.querySelectorAll('.choice-card');
-        await demoSetCaption('Twee functies', 'Links: een volledig dossier aanmaken uit een opdracht. Rechts: automatisch antwoorden op veelvoorkomende vragen.');
-        if (cards[0]) demoSpotlight(cards[0]);
-        await demoSleep(3500);
-        if (cards[1]) demoSpotlight(cards[1]);
-        await demoSleep(3500);
-        demoClearSpotlight();
-      } },
-    { run: async () => {
-        chooseDossier();
-        showBuildex();
-        const iz = document.getElementById('intakeZone');
-        if (iz) demoSpotlight(iz);
-        await demoSetCaption('Intake', 'De beheerder sleept de opdracht-mail (.msg) van de verzekeraar in Charlie — inclusief alle PDF-bijlagen.');
-        await demoSleep(5000);
-        demoClearSpotlight();
-      } },
-    { run: async () => {
-        mediaFiles = buildDemoMedia();
-        populateFromApiResponse({ data: SAMPLE_DOSSIER });
-        const caps = [
-          ['Analyse', 'Charlie leest de e-mail én alle PDF-bijlagen en haalt automatisch alle gegevens eruit.'],
-          ['Kerngegevens', 'Dossiernummer, schadelijder, polis en datums worden automatisch ingevuld.'],
-          ['Slimme herkenning', 'Maatschappij en makelaar worden herkend uit meer dan 6.000 kantoren.'],
-          ['Classificatie', 'Het schadetype en de bedragen worden automatisch bepaald.'],
-          ['Documenten & foto’s', 'Documenten worden herkend en gesorteerd; foto’s komen apart in Multimedia.']
-        ];
-        const wrapper = document.getElementById('buildexForm');
-        await new Promise(r => setTimeout(r, 500));
-        let i = 0;
-        while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.skip) {
-          const c = caps[Math.min(i, caps.length - 1)];
-          await demoSetCaption(c[0], c[1]);
-          let waited = 0;
-          while (waited < 6500 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.skip) {
-            if (!demoState.paused) waited += 150;
-            await new Promise(r => setTimeout(r, 150));
-          }
-          i++;
+    async () => {
+      demoShowChoice();
+      await demoSetCaption('Welcome', 'Charlie is CED’s digital assistant for creating claim files and answering customer emails.');
+    },
+    async () => {
+      const cards = document.querySelectorAll('.choice-card');
+      if (cards[0]) demoSpotlight(cards[0]);
+      await demoSetCaption('Two functions', 'Left: build a complete claim file from an assignment. Right: automatically answer the most common questions.');
+    },
+    async () => {
+      demoClearSpotlight();
+      chooseDossier();
+      showBuildex();
+      const iz = document.getElementById('intakeZone');
+      if (iz) demoSpotlight(iz);
+      await demoSetCaption('Intake', 'The handler drops the insurer’s assignment email (.msg) into Charlie — including every PDF attachment.');
+    },
+    async () => {
+      demoClearSpotlight();
+      mediaFiles = buildDemoMedia();
+      populateFromApiResponse({ data: SAMPLE_DOSSIER });
+      const caps = [
+        ['Analysis', 'Charlie reads the email and every PDF attachment, and extracts all the data automatically.'],
+        ['Core data', 'File number, claimant, policy and dates are filled in automatically.'],
+        ['Smart matching', 'The insurer and broker are recognised from a list of 6,000+ offices.'],
+        ['Classification', 'The claim type and the amounts are determined automatically.'],
+        ['Documents & photos', 'Documents are detected and ordered; photos go separately into Multimedia.']
+      ];
+      const wrapper = document.getElementById('buildexForm');
+      await new Promise(r => setTimeout(r, 500));
+      let i = 0;
+      while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance) {
+        const c = caps[Math.min(i, caps.length - 1)];
+        await demoSetCaption(c[0], c[1]);
+        let waited = 0;
+        while (waited < 6000 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance) {
+          await new Promise(r => setTimeout(r, 150)); waited += 150;
         }
-        if (demoState.skip) typewriterAbort = true;
-        await demoWaitForTypewriter();
-      } },
-    { run: async () => {
-        switchToTab(0);
-        await demoSetCaption('Samenvatting', 'Charlie schrijft een korte, leesbare samenvatting van het volledige dossier.');
-        await demoSleep(7000);
-      } },
-    { run: async () => {
-        switchToTab(1);
-        await demoSetCaption('Onzekerheid in beeld', 'Velden waar Charlie minder zeker over is, kleuren oranje — zo controleert de beheerder ze in één oogopslag.');
-        await demoSleep(6500);
-        await demoSetCaption('Partijen', 'Alle betrokkenen — maatschappij, makelaar, expert — staan overzichtelijk samen en zijn bewerkbaar met slimme zoeklijsten.');
-        await demoSleep(6500);
-      } },
-    { run: async () => {
-        switchToTab(3);
-        await demoSetCaption('Documenten', 'Elk document wordt herkend, chronologisch geordend en voorzien van type en bedrag.');
-        await demoSleep(6500);
-      } },
-    { run: async () => {
-        switchToTab(8);
-        await demoSetCaption('Multimedia', 'Foto’s uit de mail en de PDF’s komen automatisch hier terecht, los van de documenten.');
-        await demoSleep(6500);
-      } },
-    { run: async () => {
-        switchToTab(1);
-        toggleEditMode();
-        await demoSetCaption('Bewerken', 'Niets staat vast: de beheerder kan elk veld aanpassen voordat het dossier verdergaat.');
-        await demoSleep(5500);
-        const claimEl = document.getElementById('fClaim');
-        if (claimEl) claimEl.value = '18750';
-        await demoSetCaption('Push naar BuildeX', 'Met één klik gaat het dossier naar BuildeX II — en correcties worden bewaard zodat Charlie blijft leren.');
-        pushToBuildex();
-        await demoSleep(7000);
-        closePushModal();
-        await demoSleep(500);
-      } },
-    { run: async () => {
-        await demoSetCaption('Zelf bijsturen — zonder IT', 'Soms wil de beheerder dat Charlie iets structureel anders aanpakt. Vroeger ging dat via een ticket naar IT. Nu doet de beheerder dat zélf.');
-        await demoSleep(6500);
-        demoOpenTune();
-        await demoSleep(1500);
-      } },
-    { run: async () => {
-        demoTuneSwitchTab('dossier');
-        await demoSetCaption('Een regel in gewone taal', 'De beheerder schrijft zelf een instructie. Die gaat meteen mee in Charlie’s prompt — geen ontwikkelaar nodig.');
-        await demoSleep(2500);
-        const ta = document.getElementById('tuneNewRule');
-        await demoType(ta, 'Bij Baloise: haal het schadereferte uit de onderwerpregel, na "SIN-".', 38);
-        await demoSleep(1200);
-        demoTuneAddRule(ta.value || 'Bij Baloise: haal het schadereferte uit de onderwerpregel, na "SIN-".', 'dossier');
-        await demoSleep(3500);
-      } },
-    { run: async () => {
-        await demoSetCaption('Een nieuwe manier van testen', 'En de beheerder test de regel meteen op een set echte voorbeeld-opdrachten — direct resultaat, zonder te wachten op IT.');
-        await demoSleep(2500);
-        await demoTuneRunTest();
-        await demoSleep(4500);
-      } },
-    { run: async () => {
-        await demoSetCaption('Eén plek voor alles', 'Dezelfde aanpak geldt voor de antwoorden: ook die regels beheert de beheerder hier zelf.');
-        await demoSleep(1500);
-        demoTuneSwitchTab('reply');
-        await demoSleep(5000);
-        demoCloseTune();
-        await demoSleep(500);
-      } },
-    { run: async () => {
-        demoShowChoice();
-        const cards = document.querySelectorAll('.choice-card');
-        await demoSetCaption('Tweede functie', 'Charlie kan ook automatisch antwoorden op de meest voorkomende vragen van klanten en makelaars.');
-        if (cards[1]) demoSpotlight(cards[1]);
-        await demoSleep(4500);
-        demoClearSpotlight();
-        chooseReply();
-        await demoSleep(800);
-      } },
-    { run: async () => {
-        document.getElementById('replyDrop').style.display = 'none';
-        document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
-        document.getElementById('replyMailPreview').classList.add('visible');
-        await demoSetCaption('Inkomende vraag', 'Een klant vraagt om het expertiseverslag van zijn dossier.');
-        await demoSleep(5000);
-        currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
-        showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
-        await demoSetCaption('Automatisch antwoord', 'Charlie herkent het type vraag en genereert meteen het juiste standaard-antwoord, klaar om te versturen.');
-        await demoSleep(6500);
-      } },
-    { run: async () => {
-        const ta = document.getElementById('replyTextarea');
-        if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
-        const cm = document.getElementById('replyComment');
-        if (cm) cm.value = 'Altijd afsluiten met de teamnaam.';
-        await demoSetCaption('Bewerken & leren', 'De beheerder verfijnt het antwoord en klikt op "Opslaan & leren".');
-        await demoSleep(5000);
-        saveReplyCorrection();
-        await demoSetCaption('Charlie leert', 'Elke correctie maakt zowel de herkenning als de antwoorden steeds beter.');
-        await demoSleep(6000);
-      } },
-    { run: async () => {
-        demoRestoreLs(); updateLearnedCount();
-        demoShowChoice();
-        await demoSetCaption('Klaar', 'Charlie: sneller dossiers, slimmere antwoorden — en het leert elke dag bij.');
-        await demoSleep(7000);
-      } }
+        i++;
+      }
+      if (demoState.advance) typewriterAbort = true;
+      await demoWaitForTypewriter();
+    },
+    async () => {
+      switchToTab(0);
+      await demoSetCaption('Summary', 'Charlie writes a short, readable summary of the entire file.');
+    },
+    async () => {
+      switchToTab(1);
+      await demoSetCaption('Uncertainty made visible', 'Fields Charlie is less sure about turn orange — so the handler can check them at a glance.');
+    },
+    async () => {
+      switchToTab(1);
+      await demoSetCaption('Parties', 'All parties — insurer, broker, expert — are grouped together and editable with smart lookup lists.');
+    },
+    async () => {
+      switchToTab(3);
+      await demoSetCaption('Documents', 'Every document is recognised, ordered chronologically and tagged with its type and amount.');
+    },
+    async () => {
+      switchToTab(8);
+      await demoSetCaption('Multimedia', 'Photos from the email and the PDFs land here automatically, separate from the documents.');
+    },
+    async () => {
+      switchToTab(1);
+      if (!editMode) toggleEditMode();
+      const claimEl = document.getElementById('fClaim');
+      if (claimEl) claimEl.value = '18750';
+      await demoSetCaption('Editing', 'Nothing is fixed: the handler can adjust any field before the file moves on.');
+    },
+    async () => {
+      await demoSetCaption('Push to BuildeX', 'One click sends the file to BuildeX II — and corrections are stored so Charlie keeps learning.');
+      pushToBuildex();
+      await demoAnimSleep(1600);
+    },
+    async () => {
+      closePushModal();
+      await demoSetCaption('Self-service — no IT', 'Sometimes the handler wants Charlie to work differently — structurally. That used to mean a ticket to IT. Now the handler does it themselves.');
+    },
+    async () => {
+      demoOpenTune();
+      demoTuneSwitchTab('dossier');
+      await demoSetCaption('A rule in plain language', 'The handler writes an instruction themselves. It goes straight into Charlie’s prompt — no developer needed.');
+      const ta = document.getElementById('tuneNewRule');
+      await demoType(ta, 'For Baloise: take the claim reference from the subject line, after "SIN-".', 34);
+      await demoAnimSleep(900);
+      demoTuneAddRule(ta.value || 'For Baloise: take the claim reference from the subject line, after "SIN-".', 'dossier');
+    },
+    async () => {
+      await demoSetCaption('A new way of testing', 'The handler tests the rule instantly on a set of real example assignments — immediate results, no waiting for IT.');
+      await demoAnimSleep(600);
+      await demoTuneRunTest();
+    },
+    async () => {
+      await demoSetCaption('One place for everything', 'The same approach applies to the replies: the handler manages those rules here too.');
+      demoTuneSwitchTab('reply');
+    },
+    async () => {
+      demoCloseTune();
+      demoShowChoice();
+      const cards = document.querySelectorAll('.choice-card');
+      if (cards[1]) demoSpotlight(cards[1]);
+      await demoSetCaption('Second function', 'Charlie can also answer the most common questions from customers and brokers automatically.');
+    },
+    async () => {
+      demoClearSpotlight();
+      chooseReply();
+      document.getElementById('replyDrop').style.display = 'none';
+      document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
+      document.getElementById('replyMailPreview').classList.add('visible');
+      await demoSetCaption('Incoming question', 'A customer asks for the expert report of their file.');
+    },
+    async () => {
+      currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
+      showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
+      await demoSetCaption('Automatic answer', 'Charlie recognises the type of question and instantly generates the right standard reply, ready to send.');
+    },
+    async () => {
+      const ta = document.getElementById('replyTextarea');
+      if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
+      const cm = document.getElementById('replyComment');
+      if (cm) cm.value = 'Always close with the team name.';
+      await demoSetCaption('Edit & learn', 'The handler refines the answer and clicks “Save & learn”.');
+      try {
+        const corr = loadReplyCorrections();
+        corr.unshift({ timestamp: new Date().toISOString(), mailExcerpt: '', detectedType: 'verslag', correctedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, finalReply: ta ? ta.value : '', comment: cm ? cm.value : '' });
+        saveReplyCorrections(corr); updateLearnedCount();
+        showToast('Saved — Charlie learns from this', 'success');
+      } catch (e) {}
+    },
+    async () => {
+      await demoSetCaption('Charlie learns', 'Every correction improves both the recognition and the answers over time.');
+    },
+    async () => {
+      demoRestoreLs(); updateLearnedCount();
+      demoShowChoice();
+      await demoSetCaption('Done', 'Charlie: faster files, smarter answers — and it learns a little more every day. Click ✕ Close to finish.');
+    }
   ];
 }
 
 async function runDemoFilm() {
   if (demoState.running) return;
-  demoState = { running: true, paused: false, skip: false, abort: false, scene: 0, total: 0 };
+  demoState = { running: true, abort: false, advance: false, step: 0, total: 0 };
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
-  document.getElementById('demoPauseBtn').innerHTML = '⏸ Pauze';
   const overlay = document.getElementById('demoOverlay');
   overlay.classList.add('active');
-  const scenes = buildDemoScenes();
-  demoState.total = scenes.length;
-  for (let s = 0; s < scenes.length; s++) {
+  const steps = buildDemoSteps();
+  demoState.total = steps.length;
+  for (let s = 0; s < steps.length; s++) {
     if (demoState.abort) break;
-    demoState.scene = s + 1;
-    demoState.skip = false;
+    demoState.step = s + 1;
+    demoState.advance = false;
     typewriterAbort = false;
     updateDemoProgress();
-    document.getElementById('demoSceneLabel').textContent = `Scène ${s + 1}/${scenes.length}`;
-    try { await scenes[s].run(); } catch (e) { console.error('[Demo] scene error:', e); }
+    document.getElementById('demoSceneLabel').textContent = `Step ${s + 1} / ${steps.length}`;
+    try { await steps[s](); } catch (e) { console.error('[Demo] step error:', e); }
+    if (demoState.abort) break;
+    if (!demoState.advance) await demoWaitNext(); // wait for the user's click
   }
   if (!demoState.abort) {
     document.getElementById('demoProgressBar').style.width = '100%';
     demoRestoreLs();
     window.__demoMode = false;
-    await new Promise(r => setTimeout(r, 400));
     document.getElementById('demoCaption').classList.remove('show');
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
