@@ -306,6 +306,38 @@ body {
 .demo-ctrl-btn:hover { background: var(--bg-page, #F4F6F9); }
 .demo-ctrl-btn.primary { background: var(--ced-navy); color: #fff; }
 .demo-ctrl-btn.primary:hover { background: var(--ced-purple); }
+
+/* ========== LANGUAGE SWITCHER ========== */
+.lang-switcher {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 9050;
+  display: flex;
+  gap: 2px;
+  background: #fff;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 20px;
+  padding: 3px;
+  box-shadow: 0 2px 10px rgba(28, 5, 79, 0.12);
+}
+.lang-pill {
+  border: none;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  padding: 5px 11px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.lang-pill:hover { background: var(--bg-page, #F4F6F9); color: var(--ced-navy); }
+.lang-pill.active { background: var(--ced-navy); color: #fff; }
+/* reserve space so the switcher doesn't overlap header/reply controls */
+.app-header { padding-right: 150px; }
+.reply-header { padding-right: 150px; }
 .demo-scene-label {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
@@ -2401,6 +2433,13 @@ select.dropdown-active {
       <div class="tune-test-summary" id="tuneTestSummary">✓ 4/4 examples correct — the rule works. Ready to use.</div>
     </div>
   </div>
+</div>
+
+<!-- ===== LANGUAGE SWITCHER ===== -->
+<div class="lang-switcher" id="langSwitcher">
+  <button class="lang-pill" data-lang="nl" onclick="setLang('nl')">NL</button>
+  <button class="lang-pill" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="lang-pill" data-lang="fr" onclick="setLang('fr')">FR</button>
 </div>
 
 <!-- ===== COMPACT HEADER ===== -->
@@ -4656,6 +4695,7 @@ async function runDemoFilm() {
   demoState = { running: true, abort: false, advance: false, step: 0, total: 0 };
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
+  const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = 'none';
   const overlay = document.getElementById('demoOverlay');
   overlay.classList.add('active');
   const steps = buildDemoSteps();
@@ -4678,6 +4718,7 @@ async function runDemoFilm() {
     document.getElementById('demoCaption').classList.remove('show');
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
+    const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = '';
     demoClearSpotlight();
     demoShowChoice();
     demoState.running = false;
@@ -4688,6 +4729,277 @@ function startDemo() {
   sessionStorage.setItem('charlie_demo_autostart', '1');
   location.reload();
 }
+
+// ========== I18N (NL / EN / FR) ==========
+// Dictionary keyed by the original Dutch UI string → { en, fr }
+const I18N = {
+  // Header
+  "DOSSIER INTAKE": { en: "DOSSIER INTAKE", fr: "PRISE DE DOSSIER" },
+  "Sleep .msg of PDF hier": { en: "Drop .msg or PDF here", fr: "Glissez .msg ou PDF ici" },
+  "Opdracht verzekeraar": { en: "Insurer assignment", fr: "Mission de l'assureur" },
+  "Model": { en: "Model", fr: "Modèle" },
+  "✎ Bewerken": { en: "✎ Edit", fr: "✎ Modifier" },
+  "↻ Reset": { en: "↻ Reset", fr: "↻ Réinitialiser" },
+  "Analyseren...": { en: "Analysing...", fr: "Analyse..." },
+  // Buildex header meta
+  "Ontvangst:": { en: "Received:", fr: "Reçu :" },
+  "Status:": { en: "Status:", fr: "Statut :" },
+  "Locatie:": { en: "Location:", fr: "Lieu :" },
+  "Maatschappij:": { en: "Insurer:", fr: "Assureur :" },
+  "Schadelijder:": { en: "Claimant:", fr: "Sinistré :" },
+  "Tijd:": { en: "Time:", fr: "Temps :" },
+  // Left section headers
+  "Dossiergegevens": { en: "File details", fr: "Données du dossier" },
+  "Maatschappij": { en: "Insurer", fr: "Assureur" },
+  "Verzekerde (Schadelijder)": { en: "Insured (claimant)", fr: "Assuré (sinistré)" },
+  "Contactgegevens": { en: "Contact details", fr: "Coordonnées" },
+  "Locatie schadegeval": { en: "Loss location", fr: "Lieu du sinistre" },
+  "Schadegeval": { en: "Claim", fr: "Sinistre" },
+  "Datums": { en: "Dates", fr: "Dates" },
+  "Instant expertise": { en: "Instant expertise", fr: "Expertise instantanée" },
+  "Afspraken": { en: "Appointments", fr: "Rendez-vous" },
+  "Rapport": { en: "Report", fr: "Rapport" },
+  "Facturatie": { en: "Invoicing", fr: "Facturation" },
+  "Afsluiting": { en: "Closure", fr: "Clôture" },
+  "Makelaar": { en: "Broker", fr: "Courtier" },
+  "Info": { en: "Info", fr: "Info" },
+  // Left labels
+  "Dossiernr": { en: "File no.", fr: "N° dossier" },
+  "Kantoor": { en: "Office", fr: "Bureau" },
+  "Beheerder": { en: "Handler", fr: "Gestionnaire" },
+  "Expert": { en: "Expert", fr: "Expert" },
+  "Schadetype": { en: "Claim type", fr: "Type de sinistre" },
+  "Netwerk": { en: "Network", fr: "Réseau" },
+  "Ext. platform": { en: "Ext. platform", fr: "Plateforme ext." },
+  "Status": { en: "Status", fr: "Statut" },
+  "Connex dossier": { en: "Connex file", fr: "Dossier Connex" },
+  "Status dossier": { en: "File status", fr: "Statut du dossier" },
+  "Naam": { en: "Name", fr: "Nom" },
+  "Referte": { en: "Reference", fr: "Référence" },
+  "Contact": { en: "Contact", fr: "Contact" },
+  "Email": { en: "Email", fr: "E-mail" },
+  "Voornaam": { en: "First name", fr: "Prénom" },
+  "Straat + nr": { en: "Street + no.", fr: "Rue + n°" },
+  "Postcode + pl.": { en: "Postcode + city", fr: "CP + localité" },
+  "Land": { en: "Country", fr: "Pays" },
+  "Polis": { en: "Policy", fr: "Police" },
+  "GSM": { en: "Mobile", fr: "GSM" },
+  "Telefoon": { en: "Phone", fr: "Téléphone" },
+  "Taal": { en: "Language", fr: "Langue" },
+  "Type": { en: "Type", fr: "Type" },
+  "Ontvangen": { en: "Received", fr: "Reçu" },
+  "Eerste contact": { en: "First contact", fr: "Premier contact" },
+  "Gepland": { en: "Scheduled", fr: "Planifié" },
+  "Opname 1e afspr.": { en: "1st appt. intake", fr: "Prise 1er RDV" },
+  "Eerste": { en: "First", fr: "Premier" },
+  "Laatste": { en: "Last", fr: "Dernier" },
+  "1e suggestie": { en: "1st suggestion", fr: "1re suggestion" },
+  "Aanbieden rapp": { en: "Offer report", fr: "Proposer rapport" },
+  "Ondertekenen": { en: "Sign", fr: "Signer" },
+  "Verst. 1e rapp": { en: "Sent 1st report", fr: "Env. 1er rapport" },
+  "Verst. ltste rapp": { en: "Sent last report", fr: "Env. dern. rapport" },
+  "Datum": { en: "Date", fr: "Date" },
+  "Code": { en: "Code", fr: "Code" },
+  "Link SSP": { en: "SSP link", fr: "Lien SSP" },
+  "Login SSP": { en: "SSP login", fr: "Login SSP" },
+  "Heropening": { en: "Reopening", fr: "Réouverture" },
+  "Laatste wijziging": { en: "Last change", fr: "Dernière modif." },
+  // Placeholders / values
+  "Toe te wijzen": { en: "To assign", fr: "À attribuer" },
+  "Nr": { en: "No.", fr: "N°" },
+  "Plaats": { en: "City", fr: "Localité" },
+  "Info partij VZ": { en: "Info insured party", fr: "Info partie assurée" },
+  // Select options
+  "Schade": { en: "Claims", fr: "Sinistres" },
+  "Technisch": { en: "Technical", fr: "Technique" },
+  // Tabs
+  "Overzicht": { en: "Overview", fr: "Aperçu" },
+  "Algemeen": { en: "General", fr: "Général" },
+  "Documenten": { en: "Documents", fr: "Documents" },
+  "Opvolging": { en: "Follow-up", fr: "Suivi" },
+  "Digitaal pv": { en: "Digital report", fr: "PV numérique" },
+  "Prestaties": { en: "Services", fr: "Prestations" },
+  "Statistische Info": { en: "Statistical info", fr: "Infos statistiques" },
+  "Multimedia": { en: "Multimedia", fr: "Multimédia" },
+  "Communicatie": { en: "Communication", fr: "Communication" },
+  "JSON Output": { en: "JSON Output", fr: "Sortie JSON" },
+  // Tab 0
+  "Toon systeemberichten": { en: "Show system messages", fr: "Afficher messages système" },
+  "Datum": { en: "Date", fr: "Date" },
+  "Tijd": { en: "Time", fr: "Heure" },
+  "User": { en: "User", fr: "Utilisateur" },
+  "Nota": { en: "Note", fr: "Note" },
+  "Categorie": { en: "Category", fr: "Catégorie" },
+  "Nieuwe nota toevoegen...": { en: "Add a new note...", fr: "Ajouter une note..." },
+  "Planning": { en: "Planning", fr: "Planning" },
+  "Briefwisseling": { en: "Correspondence", fr: "Correspondance" },
+  "Upload": { en: "Upload", fr: "Téléversement" },
+  "Relances": { en: "Reminders", fr: "Relances" },
+  "+ Nota": { en: "+ Note", fr: "+ Note" },
+  "Dossiersamenvatting": { en: "File summary", fr: "Résumé du dossier" },
+  "Nog geen samenvatting beschikbaar. Upload een document om een automatische samenvatting te genereren.": { en: "No summary available yet. Upload a document to generate an automatic summary.", fr: "Aucun résumé disponible. Téléversez un document pour générer un résumé automatique." },
+  "Betrokken Derden": { en: "Third parties involved", fr: "Tiers concernés" },
+  "+ Derde toevoegen": { en: "+ Add third party", fr: "+ Ajouter un tiers" },
+  "Geen betrokken derden gedetecteerd": { en: "No third parties detected", fr: "Aucun tiers détecté" },
+  // Tab 1
+  "Partijen": { en: "Parties", fr: "Parties" },
+  "Hoedanigheid": { en: "Role", fr: "Qualité" },
+  "Adres": { en: "Address", fr: "Adresse" },
+  "Woonplaats": { en: "City", fr: "Localité" },
+  "E-mail": { en: "Email", fr: "E-mail" },
+  "Verzekerde": { en: "Insured", fr: "Assuré" },
+  "Hoofdcategorie": { en: "Main category", fr: "Catégorie principale" },
+  "Subcategorie": { en: "Subcategory", fr: "Sous-catégorie" },
+  "— kies eerst hoofdcategorie": { en: "— choose a main category first", fr: "— choisissez d'abord une catégorie" },
+  "Roerend/Onroerend": { en: "Movable/Immovable", fr: "Mobilier/Immobilier" },
+  "Onroerend": { en: "Immovable", fr: "Immobilier" },
+  "Roerend": { en: "Movable", fr: "Mobilier" },
+  "Beide": { en: "Both", fr: "Les deux" },
+  "Eigenaar": { en: "Owner", fr: "Propriétaire" },
+  "Huurder": { en: "Tenant", fr: "Locataire" },
+  "VME": { en: "VME", fr: "ACP" },
+  "Schadebedrag": { en: "Loss amount", fr: "Montant du sinistre" },
+  "Claim": { en: "Claim", fr: "Réclamation" },
+  "Vrijstelling": { en: "Deductible", fr: "Franchise" },
+  "Kap. gebouw": { en: "Building cap.", fr: "Cap. bâtiment" },
+  "Expertise methode": { en: "Expertise method", fr: "Méthode d'expertise" },
+  "Tegensprekelijk": { en: "Adversarial", fr: "Contradictoire" },
+  "Eenzijdig": { en: "Unilateral", fr: "Unilatérale" },
+  "Minnelijk": { en: "Amicable", fr: "À l'amiable" },
+  "Procedure": { en: "Procedure", fr: "Procédure" },
+  "Tarificatie": { en: "Pricing", fr: "Tarification" },
+  "Standaard": { en: "Standard", fr: "Standard" },
+  "Klantenvoordeel": { en: "Customer benefit", fr: "Avantage client" },
+  "Omstandigheden & Verhaal": { en: "Circumstances & Recourse", fr: "Circonstances & Recours" },
+  "Omstandigheden / BAVrijeTekst": { en: "Circumstances / free text", fr: "Circonstances / texte libre" },
+  "Omstandigheden van het schadegeval...": { en: "Circumstances of the claim...", fr: "Circonstances du sinistre..." },
+  "Verhaal": { en: "Recourse", fr: "Recours" },
+  "Verhaalsmogelijkheden...": { en: "Recourse options...", fr: "Possibilités de recours..." },
+  "Gegevens CED": { en: "CED data", fr: "Données CED" },
+  // Tab placeholders
+  "Dit tabblad wordt gevuld na dossieraanmaak in BuildeX.": { en: "This tab is filled after the file is created in BuildeX.", fr: "Cet onglet est rempli après la création du dossier dans BuildeX." },
+  // Tab 3 documents
+  "Documenten bij dit dossier": { en: "Documents in this file", fr: "Documents du dossier" },
+  "Document": { en: "Document", fr: "Document" },
+  "Pag.": { en: "Pg.", fr: "P." },
+  "Beschrijving": { en: "Description", fr: "Description" },
+  "Bedrag": { en: "Amount", fr: "Montant" },
+  "Bron": { en: "Source", fr: "Source" },
+  "Nog geen documenten verwerkt. Sleep een bestand naar de intake zone.": { en: "No documents processed yet. Drop a file onto the intake zone.", fr: "Aucun document traité. Glissez un fichier dans la zone d'intake." },
+  // Tab 8 multimedia
+  "Foto's & afbeeldingen": { en: "Photos & images", fr: "Photos & images" },
+  "Sleep foto's hierheen of klik om te uploaden": { en: "Drag photos here or click to upload", fr: "Glissez des photos ici ou cliquez pour téléverser" },
+  "JPG, PNG, HEIC — max 10MB per foto": { en: "JPG, PNG, HEIC — max 10MB per photo", fr: "JPG, PNG, HEIC — max 10 Mo par photo" },
+  "Nog geen foto's toegevoegd aan dit dossier.": { en: "No photos added to this file yet.", fr: "Aucune photo ajoutée à ce dossier." },
+  // Tab 11 JSON
+  "Kopieer naar klembord": { en: "Copy to clipboard", fr: "Copier dans le presse-papiers" },
+  "Download JSON": { en: "Download JSON", fr: "Télécharger le JSON" },
+  "Vernieuw JSON": { en: "Refresh JSON", fr: "Actualiser le JSON" },
+  // Status bar
+  "Klaar voor intake": { en: "Ready for intake", fr: "Prêt pour l'intake" },
+  "0 bestanden verwerkt": { en: "0 files processed", fr: "0 fichiers traités" },
+  "Ontvangst": { en: "Received", fr: "Reçu" },
+  // Choice screen
+  "Wat wil je doen?": { en: "What would you like to do?", fr: "Que souhaitez-vous faire ?" },
+  "Dossier aanmaken": { en: "Create a file", fr: "Créer un dossier" },
+  "Verwerk een opdracht van de verzekeraar tot een volledig dossier.": { en: "Turn an insurer's assignment into a complete file.", fr: "Transformez une mission de l'assureur en dossier complet." },
+  "Genereer automatisch een antwoord op veelvoorkomende vragen.": { en: "Automatically generate an answer to common questions.", fr: "Générez automatiquement une réponse aux questions fréquentes." },
+  // Reply view
+  "← Terug": { en: "← Back", fr: "← Retour" },
+  "geleerd": { en: "learned", fr: "appris" },
+  "Sleep de vraag-mail hier": { en: "Drop the question email here", fr: "Déposez l'e-mail de la question ici" },
+  ".msg bestand — Charlie zoekt het juiste standaard-antwoord": { en: ".msg file — Charlie finds the right standard reply", fr: "Fichier .msg — Charlie trouve la bonne réponse type" },
+  "Antwoord": { en: "Answer", fr: "Réponse" },
+  "Type klopt niet?": { en: "Wrong type?", fr: "Mauvais type ?" },
+  "Vraag over vrijstelling": { en: "Question about deductible", fr: "Question sur la franchise" },
+  "Vraag over verslag": { en: "Question about report", fr: "Question sur le rapport" },
+  "Vraag over vrijstelling / opvolging": { en: "Question about deductible / follow-up", fr: "Question sur la franchise / le suivi" },
+  "Geen match": { en: "No match", fr: "Aucune correspondance" },
+  "Opmerking voor Charlie (optioneel) — bv. waarom paste je het antwoord aan?": { en: "Note for Charlie (optional) — e.g. why did you change the answer?", fr: "Remarque pour Charlie (facultatif) — p. ex. pourquoi avez-vous modifié la réponse ?" },
+  "Nieuwe mail": { en: "New email", fr: "Nouvel e-mail" },
+  "💾 Opslaan & leren": { en: "💾 Save & learn", fr: "💾 Enregistrer & apprendre" },
+  "📋 Kopiëren": { en: "📋 Copy", fr: "📋 Copier" },
+  "Geen automatisch antwoord beschikbaar": { en: "No automatic answer available", fr: "Aucune réponse automatique disponible" },
+  "Deze mail komt niet overeen met een bekend vraagtype. Beoordeel de mail hieronder zelf.": { en: "This email does not match a known question type. Review the email below yourself.", fr: "Cet e-mail ne correspond à aucun type connu. Évaluez l'e-mail ci-dessous vous-même." },
+  "Inkomende mail": { en: "Incoming email", fr: "E-mail entrant" },
+  "Geleerde correcties": { en: "Learned corrections", fr: "Corrections apprises" },
+  "Alles wissen": { en: "Clear all", fr: "Tout effacer" },
+  // Push modal
+  "Dossier verstuurd naar BuildeX II": { en: "File sent to BuildeX II", fr: "Dossier envoyé vers BuildeX II" },
+  "Sluiten": { en: "Close", fr: "Fermer" }
+};
+
+window.CHARLIE_LANG = 'nl';
+const i18nOrig = new WeakMap();
+const i18nPh = new WeakMap();
+let i18nTimer = null;
+const i18nObserver = (typeof MutationObserver !== 'undefined') ? new MutationObserver((muts) => {
+  if (!window.CHARLIE_LANG || window.CHARLIE_LANG === 'nl') return;
+  for (const m of muts) {
+    const el = m.target && m.target.nodeType === 1 ? m.target : (m.target && m.target.parentElement);
+    if (el && !el.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen')) {
+      clearTimeout(i18nTimer);
+      i18nTimer = setTimeout(() => applyLang(window.CHARLIE_LANG), 80);
+      return;
+    }
+  }
+}) : null;
+
+function applyLang(lang) {
+  window.CHARLIE_LANG = lang;
+  if (i18nObserver) i18nObserver.disconnect();
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(n) {
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      const p = n.parentElement;
+      if (!p) return NodeFilter.FILTER_REJECT;
+      const tag = p.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+      if (p.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen,#modelDropdown')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const n of nodes) {
+    let orig = i18nOrig.get(n);
+    if (orig === undefined) { orig = n.nodeValue; i18nOrig.set(n, orig); }
+    if (lang === 'nl') { n.nodeValue = orig; continue; }
+    const tr = I18N[orig.trim()];
+    if (tr && tr[lang]) {
+      const lead = orig.match(/^\s*/)[0];
+      const trail = orig.match(/\s*$/)[0];
+      n.nodeValue = lead + tr[lang] + trail;
+    } else {
+      n.nodeValue = orig;
+    }
+  }
+  // Placeholders
+  document.querySelectorAll('[placeholder]').forEach(el => {
+    if (el.closest('#demoOverlay,#tuneView')) return;
+    let orig = i18nPh.get(el);
+    if (orig === undefined) { orig = el.getAttribute('placeholder') || ''; i18nPh.set(el, orig); }
+    const tr = I18N[orig.trim()];
+    el.setAttribute('placeholder', (lang !== 'nl' && tr && tr[lang]) ? tr[lang] : orig);
+  });
+  // Active pill
+  document.querySelectorAll('#langSwitcher .lang-pill').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+
+  if (lang !== 'nl' && i18nObserver) {
+    i18nObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+function setLang(lang) {
+  try { localStorage.setItem('charlie_lang', lang); } catch (e) {}
+  applyLang(lang);
+}
+
+(function initLang() {
+  const saved = (localStorage.getItem('charlie_lang') || 'en');
+  applyLang(['nl', 'en', 'fr'].includes(saved) ? saved : 'en');
+})();
 
 // ========== STATE ==========
 const state = {
