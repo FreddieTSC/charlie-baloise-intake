@@ -430,6 +430,161 @@ body {
   line-height: 1.5;
 }
 
+/* Learned indicator in header */
+.reply-learned {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ced-navy);
+  background: #EEF6FF;
+  border: 1px solid #CFE6FB;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.reply-learned:hover { background: #DCEEFB; border-color: var(--ced-blue); }
+
+/* Correction block */
+.reply-correction {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border, #E2E8F0);
+}
+.reply-correction-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.reply-correction-row label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+.reply-type-select {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-body, #333);
+  cursor: pointer;
+}
+.reply-type-select:focus { outline: none; border-color: var(--ced-blue); }
+.reply-comment {
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-body, #333);
+  resize: vertical;
+  background: #FCFCFD;
+}
+.reply-comment:focus { outline: none; border-color: var(--ced-blue); }
+.reply-btn.learn {
+  background: #EEF6FF;
+  border-color: #CFE6FB;
+  color: var(--ced-navy);
+}
+.reply-btn.learn:hover { background: #DCEEFB; border-color: var(--ced-blue); }
+.reply-btn.learn.saved { background: var(--ced-green, #86BC34); color: #fff; border-color: var(--ced-green, #86BC34); }
+
+/* Learned corrections modal */
+.reply-learned-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(28, 5, 79, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.reply-learned-overlay.open { display: flex; }
+.reply-learned-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(28, 5, 79, 0.3);
+}
+.reply-learned-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-light, #EDF2F7);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.reply-learned-head h3 {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ced-navy);
+  margin: 0;
+}
+.reply-learned-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+}
+.reply-learned-list {
+  padding: 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.reply-learned-item {
+  border: 1px solid var(--border-light, #EDF2F7);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.reply-learned-item .lc-type {
+  font-weight: 600;
+  color: var(--ced-navy);
+  margin-bottom: 6px;
+}
+.reply-learned-item .lc-change {
+  color: #9A3412;
+  background: #FFF7ED;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.reply-learned-item .lc-comment { color: var(--text-body, #333); font-style: italic; }
+.reply-learned-item .lc-date { color: var(--text-muted, #999); font-size: 11px; margin-top: 6px; }
+.reply-learned-empty {
+  text-align: center;
+  color: var(--text-muted, #999);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 30px 0;
+}
+.reply-learned-foot {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border-light, #EDF2F7);
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* ========== COMPACT HEADER ========== */
 .app-header {
   background: var(--bg-white);
@@ -1783,6 +1938,7 @@ select.dropdown-active {
       <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="reply-header-title">Reply Generator</span>
+    <span class="reply-learned" id="replyLearned" onclick="showLearnedCorrections()" title="Bekijk geleerde correcties">🎓 <span id="replyLearnedCount">0</span> geleerd</span>
   </div>
   <div class="reply-body">
     <div class="reply-drop" id="replyDrop" onclick="document.getElementById('replyFileInput').click()">
@@ -1807,8 +1963,22 @@ select.dropdown-active {
       </div>
       <div class="reply-result-body">
         <textarea class="reply-textarea" id="replyTextarea"></textarea>
+
+        <div class="reply-correction">
+          <div class="reply-correction-row">
+            <label for="replyTypeSelect">Type klopt niet?</label>
+            <select id="replyTypeSelect" class="reply-type-select">
+              <option value="vrijstelling">Vraag over vrijstelling</option>
+              <option value="verslag">Vraag over verslag</option>
+              <option value="geen_match">Geen match</option>
+            </select>
+          </div>
+          <textarea class="reply-comment" id="replyComment" placeholder="Opmerking voor Charlie (optioneel) — bv. waarom paste je het antwoord aan?"></textarea>
+        </div>
+
         <div class="reply-actions">
           <button class="reply-btn" onclick="resetReply()">Nieuwe mail</button>
+          <button class="reply-btn learn" id="replyLearnBtn" onclick="saveReplyCorrection()" title="Sla je aanpassingen op zodat Charlie ervan leert">💾 Opslaan &amp; leren</button>
           <button class="reply-btn primary" onclick="copyReply()">📋 Kopiëren</button>
         </div>
       </div>
@@ -1822,6 +1992,20 @@ select.dropdown-active {
     <div class="reply-mail-preview" id="replyMailPreview">
       <h4>Inkomende mail</h4>
       <pre id="replyMailText"></pre>
+    </div>
+  </div>
+
+  <!-- Learned corrections modal -->
+  <div class="reply-learned-overlay" id="replyLearnedOverlay" onclick="closeLearnedCorrections(event)">
+    <div class="reply-learned-modal">
+      <div class="reply-learned-head">
+        <h3>Geleerde correcties</h3>
+        <button class="reply-learned-close" onclick="closeLearnedCorrections()">&times;</button>
+      </div>
+      <div class="reply-learned-list" id="replyLearnedList"></div>
+      <div class="reply-learned-foot">
+        <button class="reply-btn" onclick="clearLearnedCorrections()">Alles wissen</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3407,6 +3591,7 @@ const REPLY_TEMPLATES = {
   vrijstelling: {
     icon: '📑',
     label: 'Vraag over vrijstelling / opvolging',
+    description: 'De afzender vraagt naar de stand van zaken / opvolging van het dossier, of alle documenten zijn doorgestuurd, naar de vrijstelling/franchise, of een update over de afhandeling.',
     text: `Beste,
 
 We laten u graag weten dat we alle documenten aan de verzekeringsmaatschappij hebben bezorgd.
@@ -3421,6 +3606,7 @@ Met vriendelijke groeten,`
   verslag: {
     icon: '📄',
     label: 'Vraag over verslag',
+    description: 'De afzender vraagt om het expertiseverslag, schadeverslag, een kopie van het verslag, of wil het verslag rechtstreeks ontvangen.',
     text: `Beste,
 
 Naar afspraken met de verzekeringsmaatschappij, mogen wij de verslagen helaas niet rechtstreeks aan u bezorgen.
@@ -3431,7 +3617,26 @@ Met vriendelijke groeten,`
   }
 };
 
+const REPLY_LS_KEY = 'charlie_reply_corrections';
 let replyBusy = false;
+// Tracks the current LLM output so we can compare against the beheerder's edits
+let currentReply = { mailText: '', detectedType: '', generatedReply: '', confidence: '' };
+
+// ---- localStorage corrections ----
+function loadReplyCorrections() {
+  try {
+    const raw = localStorage.getItem(REPLY_LS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveReplyCorrections(arr) {
+  try { localStorage.setItem(REPLY_LS_KEY, JSON.stringify(arr)); } catch (e) { console.warn('LS save failed', e); }
+}
+function updateLearnedCount() {
+  const n = loadReplyCorrections().length;
+  const el = document.getElementById('replyLearnedCount');
+  if (el) el.textContent = n;
+}
 
 function resetReply() {
   document.getElementById('replyResult').classList.remove('visible');
@@ -3441,6 +3646,12 @@ function resetReply() {
   document.getElementById('replyDrop').style.display = 'block';
   const inp = document.getElementById('replyFileInput');
   if (inp) inp.value = '';
+  const comment = document.getElementById('replyComment');
+  if (comment) comment.value = '';
+  const learnBtn = document.getElementById('replyLearnBtn');
+  if (learnBtn) { learnBtn.classList.remove('saved'); learnBtn.innerHTML = '💾 Opslaan &amp; leren'; }
+  currentReply = { mailText: '', detectedType: '', generatedReply: '', confidence: '' };
+  updateLearnedCount();
 }
 
 async function handleReplyFile(file) {
@@ -3493,10 +3704,15 @@ async function handleReplyFile(file) {
 
   try {
     const endpoint = CONFIG.apiUrl ? `${CONFIG.apiUrl}/api/reply-classify` : '/.netlify/functions/reply-classify';
+    // Send base templates (without icon) + learned corrections so the LLM can adapt
+    const templatePayload = {};
+    for (const [k, v] of Object.entries(REPLY_TEMPLATES)) {
+      templatePayload[k] = { label: v.label, description: v.description, text: v.text };
+    }
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: mailText })
+      body: JSON.stringify({ text: mailText, templates: templatePayload, corrections: loadReplyCorrections() })
     });
     if (!response.ok) {
       const errText = await response.text();
@@ -3504,6 +3720,12 @@ async function handleReplyFile(file) {
     }
     const result = await response.json();
     statusEl.style.display = 'none';
+    currentReply = {
+      mailText,
+      detectedType: result.type,
+      generatedReply: result.antwoord || '',
+      confidence: result.confidence || ''
+    };
     showReplyResult(result);
   } catch (err) {
     console.error('Reply classify error:', err);
@@ -3516,13 +3738,19 @@ async function handleReplyFile(file) {
 
 function showReplyResult(result) {
   const template = REPLY_TEMPLATES[result.type];
-  if (template && result.type !== 'geen_match') {
+  if (template && result.type !== 'geen_match' && (result.antwoord || template.text)) {
     document.getElementById('replyResultIcon').textContent = template.icon;
     document.getElementById('replyResultTitle').textContent = template.label;
     const badge = document.getElementById('replyConfBadge');
     badge.textContent = result.confidence || 'high';
     badge.className = 'reply-conf-badge ' + (result.confidence || 'high');
-    document.getElementById('replyTextarea').value = template.text;
+    // Use the LLM-generated answer; fall back to base template
+    document.getElementById('replyTextarea').value = result.antwoord || template.text;
+    document.getElementById('replyTypeSelect').value = result.type;
+    document.getElementById('replyComment').value = '';
+    const learnBtn = document.getElementById('replyLearnBtn');
+    learnBtn.classList.remove('saved');
+    learnBtn.innerHTML = '💾 Opslaan &amp; leren';
     document.getElementById('replyResult').classList.add('visible');
     console.log(`[Reply] Match: ${result.type} (${result.confidence}) — ${result.reden || ''}`);
   } else {
@@ -3546,10 +3774,86 @@ function copyReply() {
   });
 }
 
+// ---- Save a correction so Charlie learns ----
+function saveReplyCorrection() {
+  const finalReply = document.getElementById('replyTextarea').value.trim();
+  const correctedType = document.getElementById('replyTypeSelect').value;
+  const comment = document.getElementById('replyComment').value.trim();
+
+  const typeChanged = correctedType !== currentReply.detectedType;
+  const replyChanged = finalReply !== (currentReply.generatedReply || '').trim();
+  const hasComment = comment.length > 0;
+
+  if (!typeChanged && !replyChanged && !hasComment) {
+    showToast('Geen wijziging om te leren — pas het type, de tekst of een opmerking aan', 'error');
+    return;
+  }
+
+  const corrections = loadReplyCorrections();
+  corrections.unshift({
+    timestamp: new Date().toISOString(),
+    mailExcerpt: (currentReply.mailText || '').substring(0, 600),
+    detectedType: currentReply.detectedType,
+    correctedType,
+    generatedReply: currentReply.generatedReply || '',
+    finalReply,
+    comment
+  });
+  // Keep the most recent 50
+  saveReplyCorrections(corrections.slice(0, 50));
+  updateLearnedCount();
+
+  const learnBtn = document.getElementById('replyLearnBtn');
+  learnBtn.classList.add('saved');
+  learnBtn.innerHTML = '✓ Opgeslagen';
+  showToast('Correctie opgeslagen — Charlie leert hiervan', 'success');
+  console.log('[Reply] Correction saved. Total:', corrections.length);
+}
+
+// ---- Learned corrections modal ----
+function showLearnedCorrections() {
+  const list = document.getElementById('replyLearnedList');
+  const corrections = loadReplyCorrections();
+  if (corrections.length === 0) {
+    list.innerHTML = '<div class="reply-learned-empty">Nog geen correcties. Pas een antwoord of type aan en klik "Opslaan &amp; leren".</div>';
+  } else {
+    list.innerHTML = corrections.map(c => {
+      const typeLabel = (REPLY_TEMPLATES[c.correctedType] && REPLY_TEMPLATES[c.correctedType].label) || c.correctedType;
+      let changeHtml = '';
+      if (c.detectedType !== c.correctedType) {
+        changeHtml += `<div class="lc-change">Type gecorrigeerd: ${esc(c.detectedType)} → ${esc(c.correctedType)}</div>`;
+      }
+      const replyChanged = (c.generatedReply || '').trim() !== (c.finalReply || '').trim();
+      if (replyChanged) changeHtml += `<div class="lc-change">Antwoordtekst aangepast</div>`;
+      const commentHtml = c.comment ? `<div class="lc-comment">"${esc(c.comment)}"</div>` : '';
+      const date = c.timestamp ? new Date(c.timestamp).toLocaleString('nl-BE') : '';
+      return `<div class="reply-learned-item">
+        <div class="lc-type">${esc(typeLabel)}</div>
+        ${changeHtml}
+        ${commentHtml}
+        <div class="lc-date">${esc(date)}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('replyLearnedOverlay').classList.add('open');
+}
+function closeLearnedCorrections(e) {
+  if (e && e.target !== e.currentTarget && !e.target.classList.contains('reply-learned-close')) return;
+  document.getElementById('replyLearnedOverlay').classList.remove('open');
+}
+function clearLearnedCorrections() {
+  if (!confirm('Alle geleerde correcties wissen? Dit kan niet ongedaan gemaakt worden.')) return;
+  saveReplyCorrections([]);
+  updateLearnedCount();
+  showLearnedCorrections();
+  showToast('Geleerde correcties gewist', 'success');
+}
+
 // Wire up reply drop zone
 (function initReplyDropZone() {
   const drop = document.getElementById('replyDrop');
   const input = document.getElementById('replyFileInput');
+  updateLearnedCount();
   if (!drop || !input) return;
   input.addEventListener('change', e => {
     if (e.target.files.length) handleReplyFile(e.target.files[0]);
