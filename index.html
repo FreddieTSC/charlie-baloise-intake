@@ -120,6 +120,316 @@ body {
   opacity: 0.35;
 }
 
+/* ========== CHOICE SCREEN ========== */
+.choice-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: #FAEEDA;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.choice-screen.visible { display: flex; opacity: 1; }
+.choice-logo {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 64px);
+  color: var(--ced-navy);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.choice-logo .dot { color: var(--ced-blue); }
+.choice-logo .ai { color: var(--ced-blue); }
+.choice-tagline {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ced-navy);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: -28px;
+}
+.choice-cards {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 24px;
+}
+.choice-card {
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 18px;
+  padding: 36px 32px;
+  width: 300px;
+  max-width: 90vw;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(28, 5, 79, 0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.choice-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(28, 5, 79, 0.14);
+  border-color: var(--ced-blue);
+}
+.choice-card-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 18px;
+}
+.choice-card-title {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ced-navy);
+  margin-bottom: 10px;
+}
+.choice-card-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* ========== REPLY GENERATOR VIEW ========== */
+.reply-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8500;
+  background: var(--bg-page, #F4F6F9);
+  display: none;
+  flex-direction: column;
+}
+.reply-view.visible { display: flex; }
+.reply-header {
+  background: var(--bg-white, #fff);
+  border-bottom: 3px solid var(--ced-navy);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.reply-back {
+  background: none;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ced-navy);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.reply-back:hover { background: var(--bg-page, #F4F6F9); border-color: var(--ced-blue); }
+.reply-header-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ced-blue);
+}
+.reply-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.reply-drop {
+  width: 100%;
+  max-width: 620px;
+  border: 2px dashed var(--ced-blue);
+  border-radius: 16px;
+  background: var(--bg-white, #fff);
+  padding: 56px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.reply-drop:hover, .reply-drop.drag-over {
+  background: #F0F8FF;
+  border-color: var(--ced-navy);
+}
+.reply-drop-icon { font-size: 48px; margin-bottom: 16px; }
+.reply-drop-label {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ced-navy);
+  margin-bottom: 8px;
+}
+.reply-drop-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+}
+.reply-status {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary, #666);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reply-status .spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border, #E2E8F0);
+  border-top-color: var(--ced-blue);
+  border-radius: 50%;
+  animation: replySpin 0.8s linear infinite;
+}
+@keyframes replySpin { to { transform: rotate(360deg); } }
+
+/* Reply result panel */
+.reply-result {
+  width: 100%;
+  max-width: 720px;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(28, 5, 79, 0.06);
+  overflow: hidden;
+  display: none;
+}
+.reply-result.visible { display: block; }
+.reply-result-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-light, #EDF2F7);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reply-result-type {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ced-navy);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reply-conf-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.reply-conf-badge.high { background: #DCFCE7; color: #166534; }
+.reply-conf-badge.medium { background: #FEF3C7; color: #92400E; }
+.reply-conf-badge.low { background: #FED7AA; color: #9A3412; }
+.reply-result-body { padding: 24px; }
+.reply-textarea {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-body, #333);
+  resize: vertical;
+  background: #FCFCFD;
+}
+.reply-textarea:focus { outline: none; border-color: var(--ced-blue); }
+.reply-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+.reply-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--border, #E2E8F0);
+  background: #fff;
+  color: var(--text-body, #333);
+  transition: all 0.15s ease;
+}
+.reply-btn:hover { background: var(--bg-page, #F4F6F9); border-color: var(--ced-blue); }
+.reply-btn.primary {
+  background: var(--ced-navy);
+  color: #fff;
+  border-color: var(--ced-navy);
+}
+.reply-btn.primary:hover { background: var(--ced-purple); }
+.reply-nomatch {
+  width: 100%;
+  max-width: 720px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: none;
+}
+.reply-nomatch.visible { display: block; }
+.reply-nomatch-title {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #9A3412;
+  margin-bottom: 8px;
+}
+.reply-nomatch-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #7C2D12;
+  line-height: 1.5;
+}
+.reply-mail-preview {
+  width: 100%;
+  max-width: 720px;
+  background: var(--bg-white, #fff);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: none;
+}
+.reply-mail-preview.visible { display: block; }
+.reply-mail-preview h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary, #666);
+  margin-bottom: 10px;
+}
+.reply-mail-preview pre {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-body, #333);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* ========== COMPACT HEADER ========== */
 .app-header {
   background: var(--bg-white);
@@ -1412,7 +1722,7 @@ select.dropdown-active {
   transform: translateY(20px);
   opacity: 0;
   transition: all 0.3s;
-  z-index: 200;
+  z-index: 10001;
 }
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.success { background: var(--ced-green); }
@@ -1443,6 +1753,77 @@ select.dropdown-active {
   <div class="splash-logo">Ch<span class="ai-reveal" id="logoA">a</span>rl<span class="ai-reveal" id="logoI">i</span>e<span class="dot">.</span></div>
   <div class="splash-subtitle" id="splashSubtitle"><span class="splash-cursor" id="splashCursor"></span></div>
   <div class="splash-hint" id="splashHint">klik om verder te gaan</div>
+</div>
+
+<!-- ===== CHOICE SCREEN ===== -->
+<div class="choice-screen" id="choiceScreen">
+  <div>
+    <div class="choice-logo">Ch<span class="ai">a</span>rl<span class="ai">i</span>e<span class="dot">.</span></div>
+  </div>
+  <div class="choice-tagline">Wat wil je doen?</div>
+  <div class="choice-cards">
+    <div class="choice-card" onclick="chooseDossier()">
+      <div class="choice-card-icon">📋</div>
+      <div class="choice-card-title">Dossier aanmaken</div>
+      <div class="choice-card-desc">Verwerk een opdracht van de verzekeraar tot een volledig dossier.</div>
+    </div>
+    <div class="choice-card" onclick="chooseReply()">
+      <div class="choice-card-icon">✉️</div>
+      <div class="choice-card-title">Reply Generator</div>
+      <div class="choice-card-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REPLY GENERATOR VIEW ===== -->
+<div class="reply-view" id="replyView">
+  <div class="reply-header">
+    <button class="reply-back" onclick="backToChoice()">← Terug</button>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
+      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+    </svg>
+    <span class="reply-header-title">Reply Generator</span>
+  </div>
+  <div class="reply-body">
+    <div class="reply-drop" id="replyDrop" onclick="document.getElementById('replyFileInput').click()">
+      <div class="reply-drop-icon">✉️</div>
+      <div class="reply-drop-label">Sleep de vraag-mail hier</div>
+      <div class="reply-drop-hint">.msg bestand — Charlie zoekt het juiste standaard-antwoord</div>
+      <input type="file" class="file-input" id="replyFileInput" accept=".msg,.eml,.txt" style="display:none;">
+    </div>
+
+    <div class="reply-status" id="replyStatus" style="display:none;">
+      <span class="spinner"></span>
+      <span id="replyStatusText">Bezig met analyseren...</span>
+    </div>
+
+    <div class="reply-result" id="replyResult">
+      <div class="reply-result-head">
+        <div class="reply-result-type">
+          <span id="replyResultIcon">✅</span>
+          <span id="replyResultTitle">Antwoord</span>
+          <span class="reply-conf-badge" id="replyConfBadge">high</span>
+        </div>
+      </div>
+      <div class="reply-result-body">
+        <textarea class="reply-textarea" id="replyTextarea"></textarea>
+        <div class="reply-actions">
+          <button class="reply-btn" onclick="resetReply()">Nieuwe mail</button>
+          <button class="reply-btn primary" onclick="copyReply()">📋 Kopiëren</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="reply-nomatch" id="replyNoMatch">
+      <div class="reply-nomatch-title">Geen automatisch antwoord beschikbaar</div>
+      <div class="reply-nomatch-text" id="replyNoMatchText">Deze mail komt niet overeen met een bekend vraagtype. Beoordeel de mail hieronder zelf.</div>
+    </div>
+
+    <div class="reply-mail-preview" id="replyMailPreview">
+      <h4>Inkomende mail</h4>
+      <pre id="replyMailText"></pre>
+    </div>
+  </div>
 </div>
 
 <!-- ===== COMPACT HEADER ===== -->
@@ -2308,7 +2689,7 @@ function fileToArrayBuffer(file) {
 // Extracts email text bodies, finds embedded PDFs/ZIPs/EMLs
 
 async function extractMsgClientSide(arrayBuffer, filename) {
-  const result = { texts: [], pdfTexts: [], filename };
+  const result = { texts: [], pdfTexts: [], images: [], filename };
 
   try {
     const cfb = CFB.read(new Uint8Array(arrayBuffer), {type: 'array'});
@@ -2426,9 +2807,12 @@ async function extractMsgClientSide(arrayBuffer, filename) {
       let ext = attFilename ? attFilename.split('.').pop().toLowerCase() : '';
       const magic = data.length > 4 ? Array.from(data.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('') : '';
 
-      if (!ext || !['pdf', 'zip', 'eml', 'msg'].includes(ext)) {
+      if (!ext || !['pdf', 'zip', 'eml', 'msg', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic'].includes(ext)) {
         if (magic === '25504446') ext = 'pdf';
         else if (magic === '504b0304') ext = 'zip';
+        else if (magic === 'ffd8ffe0' || magic === 'ffd8ffe1' || magic === 'ffd8ffdb' || magic === 'ffd8ffee') ext = 'jpg';
+        else if (magic === '89504e47') ext = 'png';
+        else if (magic === '47494638') ext = 'gif';
         else if (data.length > 100 && new TextDecoder('utf-8').decode(data.slice(0, 20)).startsWith('Received:')) ext = 'eml';
       }
 
@@ -2452,6 +2836,17 @@ async function extractMsgClientSide(arrayBuffer, filename) {
             pdfPromises.push(extractPdfTextClient(pdfBytes, pdfInfo.name));
           } catch (e) { console.error('EML PDF decode error:', e.message); }
         }
+      } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'heic'].includes(ext)) {
+        // Image attachment — add to images array for multimedia tab
+        const mimeTypes = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp', heic: 'image/heic' };
+        const mime = mimeTypes[ext] || 'image/jpeg';
+        const imgName = attFilename || `foto_${result.images.length + 1}.${ext === 'jpeg' ? 'jpg' : ext}`;
+        // Convert binary to base64 data URL
+        let binary = '';
+        for (let j = 0; j < data.length; j++) binary += String.fromCharCode(data[j]);
+        const dataUrl = `data:${mime};base64,${btoa(binary)}`;
+        result.images.push({ name: imgName, size: data.length, type: mime, dataUrl });
+        console.log(`[MSG Client] Image attachment: ${imgName} (${(data.length / 1024).toFixed(0)}KB)`);
       }
     }
 
@@ -2461,7 +2856,7 @@ async function extractMsgClientSide(arrayBuffer, filename) {
       if (res && res.length > 0) result.pdfTexts.push(res);
     }
 
-    console.log(`[MSG Client] ${filename}: ${uniqueBodies.length} bodies, ${htmlEntries.length} HTML, ${binaryEntries.length} binaries → ${result.pdfTexts.length} PDF texts extracted`);
+    console.log(`[MSG Client] ${filename}: ${uniqueBodies.length} bodies, ${htmlEntries.length} HTML, ${binaryEntries.length} binaries → ${result.pdfTexts.length} PDF texts, ${result.images.length} images extracted`);
 
   } catch (err) {
     console.error('Client MSG extraction error:', err);
@@ -3007,6 +3402,167 @@ function mapSchadeTypeHToCode(val) {
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => { initSchadeTypeDropdowns(); initSearchableSelects(); });
 
+// ========== REPLY GENERATOR ==========
+const REPLY_TEMPLATES = {
+  vrijstelling: {
+    icon: '📑',
+    label: 'Vraag over vrijstelling / opvolging',
+    text: `Beste,
+
+We laten u graag weten dat we alle documenten aan de verzekeringsmaatschappij hebben bezorgd.
+Ons dossier werd hiermee afgesloten.
+
+Voor verdere opvolging of een update neemt u best even contact op met uw maatschappij.
+
+We hopen u hiermee voldoende te hebben geïnformeerd.
+
+Met vriendelijke groeten,`
+  },
+  verslag: {
+    icon: '📄',
+    label: 'Vraag over verslag',
+    text: `Beste,
+
+Naar afspraken met de verzekeringsmaatschappij, mogen wij de verslagen helaas niet rechtstreeks aan u bezorgen.
+
+Voor een kopie van het verslag neemt u best even contact op met uw maatschappij.
+
+Met vriendelijke groeten,`
+  }
+};
+
+let replyBusy = false;
+
+function resetReply() {
+  document.getElementById('replyResult').classList.remove('visible');
+  document.getElementById('replyNoMatch').classList.remove('visible');
+  document.getElementById('replyMailPreview').classList.remove('visible');
+  document.getElementById('replyStatus').style.display = 'none';
+  document.getElementById('replyDrop').style.display = 'block';
+  const inp = document.getElementById('replyFileInput');
+  if (inp) inp.value = '';
+}
+
+async function handleReplyFile(file) {
+  if (replyBusy) return;
+  replyBusy = true;
+
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const dropEl = document.getElementById('replyDrop');
+  const statusEl = document.getElementById('replyStatus');
+  const statusText = document.getElementById('replyStatusText');
+
+  dropEl.style.display = 'none';
+  document.getElementById('replyResult').classList.remove('visible');
+  document.getElementById('replyNoMatch').classList.remove('visible');
+  document.getElementById('replyMailPreview').classList.remove('visible');
+  statusEl.style.display = 'flex';
+  statusText.textContent = `Mail uitlezen: ${file.name}...`;
+
+  let mailText = '';
+  try {
+    if (ext === 'msg' && typeof CFB !== 'undefined') {
+      const arrayBuffer = await fileToArrayBuffer(file);
+      const extracted = await extractMsgClientSide(arrayBuffer, file.name);
+      mailText = [...extracted.texts, ...extracted.pdfTexts].join('\n\n');
+    } else {
+      mailText = await file.text();
+    }
+  } catch (err) {
+    console.error('Reply MSG extract error:', err);
+    statusEl.style.display = 'none';
+    dropEl.style.display = 'block';
+    showToast('Kon de mail niet uitlezen: ' + err.message, 'error');
+    replyBusy = false;
+    return;
+  }
+
+  if (!mailText || mailText.trim().length < 5) {
+    statusEl.style.display = 'none';
+    dropEl.style.display = 'block';
+    showToast('Geen tekst gevonden in de mail', 'error');
+    replyBusy = false;
+    return;
+  }
+
+  // Show mail preview
+  document.getElementById('replyMailText').textContent = mailText.substring(0, 4000);
+  document.getElementById('replyMailPreview').classList.add('visible');
+
+  statusText.textContent = 'Charlie zoekt het juiste antwoord...';
+
+  try {
+    const endpoint = CONFIG.apiUrl ? `${CONFIG.apiUrl}/api/reply-classify` : '/.netlify/functions/reply-classify';
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: mailText })
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`API fout (${response.status}): ${errText.substring(0, 150)}`);
+    }
+    const result = await response.json();
+    statusEl.style.display = 'none';
+    showReplyResult(result);
+  } catch (err) {
+    console.error('Reply classify error:', err);
+    statusEl.style.display = 'none';
+    dropEl.style.display = 'block';
+    showToast('Classificatie mislukt: ' + err.message, 'error');
+  }
+  replyBusy = false;
+}
+
+function showReplyResult(result) {
+  const template = REPLY_TEMPLATES[result.type];
+  if (template && result.type !== 'geen_match') {
+    document.getElementById('replyResultIcon').textContent = template.icon;
+    document.getElementById('replyResultTitle').textContent = template.label;
+    const badge = document.getElementById('replyConfBadge');
+    badge.textContent = result.confidence || 'high';
+    badge.className = 'reply-conf-badge ' + (result.confidence || 'high');
+    document.getElementById('replyTextarea').value = template.text;
+    document.getElementById('replyResult').classList.add('visible');
+    console.log(`[Reply] Match: ${result.type} (${result.confidence}) — ${result.reden || ''}`);
+  } else {
+    const txt = document.getElementById('replyNoMatchText');
+    txt.textContent = result.reden
+      ? `Deze mail komt niet overeen met een bekend vraagtype (${result.reden}). Beoordeel de mail hieronder zelf.`
+      : 'Deze mail komt niet overeen met een bekend vraagtype. Beoordeel de mail hieronder zelf.';
+    document.getElementById('replyNoMatch').classList.add('visible');
+    console.log(`[Reply] No match — ${result.reden || ''}`);
+  }
+}
+
+function copyReply() {
+  const ta = document.getElementById('replyTextarea');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    showToast('Antwoord gekopieerd naar klembord', 'success');
+  }).catch(() => {
+    ta.select();
+    document.execCommand('copy');
+    showToast('Antwoord gekopieerd', 'success');
+  });
+}
+
+// Wire up reply drop zone
+(function initReplyDropZone() {
+  const drop = document.getElementById('replyDrop');
+  const input = document.getElementById('replyFileInput');
+  if (!drop || !input) return;
+  input.addEventListener('change', e => {
+    if (e.target.files.length) handleReplyFile(e.target.files[0]);
+  });
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleReplyFile(e.dataTransfer.files[0]);
+  });
+})();
+
 // ========== STATE ==========
 const state = {
   DossierCode: '',
@@ -3232,7 +3788,14 @@ async function processFilesViaAPI(files) {
         const extracted = await extractMsgClientSide(arrayBuffer, file.name);
         allTexts.push(...extracted.texts);
         allTexts.push(...extracted.pdfTexts);
-        console.log(`[Client] ${file.name}: ${extracted.texts.length} text parts, ${extracted.pdfTexts.length} PDF texts`);
+        // Add image attachments to multimedia
+        if (extracted.images && extracted.images.length > 0) {
+          for (const img of extracted.images) {
+            mediaFiles.push({ name: img.name, size: img.size, type: img.type, dataUrl: img.dataUrl, fromMsg: file.name });
+          }
+          console.log(`[Client] ${file.name}: ${extracted.images.length} image attachments added to multimedia`);
+        }
+        console.log(`[Client] ${file.name}: ${extracted.texts.length} text parts, ${extracted.pdfTexts.length} PDF texts, ${extracted.images?.length || 0} images`);
       } catch (err) {
         console.error('Client MSG parse error:', err);
         allTexts.push(`=== Bestand: ${file.name} ===\n[Fout bij verwerking: ${err.message}]`);
@@ -4376,6 +4939,9 @@ function finishTypewriter() {
   syncFormFromState();
   generateSummary();
   showActionButtons();
+  // Scroll to top so user sees the filled-in overview
+  switchToTab(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 document.addEventListener('keydown', e => {
@@ -5202,6 +5768,25 @@ function dismissSplash() {
   if (splashDismissed) return;
   splashDismissed = true;
   document.getElementById('splashScreen').classList.add('hidden');
+  // Show the mode choice screen
+  setTimeout(() => document.getElementById('choiceScreen').classList.add('visible'), 300);
+}
+
+// ========== MODE SELECTION ==========
+function chooseDossier() {
+  document.getElementById('choiceScreen').classList.remove('visible');
+  document.getElementById('replyView').classList.remove('visible');
+}
+
+function chooseReply() {
+  document.getElementById('choiceScreen').classList.remove('visible');
+  document.getElementById('replyView').classList.add('visible');
+  resetReply();
+}
+
+function backToChoice() {
+  document.getElementById('replyView').classList.remove('visible');
+  document.getElementById('choiceScreen').classList.add('visible');
 }
 
 (async function splashTypewriter() {
