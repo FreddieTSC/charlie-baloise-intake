@@ -120,26 +120,32 @@ body {
   opacity: 0.35;
 }
 
-/* ========== CHOICE SCREEN ========== */
+/* ========== CHOICE SCREEN — Editorial Luxury ========== */
 .choice-screen {
   position: fixed;
   inset: 0;
   z-index: 9000;
-  background: #FAEEDA;
+  background:
+    radial-gradient(1100px 560px at 50% -10%, #FFF8EC 0%, rgba(255,248,236,0) 60%),
+    radial-gradient(900px 720px at 50% 118%, #F2E0C2 0%, rgba(242,224,194,0) 55%),
+    #FAEEDA;
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 34px;
+  padding: 40px 24px;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.6s cubic-bezier(.16,.84,.24,1);
 }
 .choice-screen.visible { display: flex; opacity: 1; }
+
+.choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .choice-logo {
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(40px, 7vw, 64px);
+  font-size: clamp(46px, 7vw, 70px);
   color: var(--ced-navy);
   letter-spacing: -0.02em;
   line-height: 1;
@@ -148,74 +154,152 @@ body {
 .choice-logo .ai { color: var(--ced-blue); }
 .choice-tagline {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--ced-navy);
-  opacity: 0.6;
-  letter-spacing: 0.1em;
+  opacity: 0.5;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  margin-top: -28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
 }
+.choice-tagline::before, .choice-tagline::after {
+  content: '';
+  width: 30px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(28,5,79,.3));
+}
+.choice-tagline::after { background: linear-gradient(90deg, rgba(28,5,79,.3), transparent); }
+
 .choice-cards {
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 322px));
+  gap: 22px;
 }
+
+/* Outer bezel — the card is a real button */
 .choice-card {
-  background: var(--bg-white, #fff);
-  border: 1px solid var(--border, #E2E8F0);
-  border-radius: 18px;
-  padding: 36px 32px;
-  width: 300px;
-  max-width: 90vw;
+  --cc: #3899DD; --cc-soft: #EAF4FC; --cc-soft2: #D7EAF8;
+  appearance: none;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(28, 5, 79, 0.06);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  border: 1px solid rgba(28,5,79,.07);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBF4E8 100%);
+  border-radius: 26px;
+  padding: 7px;
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 2px 6px -3px rgba(28,5,79,.14),
+    0 22px 46px -22px rgba(28,5,79,.26);
+  transition: transform .55s cubic-bezier(.16,.84,.24,1), box-shadow .55s cubic-bezier(.16,.84,.24,1);
 }
+.choice-card[data-accent="purple"] { --cc: #56238E; --cc-soft: #F2ECF9; --cc-soft2: #E7D9F4; }
 .choice-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(28, 5, 79, 0.14);
-  border-color: var(--ced-blue);
+  transform: translateY(-7px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 4px 10px -4px rgba(28,5,79,.16),
+    0 40px 72px -28px color-mix(in srgb, var(--cc) 42%, rgba(28,5,79,.32));
 }
-.choice-card-icon {
-  font-size: 44px;
-  line-height: 1;
-  margin-bottom: 18px;
+.choice-card:active { transform: translateY(-3px); }
+.choice-card:focus-visible { outline: 2px solid var(--cc); outline-offset: 4px; }
+
+/* Inner panel — double-bezel */
+.cc-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 1px solid rgba(28,5,79,.05);
+  border-radius: 20px;
+  padding: 24px 24px 22px;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
 }
-.choice-card-title {
+.cc-frame::before {
+  content: '';
+  position: absolute; top: -42%; right: -32%;
+  width: 230px; height: 230px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--cc) 22%, transparent), transparent 70%);
+  opacity: .5;
+  transition: opacity .55s ease, transform .55s cubic-bezier(.16,.84,.24,1);
+  pointer-events: none;
+}
+.choice-card:hover .cc-frame::before { opacity: .95; transform: scale(1.18); }
+
+.cc-head { display: flex; align-items: center; justify-content: space-between; }
+.cc-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: grid; place-items: center;
+  font-size: 27px; line-height: 1;
+  background: linear-gradient(150deg, var(--cc-soft), var(--cc-soft2));
+  border: 1px solid color-mix(in srgb, var(--cc) 26%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px -10px color-mix(in srgb, var(--cc) 75%, transparent);
+  transition: transform .55s cubic-bezier(.16,.84,.24,1);
+}
+.choice-card:hover .cc-icon { transform: translateY(-2px) scale(1.06); }
+.cc-index {
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 22px; color: color-mix(in srgb, var(--cc) 48%, transparent);
+}
+.cc-body { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.cc-title {
   font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 21px; font-weight: 700;
   color: var(--ced-navy);
-  margin-bottom: 10px;
+  letter-spacing: -.01em;
 }
-.choice-card-desc {
+.cc-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-secondary, #666);
-  line-height: 1.5;
+  font-size: 13.5px; font-weight: 400;
+  color: #6E6678;
+  line-height: 1.55;
+  max-width: 30ch;
 }
+/* Button-in-button trailing chip */
+.cc-arrow {
+  align-self: flex-end;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 17px; font-weight: 600;
+  color: var(--cc);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--cc) 30%, transparent);
+  box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--cc) 70%, transparent);
+  transition: background .45s cubic-bezier(.16,.84,.24,1), color .45s ease, transform .45s cubic-bezier(.16,.84,.24,1);
+}
+.choice-card:hover .cc-arrow { background: var(--cc); color: #fff; transform: translateX(4px); }
+
+/* staggered entrance */
+@keyframes ccRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.choice-screen.visible .choice-card { animation: ccRise .6s cubic-bezier(.16,.84,.24,1) both; }
+.choice-screen.visible .choice-card:nth-child(1) { animation-delay: .05s; }
+.choice-screen.visible .choice-card:nth-child(2) { animation-delay: .14s; }
+
 .choice-demo-btn {
-  margin-top: 8px;
-  background: none;
-  border: 1px solid #CFE6FB;
+  margin-top: 4px;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(28,5,79,.12);
   color: var(--ced-navy);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  padding: 10px 22px;
+  padding: 11px 22px;
   border-radius: 24px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: all .35s cubic-bezier(.16,.84,.24,1);
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
-.choice-demo-btn:hover { background: #EEF6FF; border-color: var(--ced-blue); transform: translateY(-2px); }
+.choice-demo-btn:hover { background: #fff; border-color: var(--ced-blue); transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(28,5,79,.42); }
 
 /* ========== DEMO FILM OVERLAY ========== */
 .demo-overlay {
@@ -2411,21 +2495,37 @@ select.dropdown-active {
 
 <!-- ===== CHOICE SCREEN ===== -->
 <div class="choice-screen" id="choiceScreen">
-  <div>
+  <div class="choice-head">
     <div class="choice-logo">Ch<span class="ai">a</span>rl<span class="ai">i</span>e<span class="dot">.</span></div>
+    <div class="choice-tagline">Wat wil je doen?</div>
   </div>
-  <div class="choice-tagline">Wat wil je doen?</div>
   <div class="choice-cards">
-    <div class="choice-card" onclick="chooseDossier()">
-      <div class="choice-card-icon">📋</div>
-      <div class="choice-card-title">Dossier aanmaken</div>
-      <div class="choice-card-desc">Verwerk een opdracht van de verzekeraar tot een volledig dossier.</div>
-    </div>
-    <div class="choice-card" onclick="chooseReply()">
-      <div class="choice-card-icon">✉️</div>
-      <div class="choice-card-title">Reply Generator</div>
-      <div class="choice-card-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</div>
-    </div>
+    <button type="button" class="choice-card" data-accent="blue" onclick="chooseDossier()">
+      <span class="cc-frame">
+        <span class="cc-head">
+          <span class="cc-icon">📋</span>
+          <span class="cc-index">01</span>
+        </span>
+        <span class="cc-body">
+          <span class="cc-title">Dossier aanmaken</span>
+          <span class="cc-desc">Verwerk een opdracht van de verzekeraar tot een volledig dossier.</span>
+        </span>
+        <span class="cc-arrow" aria-hidden="true">→</span>
+      </span>
+    </button>
+    <button type="button" class="choice-card" data-accent="purple" onclick="chooseReply()">
+      <span class="cc-frame">
+        <span class="cc-head">
+          <span class="cc-icon">✉️</span>
+          <span class="cc-index">02</span>
+        </span>
+        <span class="cc-body">
+          <span class="cc-title">Reply Generator</span>
+          <span class="cc-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</span>
+        </span>
+        <span class="cc-arrow" aria-hidden="true">→</span>
+      </span>
+    </button>
   </div>
   <button class="choice-demo-btn" onclick="startDemo()">▶ Watch the demo <span style="opacity:.6;font-weight:400;">(click to advance)</span></button>
 </div>
