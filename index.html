@@ -2544,11 +2544,13 @@ select.dropdown-active {
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
   <div class="demo-controls">
-    <button class="demo-ctrl-btn" onclick="demoBack()" title="Previous (← / PageUp)">‹ Back</button>
-    <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→ / Space / PageDown)">Next ▶</button>
+    <button class="demo-ctrl-btn" onclick="demoBack()" title="Previous (←)">‹ Back</button>
+    <button class="demo-ctrl-btn" id="demoPauseBtn" onclick="demoTogglePause()" title="Pause / Play (Space)">⏸ Pause</button>
+    <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→)">Next ▶</button>
     <button class="demo-ctrl-btn" onclick="demoFullscreen()" title="Fullscreen (F)">⛶</button>
     <button class="demo-ctrl-btn" onclick="demoExit()" title="Close demo">✕</button>
-    <span class="demo-scene-label" id="demoSceneLabel">Step 1</span>
+    <span class="demo-scene-label" id="demoClock">0:00 / 6:00</span>
+    <span class="demo-scene-label" id="demoSceneLabel">1 / 25</span>
   </div>
 </div>
 
@@ -4675,28 +4677,63 @@ function buildDemoMedia() {
   ].map(it => ({ name: it.name, size: it.size, type: 'image/jpeg', dataUrl: it.src, fromMsg: 'opdracht.msg' }));
 }
 
-let demoState = { running: false, abort: false, advance: false, back: false, step: 0, total: 0, parsed: false };
+let demoState = { running: false, abort: false, advance: false, back: false, paused: false, auto: true, step: 0, total: 0, parsed: false, startTs: 0, pausedTotal: 0, pauseStartTs: 0 };
 let demoLsSnapshot = null;
+let demoTicker = null;
 
-// Sleep used inside animations; resolves early on navigate (next/back) or exit
+// Per-step durations (seconds) — the timed run sums to exactly 360s (6:00)
+const DEMO_SECONDS = [15, 12, 13, 11, 41, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13, 12, 12, 14, 13, 11, 14];
+
+// Unpaused milliseconds since the demo started — uses wall-clock timestamps so it
+// stays accurate even when timers are throttled (background tab, slow machine).
+function demoVirtualMs() {
+  if (!demoState.startTs) return 0;
+  let paused = demoState.pausedTotal;
+  if (demoState.paused && demoState.pauseStartTs) paused += Date.now() - demoState.pauseStartTs;
+  return Date.now() - demoState.startTs - paused;
+}
+function demoFmt(sec) { const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + String(s).padStart(2, '0'); }
+function updateDemoClock() {
+  const el = Math.min(360, Math.floor(demoVirtualMs() / 1000));
+  const lbl = document.getElementById('demoClock');
+  if (lbl) lbl.textContent = demoFmt(el) + ' / 6:00';
+  const bar = document.getElementById('demoProgressBar');
+  if (bar) bar.style.width = Math.min(100, el / 360 * 100) + '%';
+}
+function startDemoTicker() {
+  demoState.startTs = Date.now();
+  demoState.pausedTotal = 0;
+  demoState.pauseStartTs = 0;
+  clearInterval(demoTicker);
+  demoTicker = setInterval(updateDemoClock, 250);
+}
+function stopDemoTicker() { clearInterval(demoTicker); demoTicker = null; }
+
+// Sleep used inside short animations; pauses with the demo, resolves early on navigate/exit
 function demoAnimSleep(ms) {
   return new Promise(resolve => {
-    let remaining = ms;
-    const tick = 80;
+    const base = demoVirtualMs();
     const iv = setInterval(() => {
       if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); return; }
-      remaining -= tick;
-      if (remaining <= 0) { clearInterval(iv); resolve(); }
-    }, tick);
+      if (demoVirtualMs() - base >= ms) { clearInterval(iv); resolve(); }
+    }, 100);
   });
 }
-// Wait until the user navigates (next / back / exit)
-function demoWaitNext() {
+// Auto-advance once `dur` ms of unpaused time have elapsed since `baseMs`; or resolve on manual nav/exit
+function demoWaitDelta(baseMs, dur) {
   return new Promise(resolve => {
     const iv = setInterval(() => {
-      if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); }
-    }, 80);
+      if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); return; }
+      if (demoState.auto && !demoState.paused && demoVirtualMs() - baseMs >= dur) { clearInterval(iv); demoState.advance = true; resolve(); }
+    }, 150);
   });
+}
+function demoTogglePause() {
+  demoState.paused = !demoState.paused;
+  if (demoState.paused) demoState.pauseStartTs = Date.now();
+  else { demoState.pausedTotal += Date.now() - (demoState.pauseStartTs || Date.now()); demoState.pauseStartTs = 0; }
+  const b = document.getElementById('demoPauseBtn');
+  if (b) b.innerHTML = demoState.paused ? '▶ Play' : '⏸ Pause';
 }
 
 async function demoSetCaption(title, body) {
@@ -4747,8 +4784,9 @@ function demoExit() {
 document.addEventListener('keydown', (e) => {
   if (!demoState.running) return;
   const k = e.key;
-  if (k === 'ArrowRight' || k === ' ' || k === 'Spacebar' || k === 'PageDown') { e.preventDefault(); demoNext(); }
+  if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); demoNext(); }
   else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); demoBack(); }
+  else if (k === ' ' || k === 'Spacebar') { e.preventDefault(); demoTogglePause(); }
   else if (k === 'f' || k === 'F') { e.preventDefault(); demoFullscreen(); }
 }, true);
 
@@ -4856,23 +4894,28 @@ function demoCloseConcept() { document.getElementById('conceptView').classList.r
 // Each step sets up its caption/animation, then the engine waits for the user to click Next.
 function buildDemoSteps() {
   return [
+    // ── 1 · HOOK / PROBLEM ─────────────────────────────────────────
     async () => {
       demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('Welcome', 'In the next few minutes: Charlie builds a complete claim file in seconds — and a handler improves the AI itself, without IT. Let’s start.');
+      await demoSetCaption('The problem', 'Every claim starts the same way: a handler reads the insurer’s e-mail and PDFs, then retypes it all into the system — ten to fifteen minutes per file.');
+    },
+    async () => {
+      await demoSetCaption('At scale', 'Across a team that’s days of typing every week — slow, costly and easy to get wrong. All before the real work begins.');
     },
     async () => {
       const cards = document.querySelectorAll('.choice-card');
       if (cards[0]) demoSpotlight(cards[0]);
-      await demoSetCaption('Two functions', 'Left: build a complete claim file from an assignment. Right: automatically answer the most common questions.');
+      await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail. Let’s watch.');
     },
+    // ── 2 · SOLUTION — BUILD THE FILE ──────────────────────────────
     async () => {
       demoClearSpotlight();
       chooseDossier();
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
-      await demoSetCaption('Intake', 'The handler drops the insurer’s assignment email (.msg) into Charlie — including every PDF attachment.');
+      await demoSetCaption('One assignment in', 'The handler simply drops the insurer’s assignment — the .msg with all its PDFs — straight onto Charlie.');
     },
     async () => {
       demoClearSpotlight();
@@ -4880,12 +4923,13 @@ function buildDemoSteps() {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
+        const capT = setTimeout(() => { typewriterAbort = true; }, 38000); // keep the build inside its time slot
         const caps = [
-          ['Analysis', 'Charlie reads the email and every PDF attachment, and extracts all the data automatically.'],
-          ['Core data', 'File number, claimant, policy and dates are filled in automatically.'],
-          ['Smart matching', 'The insurer and broker are recognised from a list of 6,000+ offices.'],
-          ['Classification', 'The claim type and the amounts are determined automatically.'],
-          ['Documents & photos', 'Documents are detected and ordered; photos go separately into Multimedia.']
+          ['Charlie reads everything', 'It opens the e-mail and every attachment, and starts filling the whole file itself.'],
+          ['The core, captured', 'File number, claimant, policy and dates — lifted out automatically.'],
+          ['Recognised, not guessed', 'Insurer and broker matched against more than 6,000 known offices.'],
+          ['Classified on the spot', 'Claim type and amounts determined automatically.'],
+          ['Sorted for you', 'Documents ordered; damage photos set aside in Multimedia.']
         ];
         const wrapper = document.getElementById('buildexForm');
         await new Promise(r => setTimeout(r, 500));
@@ -4894,55 +4938,55 @@ function buildDemoSteps() {
           const c = caps[Math.min(ci, caps.length - 1)];
           await demoSetCaption(c[0], c[1]);
           let waited = 0;
-          while (waited < 6000 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
-            await new Promise(r => setTimeout(r, 150)); waited += 150;
+          while (waited < 6500 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
+            await new Promise(r => setTimeout(r, 150)); if (!demoState.paused) waited += 150;
           }
           ci++;
         }
         if (demoState.advance || demoState.back) typewriterAbort = true;
         await demoWaitForTypewriter();
+        clearTimeout(capT);
       } else {
-        // revisited via Back/Next — data is already filled, no need to re-run the typewriter
         showBuildex();
-        await demoSetCaption('Analysis', 'Charlie reads the email and every PDF attachment and extracts everything automatically — file number, claimant, insurer, broker, amounts and documents.');
+        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
       }
     },
     async () => {
       switchToTab(0);
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
-      await demoSetCaption('Summary', 'Charlie writes a short, readable summary of the entire file — who, what, when, in plain language.');
+      await demoSetCaption('A complete file', 'Seconds later: a full claim file — with a clear, plain-language summary of what happened.');
     },
     async () => {
       demoClearSpotlight();
       const hdr = document.querySelector('.buildex-header'); if (hdr) demoSpotlight(hdr);
-      await demoSetCaption('From minutes to seconds', 'Reading the mail and the PDFs and typing all this in by hand takes ten to fifteen minutes per file. Charlie does it in seconds — the handler only reviews.');
+      await demoSetCaption('Minutes become seconds', 'Fifteen minutes of manual typing — gone. The handler now reviews, instead of retypes.');
     },
+    // ── 3 · PROOF — TRUSTWORTHY & COMPLETE ─────────────────────────
     async () => {
       switchToTab(1);
       applyConfidenceHighlights();
-      // bring a low-confidence field into view and spotlight it so the orange is obvious
       const lc = document.getElementById('fSchadebedrag');
       if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
-      await demoSetCaption('Uncertainty made visible', 'Fields Charlie is less sure about turn orange (and yellow for "maybe") — so the handler checks them at a glance.');
+      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. No silent mistakes — the eye goes straight to what needs a second look.');
     },
     async () => {
       demoClearSpotlight();
-      await demoSetCaption('Confidence per field', 'These highlights come straight from the LLM: it reports how confident it is for each field it fills in.');
+      await demoSetCaption('Confidence, per field', 'That certainty comes from the model itself, field by field — so the handler checks only what matters.');
     },
     async () => {
       switchToTab(1);
       const t = document.getElementById('partijenTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Parties', 'All parties — insurer, broker, expert — are grouped together and editable with smart lookup lists.');
+      await demoSetCaption('Everyone involved', 'Insurer, broker and expert — captured together, and editable with smart lookup lists.');
     },
     async () => {
       switchToTab(3);
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Documents', 'Every document is recognised, ordered chronologically and tagged with its type and amount.');
+      await demoSetCaption('Every document', 'Each document recognised, ordered chronologically and labelled with its type and amount.');
     },
     async () => {
       switchToTab(8);
       const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
-      await demoSetCaption('Multimedia', 'Photos from the email and the PDFs land here automatically, separate from the documents.');
+      await demoSetCaption('The photos', 'Damage photos pulled straight from the e-mail — ready in the file.');
     },
     async () => {
       switchToTab(1);
@@ -4950,49 +4994,51 @@ function buildDemoSteps() {
       if (!editMode) toggleEditMode();
       const claimEl = document.getElementById('fClaim');
       if (claimEl) claimEl.value = '18750';
-      await demoSetCaption('Editing', 'Nothing is fixed: the handler can adjust any field before the file moves on.');
+      await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
     },
     async () => {
-      await demoSetCaption('Push to BuildeX', 'One click sends the file to BuildeX II — and corrections are stored so Charlie keeps learning.');
+      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
       pushToBuildex();
       await demoAnimSleep(1600);
     },
+    // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
     async () => {
       closePushModal();
-      await demoSetCaption('Self-service — no IT', 'Sometimes the handler wants Charlie to work differently — structurally. That used to mean a ticket to IT. Now the handler does it themselves.');
+      await demoSetCaption('And here’s the real shift', 'Want Charlie to work differently? You don’t open an IT ticket. The handler does it themselves.');
     },
     async () => {
       demoOpenTune();
       demoTuneSwitchTab('dossier');
-      await demoSetCaption('A rule in plain language', 'The handler writes an instruction themselves. It goes straight into Charlie’s prompt — no developer needed.');
+      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
       const ta = document.getElementById('tuneNewRule');
       await demoType(ta, 'For Baloise: take the claim reference from the subject line, after "SIN-".', 34);
       await demoAnimSleep(900);
       demoTuneAddRule(ta.value || 'For Baloise: take the claim reference from the subject line, after "SIN-".', 'dossier');
     },
     async () => {
-      await demoSetCaption('A new way of testing', 'The handler tests the rule instantly on a set of real example assignments — immediate results, no waiting for IT.');
+      await demoSetCaption('Test it on the spot', 'Then try the rule instantly on real example assignments. Right here — no waiting for anyone.');
       await demoAnimSleep(600);
       await demoTuneRunTest();
     },
     async () => {
-      await demoSetCaption('One place for everything', 'The same approach applies to the replies: the handler manages those rules here too.');
+      await demoSetCaption('One place for the rules', 'Same for the replies — every rule managed in one place, by the team that uses them.');
       demoTuneSwitchTab('reply');
     },
     async () => {
       demoCloseTune();
       demoOpenConcept();
-      await demoSetCaption('A new way of working', 'Classically: Operations writes a PRD, hands it to developers, then to testing, back to dev, back to testing — weeks of hand-offs and IT in the loop.');
+      await demoSetCaption('The old way', 'Compare that to before: write a PRD, hand it to developers, then testing, back to dev, back to testing — weeks.');
     },
     async () => {
-      await demoSetCaption('All in one', 'With Charlie it is one tool: the handler writes the rule, tests it on examples, fine-tunes and ships it live — in minutes, no IT in between.');
+      await demoSetCaption('All in one', 'Charlie collapses it into a single tool — write, test, ship — in minutes, by the people who do the work.');
     },
+    // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
     async () => {
       demoCloseConcept();
       demoShowChoice();
       const cards = document.querySelectorAll('.choice-card');
       if (cards[1]) demoSpotlight(cards[1]);
-      await demoSetCaption('Second function', 'Charlie can also answer the most common questions from customers and brokers automatically.');
+      await demoSetCaption('The second job', 'Now the other time-sink: the routine mail that floods every team, every day.');
     },
     async () => {
       demoClearSpotlight();
@@ -5000,13 +5046,13 @@ function buildDemoSteps() {
       document.getElementById('replyDrop').style.display = 'none';
       document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
       document.getElementById('replyMailPreview').classList.add('visible');
-      await demoSetCaption('Incoming question', 'A customer asks for the expert report of their file.');
+      await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — exactly the kind of question that comes in over and over.');
     },
     async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
       const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
-      await demoSetCaption('Automatic answer', 'Charlie recognises the type of question and instantly generates the right standard reply, ready to send.');
+      await demoSetCaption('The answer, instantly', 'Charlie recognises the question and drafts the right reply — ready to send.');
     },
     async () => {
       demoClearSpotlight();
@@ -5014,7 +5060,7 @@ function buildDemoSteps() {
       if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
       const cm = document.getElementById('replyComment');
       if (cm) cm.value = 'Always close with the team name.';
-      await demoSetCaption('Edit & learn', 'The handler refines the answer and clicks “Save & learn”.');
+      await demoSetCaption('It learns your style', 'The handler tweaks it once and saves — and Charlie remembers the house style for next time.');
       try {
         const corr = loadReplyCorrections();
         corr.unshift({ timestamp: new Date().toISOString(), mailExcerpt: '', detectedType: 'verslag', correctedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, finalReply: ta ? ta.value : '', comment: cm ? cm.value : '' });
@@ -5023,45 +5069,51 @@ function buildDemoSteps() {
       } catch (e) {}
     },
     async () => {
-      await demoSetCaption('Charlie learns', 'Every correction improves both the recognition and the answers over time.');
+      await demoSetCaption('Every correction counts', 'Both jobs improve the same way: each correction makes the next file and the next reply better.');
     },
+    // ── 6 · CLOSE / CTA ────────────────────────────────────────────
     async () => {
       demoRestoreLs(); updateLearnedCount();
       demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('Done', 'Charlie: faster files, smarter answers — and it gets a little better every day, driven by the people who use it. Where could your team start?');
+      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Improved every day by the people who use it — no IT in the loop. Where shall we start?');
     }
   ];
 }
 
 async function runDemoFilm() {
   if (demoState.running) return;
-  demoState = { running: true, abort: false, advance: false, back: false, step: 0, total: 0, parsed: false };
+  demoState = { running: true, abort: false, advance: false, back: false, paused: false, auto: true, step: 0, total: 0, parsed: false, startTs: 0, pausedTotal: 0, pauseStartTs: 0 };
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = 'none';
   const ddb = document.querySelector('.choice-demo-btn'); if (ddb) ddb.style.display = 'none';
+  const pb = document.getElementById('demoPauseBtn'); if (pb) pb.innerHTML = '⏸ Pause';
   const overlay = document.getElementById('demoOverlay');
   overlay.classList.add('active');
   const steps = buildDemoSteps();
   demoState.total = steps.length;
+  startDemoTicker();
   let i = 0;
   while (i < steps.length && !demoState.abort) {
     demoState.step = i + 1;
     demoState.advance = false;
     demoState.back = false;
     typewriterAbort = false;
-    updateDemoProgress();
-    document.getElementById('demoSceneLabel').textContent = `Step ${i + 1} / ${steps.length}`;
+    document.getElementById('demoSceneLabel').textContent = `${i + 1} / ${steps.length}`;
+    const baseMs = demoVirtualMs();
     try { await steps[i](); } catch (e) { console.error('[Demo] step error:', e); }
     if (demoState.abort) break;
-    if (!demoState.advance && !demoState.back) await demoWaitNext();
+    if (!demoState.advance && !demoState.back) {
+      await demoWaitDelta(baseMs, (DEMO_SECONDS[i] || 13) * 1000);
+    }
     if (demoState.abort) break;
     if (demoState.back) { i = Math.max(0, i - 1); continue; }
     i++;
   }
   if (!demoState.abort) {
+    stopDemoTicker();
     document.getElementById('demoProgressBar').style.width = '100%';
     demoRestoreLs();
     window.__demoMode = false;
@@ -5069,8 +5121,8 @@ async function runDemoFilm() {
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
     document.getElementById('conceptView').classList.remove('visible');
-    const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = '';
-    const ddb = document.querySelector('.choice-demo-btn'); if (ddb) ddb.style.display = '';
+    const lsw2 = document.getElementById('langSwitcher'); if (lsw2) lsw2.style.display = '';
+    const ddb2 = document.querySelector('.choice-demo-btn'); if (ddb2) ddb2.style.display = '';
     demoClearSpotlight();
     demoShowChoice();
     demoState.running = false;
