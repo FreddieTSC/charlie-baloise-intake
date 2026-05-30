@@ -479,9 +479,11 @@ body {
 .demo-spotlight {
   position: relative;
   z-index: 10040;
-  box-shadow: 0 0 0 4px rgba(56, 153, 221, 0.55), 0 0 0 9999px rgba(28, 5, 79, 0.0);
+  outline: 3px solid rgba(56, 153, 221, 0.85);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 7px rgba(56, 153, 221, 0.20);
   border-radius: 10px;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease, outline-color 0.3s ease;
 }
 
 /* ========== CHARLIE BIJSTUREN (self-service prompt — demo) ========== */
@@ -2542,8 +2544,10 @@ select.dropdown-active {
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
   <div class="demo-controls">
-    <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()">Next ▶</button>
-    <button class="demo-ctrl-btn" onclick="demoExit()">✕ Close</button>
+    <button class="demo-ctrl-btn" onclick="demoBack()" title="Previous (← / PageUp)">‹ Back</button>
+    <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→ / Space / PageDown)">Next ▶</button>
+    <button class="demo-ctrl-btn" onclick="demoFullscreen()" title="Fullscreen (F)">⛶</button>
+    <button class="demo-ctrl-btn" onclick="demoExit()" title="Close demo">✕</button>
     <span class="demo-scene-label" id="demoSceneLabel">Step 1</span>
   </div>
 </div>
@@ -4671,26 +4675,26 @@ function buildDemoMedia() {
   ].map(it => ({ name: it.name, size: it.size, type: 'image/jpeg', dataUrl: it.src, fromMsg: 'opdracht.msg' }));
 }
 
-let demoState = { running: false, abort: false, advance: false, step: 0, total: 0 };
+let demoState = { running: false, abort: false, advance: false, back: false, step: 0, total: 0, parsed: false };
 let demoLsSnapshot = null;
 
-// Sleep used inside animations; resolves early when the user clicks Next or exits
+// Sleep used inside animations; resolves early on navigate (next/back) or exit
 function demoAnimSleep(ms) {
   return new Promise(resolve => {
     let remaining = ms;
     const tick = 80;
     const iv = setInterval(() => {
-      if (demoState.abort || demoState.advance) { clearInterval(iv); resolve(); return; }
+      if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); return; }
       remaining -= tick;
       if (remaining <= 0) { clearInterval(iv); resolve(); }
     }, tick);
   });
 }
-// Wait until the user clicks Next (or exits)
+// Wait until the user navigates (next / back / exit)
 function demoWaitNext() {
   return new Promise(resolve => {
     const iv = setInterval(() => {
-      if (demoState.abort || demoState.advance) { clearInterval(iv); resolve(); }
+      if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); }
     }, 80);
   });
 }
@@ -4725,12 +4729,28 @@ function updateDemoProgress() {
 }
 
 function demoNext() { demoState.advance = true; typewriterAbort = true; }
+function demoBack() { demoState.back = true; typewriterAbort = true; }
+function demoFullscreen() {
+  try {
+    if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }
+    else { if (document.exitFullscreen) document.exitFullscreen(); }
+  } catch (e) {}
+}
 function demoExit() {
   demoState.abort = true; demoState.advance = true; typewriterAbort = true;
+  try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
   demoRestoreLs();
   window.__demoMode = false;
   location.reload();
 }
+// Keyboard / presentation-clicker control (only while the demo runs)
+document.addEventListener('keydown', (e) => {
+  if (!demoState.running) return;
+  const k = e.key;
+  if (k === 'ArrowRight' || k === ' ' || k === 'Spacebar' || k === 'PageDown') { e.preventDefault(); demoNext(); }
+  else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); demoBack(); }
+  else if (k === 'f' || k === 'F') { e.preventDefault(); demoFullscreen(); }
+}, true);
 
 function demoRestoreLs() {
   try {
@@ -4837,8 +4857,9 @@ function demoCloseConcept() { document.getElementById('conceptView').classList.r
 function buildDemoSteps() {
   return [
     async () => {
+      demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('Welcome', 'Charlie is CED’s digital assistant for creating claim files and answering customer emails.');
+      await demoSetCaption('Welcome', 'In the next few minutes: Charlie builds a complete claim file in seconds — and a handler improves the AI itself, without IT. Let’s start.');
     },
     async () => {
       const cards = document.querySelectorAll('.choice-card');
@@ -4855,33 +4876,46 @@ function buildDemoSteps() {
     },
     async () => {
       demoClearSpotlight();
-      mediaFiles = buildDemoMedia();
-      populateFromApiResponse({ data: SAMPLE_DOSSIER });
-      const caps = [
-        ['Analysis', 'Charlie reads the email and every PDF attachment, and extracts all the data automatically.'],
-        ['Core data', 'File number, claimant, policy and dates are filled in automatically.'],
-        ['Smart matching', 'The insurer and broker are recognised from a list of 6,000+ offices.'],
-        ['Classification', 'The claim type and the amounts are determined automatically.'],
-        ['Documents & photos', 'Documents are detected and ordered; photos go separately into Multimedia.']
-      ];
-      const wrapper = document.getElementById('buildexForm');
-      await new Promise(r => setTimeout(r, 500));
-      let i = 0;
-      while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance) {
-        const c = caps[Math.min(i, caps.length - 1)];
-        await demoSetCaption(c[0], c[1]);
-        let waited = 0;
-        while (waited < 6000 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance) {
-          await new Promise(r => setTimeout(r, 150)); waited += 150;
+      if (!demoState.parsed) {
+        mediaFiles = buildDemoMedia();
+        populateFromApiResponse({ data: SAMPLE_DOSSIER });
+        demoState.parsed = true;
+        const caps = [
+          ['Analysis', 'Charlie reads the email and every PDF attachment, and extracts all the data automatically.'],
+          ['Core data', 'File number, claimant, policy and dates are filled in automatically.'],
+          ['Smart matching', 'The insurer and broker are recognised from a list of 6,000+ offices.'],
+          ['Classification', 'The claim type and the amounts are determined automatically.'],
+          ['Documents & photos', 'Documents are detected and ordered; photos go separately into Multimedia.']
+        ];
+        const wrapper = document.getElementById('buildexForm');
+        await new Promise(r => setTimeout(r, 500));
+        let ci = 0;
+        while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
+          const c = caps[Math.min(ci, caps.length - 1)];
+          await demoSetCaption(c[0], c[1]);
+          let waited = 0;
+          while (waited < 6000 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
+            await new Promise(r => setTimeout(r, 150)); waited += 150;
+          }
+          ci++;
         }
-        i++;
+        if (demoState.advance || demoState.back) typewriterAbort = true;
+        await demoWaitForTypewriter();
+      } else {
+        // revisited via Back/Next — data is already filled, no need to re-run the typewriter
+        showBuildex();
+        await demoSetCaption('Analysis', 'Charlie reads the email and every PDF attachment and extracts everything automatically — file number, claimant, insurer, broker, amounts and documents.');
       }
-      if (demoState.advance) typewriterAbort = true;
-      await demoWaitForTypewriter();
     },
     async () => {
       switchToTab(0);
-      await demoSetCaption('Summary', 'Charlie writes a short, readable summary of the entire file.');
+      const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
+      await demoSetCaption('Summary', 'Charlie writes a short, readable summary of the entire file — who, what, when, in plain language.');
+    },
+    async () => {
+      demoClearSpotlight();
+      const hdr = document.querySelector('.buildex-header'); if (hdr) demoSpotlight(hdr);
+      await demoSetCaption('From minutes to seconds', 'Reading the mail and the PDFs and typing all this in by hand takes ten to fifteen minutes per file. Charlie does it in seconds — the handler only reviews.');
     },
     async () => {
       switchToTab(1);
@@ -4897,18 +4931,22 @@ function buildDemoSteps() {
     },
     async () => {
       switchToTab(1);
+      const t = document.getElementById('partijenTable'); if (t) demoSpotlight(t);
       await demoSetCaption('Parties', 'All parties — insurer, broker, expert — are grouped together and editable with smart lookup lists.');
     },
     async () => {
       switchToTab(3);
+      const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
       await demoSetCaption('Documents', 'Every document is recognised, ordered chronologically and tagged with its type and amount.');
     },
     async () => {
       switchToTab(8);
+      const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
       await demoSetCaption('Multimedia', 'Photos from the email and the PDFs land here automatically, separate from the documents.');
     },
     async () => {
       switchToTab(1);
+      demoClearSpotlight();
       if (!editMode) toggleEditMode();
       const claimEl = document.getElementById('fClaim');
       if (claimEl) claimEl.value = '18750';
@@ -4967,9 +5005,11 @@ function buildDemoSteps() {
     async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
+      const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
       await demoSetCaption('Automatic answer', 'Charlie recognises the type of question and instantly generates the right standard reply, ready to send.');
     },
     async () => {
+      demoClearSpotlight();
       const ta = document.getElementById('replyTextarea');
       if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
       const cm = document.getElementById('replyComment');
@@ -4987,33 +5027,39 @@ function buildDemoSteps() {
     },
     async () => {
       demoRestoreLs(); updateLearnedCount();
+      demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('Done', 'Charlie: faster files, smarter answers — and it learns a little more every day. Click ✕ Close to finish.');
+      await demoSetCaption('Done', 'Charlie: faster files, smarter answers — and it gets a little better every day, driven by the people who use it. Where could your team start?');
     }
   ];
 }
 
 async function runDemoFilm() {
   if (demoState.running) return;
-  demoState = { running: true, abort: false, advance: false, step: 0, total: 0 };
+  demoState = { running: true, abort: false, advance: false, back: false, step: 0, total: 0, parsed: false };
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   const lsw = document.getElementById('langSwitcher'); if (lsw) lsw.style.display = 'none';
   const ddb = document.querySelector('.choice-demo-btn'); if (ddb) ddb.style.display = 'none';
   const overlay = document.getElementById('demoOverlay');
   overlay.classList.add('active');
   const steps = buildDemoSteps();
   demoState.total = steps.length;
-  for (let s = 0; s < steps.length; s++) {
-    if (demoState.abort) break;
-    demoState.step = s + 1;
+  let i = 0;
+  while (i < steps.length && !demoState.abort) {
+    demoState.step = i + 1;
     demoState.advance = false;
+    demoState.back = false;
     typewriterAbort = false;
     updateDemoProgress();
-    document.getElementById('demoSceneLabel').textContent = `Step ${s + 1} / ${steps.length}`;
-    try { await steps[s](); } catch (e) { console.error('[Demo] step error:', e); }
+    document.getElementById('demoSceneLabel').textContent = `Step ${i + 1} / ${steps.length}`;
+    try { await steps[i](); } catch (e) { console.error('[Demo] step error:', e); }
     if (demoState.abort) break;
-    if (!demoState.advance) await demoWaitNext(); // wait for the user's click
+    if (!demoState.advance && !demoState.back) await demoWaitNext();
+    if (demoState.abort) break;
+    if (demoState.back) { i = Math.max(0, i - 1); continue; }
+    i++;
   }
   if (!demoState.abort) {
     document.getElementById('demoProgressBar').style.width = '100%';
