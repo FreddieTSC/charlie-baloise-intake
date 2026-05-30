@@ -176,6 +176,9 @@ body {
   grid-template-columns: repeat(2, minmax(0, 322px));
   gap: 22px;
 }
+@media (max-width: 720px) {
+  .choice-cards { grid-template-columns: minmax(0, 360px); }
+}
 
 /* Outer bezel — the card is a real button */
 .choice-card {
