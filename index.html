@@ -741,225 +741,135 @@ body {
   position: fixed;
   inset: 0;
   z-index: 8600;
-  background: #0B0E1A;
+  background:
+    radial-gradient(1100px 560px at 50% -12%, #FFF8EC 0%, rgba(255,248,236,0) 60%),
+    radial-gradient(1000px 760px at 50% 122%, #F2E0C2 0%, rgba(242,224,194,0) 58%),
+    #FAEEDA;
   display: none;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 40px 24px 150px;
+  padding: 44px 38px 168px;
   overflow-y: auto;
 }
 .concept-view.visible { display: flex; }
-.concept-inner { width: 100%; max-width: 1140px; }
+.concept-inner { width: 100%; max-width: 1260px; margin: auto; }
+
 .concept-title {
   font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ced-navy);
   text-align: center;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   letter-spacing: -0.02em;
 }
 .concept-subtitle {
   font-family: 'Inter', sans-serif;
   font-size: 15px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.45);
-  text-align: center;
-  margin: 0 0 40px;
-}
-.concept-cols {
-  display: grid;
-  grid-template-columns: 1fr 56px 1fr;
-  align-items: start;
-  gap: 0;
-}
-
-/* --- OLD WAY column --- */
-.concept-col {
-  border-radius: 20px;
-  padding: 28px 24px 24px;
-}
-.concept-col.classic {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.concept-col.charlie {
-  background: rgba(27,122,61,0.08);
-  border: 1px solid rgba(27,122,61,0.25);
-  box-shadow: 0 0 60px rgba(27,122,61,0.12);
-}
-.concept-col-head {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-.concept-col.classic .concept-col-head { color: rgba(255,255,255,0.35); }
-.concept-col.charlie .concept-col-head { color: #5CBD78; }
-
-/* Flow diagram: actors + steps */
-.cflow { display: flex; flex-direction: column; align-items: stretch; gap: 0; position: relative; }
-.cflow-actor {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 6px 0 4px;
-}
-.cflow-actor.ops { color: #7C8DB5; }
-.cflow-actor.it  { color: #E07A5F; }
-.cstep {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
-.cstep.it-step {
-  border-color: rgba(224,122,95,0.25);
-  background: rgba(224,122,95,0.08);
-}
-.carrow { text-align: center; color: rgba(255,255,255,0.15); font-size: 14px; line-height: 1.4; padding: 2px 0; }
-
-/* The loop — the visual problem */
-.cloop {
-  position: relative;
-  margin: 6px 0;
-  border: 2px dashed rgba(224,122,95,0.5);
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: rgba(224,122,95,0.04);
-}
-.cloop-label {
-  position: absolute;
-  top: -10px;
-  right: 16px;
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #E07A5F;
-  background: #0B0E1A;
-  padding: 0 8px;
-}
-.cloop-inner { display: flex; flex-direction: column; gap: 0; }
-.cloop-arrow {
+  color: #8A7E6B;
   text-align: center;
-  font-size: 12px;
-  color: #E07A5F;
-  line-height: 1.5;
-  font-weight: 600;
+  margin: 0 0 32px;
+}
+
+/* ===== one timeline ===== */
+.ctl { position: relative; margin: 0 0 24px; }
+.ctl-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 8px 2px; }
+.ctl-kicker {
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.ctl.today .ctl-kicker { color: #C2410C; }
+.ctl.charlie .ctl-kicker { color: #1B7A3D; }
+.ctl-title { font-family: 'Raleway','Inter',sans-serif; font-size: 18px; font-weight: 700; color: var(--ced-navy); }
+
+.ctl-body { display: grid; grid-template-columns: 104px 1fr; column-gap: 8px; align-items: stretch; }
+.ctl-lanes { position: relative; min-height: 210px; }
+.lane-tag {
+  position: absolute; left: 0; right: 8px;
+  font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 800;
+  letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.25;
+}
+.lane-tag.ops { top: 32px; color: #2D6CA2; }
+.lane-tag.it  { top: 150px; color: #C2410C; }
+
+.ctl-flow { position: relative; display: flex; align-items: stretch; min-height: 210px; }
+.ctl-rail {
+  position: absolute; left: 0; right: 118px; top: 105px; height: 3px; border-radius: 3px; z-index: 0;
+}
+.ctl.today .ctl-rail { background: linear-gradient(90deg,#D8C6A8 0%,#D8C6A8 38%,#E3A268 55%,#D9744E 100%); }
+.ctl.charlie .ctl-rail { background: linear-gradient(90deg,#BFE3C9 0%,#86BC34 100%); }
+
+/* stations */
+.station {
+  position: relative; flex: 1 1 0;
+  display: grid; grid-template-rows: 84px 42px 84px; justify-items: center; z-index: 1;
+}
+.station > .card {
+  grid-row: 1; align-self: end; margin-bottom: 6px; position: relative;
+  background: #fff; border: 1px solid #EADCC6; border-radius: 12px;
+  padding: 9px 13px; width: 90%; max-width: 152px; text-align: center;
+  box-shadow: 0 7px 18px rgba(28,5,79,.07);
+}
+.station.down > .card { grid-row: 3; align-self: start; margin-top: 6px; margin-bottom: 0; }
+.station > .card .ct { font-size: 13px; font-weight: 700; color: var(--ced-navy); line-height: 1.22; }
+.station > .card .cs { font-size: 10.5px; color: #8A7E6B; margin-top: 3px; font-weight: 500; line-height: 1.2; }
+
+/* stem from card to rail */
+.station > .card::after {
+  content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+  width: 2px; background: #D9CDB8;
+}
+.station:not(.down) > .card::after { top: 100%; height: 34px; }
+.station.down > .card::after { bottom: 100%; height: 34px; }
+.ctl.charlie .station > .card::after { background: #BFE3C9; }
+
+/* dot */
+.station > .node {
+  grid-row: 2; align-self: center; width: 14px; height: 14px; border-radius: 50%;
+  background: #2D6CA2; box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(45,108,162,.35); z-index: 2;
+}
+.station.it > .node { background: #C2410C; box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(194,65,11,.30); }
+.ctl.charlie .station > .node { background: #5FA12E; box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(95,161,46,.30); }
+
+/* end marker */
+.ctl-endcap {
+  flex: 0 0 118px; align-self: center; text-align: center; position: relative; z-index: 2; padding-left: 8px;
+}
+.endcap-num { font-family: 'Raleway','Inter',sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em; line-height: 1; }
+.ctl.today .endcap-num { color: #C2410C; }
+.ctl.charlie .endcap-num { color: #1B7A3D; }
+.endcap-sub { font-size: 10.5px; color: #8A7E6B; font-weight: 600; margin-top: 4px; line-height: 1.25; }
+
+/* the loop band (today) */
+.loop-band {
+  position: absolute; left: 43%; right: 118px; top: -4px; bottom: 6px;
+  border: 2px dashed #E0975F; border-radius: 16px; background: rgba(224,151,90,0.06); z-index: 1;
+  pointer-events: none; animation: loopPulse 2.6s ease-in-out infinite;
 }
 @keyframes loopPulse {
-  0%, 100% { border-color: rgba(224,122,95,0.3); }
-  50% { border-color: rgba(224,122,95,0.7); }
+  0%, 100% { border-color: rgba(224,151,90,0.55); }
+  50% { border-color: rgba(217,116,78,0.95); }
 }
-.cloop { animation: loopPulse 2.5s ease-in-out infinite; }
-
-/* Badge */
-.concept-badge {
-  margin-top: 20px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  padding: 10px 14px;
-  border-radius: 10px;
-}
-.concept-badge.slow { background: rgba(185,28,28,0.12); color: #F87171; border: 1px solid rgba(185,28,28,0.3); }
-.concept-badge.fast { background: rgba(27,122,61,0.12); color: #5CBD78; border: 1px solid rgba(27,122,61,0.3); }
-
-/* VS divider */
-.concept-vs {
-  font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.2);
-  text-align: center;
-  align-self: center;
-  letter-spacing: 0.1em;
-  writing-mode: vertical-lr;
+.loop-pill {
+  position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; background: #FAEEDA; padding: 0 12px;
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.03em; color: #B45309;
 }
 
-/* --- NEW WAY column (Charlie) --- */
-.cnew-flow { display: flex; flex-direction: column; gap: 0; }
-.cnew-actor {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 6px 0 4px;
-  color: #5CBD78;
+/* foundation band (charlie) */
+.foundation {
+  position: absolute; left: 0; right: 118px; top: 132px; height: 60px;
+  border: 1px dashed #C4D1E2; border-radius: 13px; background: rgba(120,140,180,0.06);
+  display: flex; align-items: center; gap: 12px; padding: 0 18px; z-index: 1;
 }
-.cnew-actor.it-actor { color: #7C8DB5; }
-.cnew-block {
-  border: 1px solid rgba(27,122,61,0.3);
-  border-radius: 14px;
-  padding: 14px;
-  background: rgba(27,122,61,0.06);
-  margin-bottom: 2px;
-}
-.cnew-block-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #5CBD78;
-  margin-bottom: 10px;
-}
-.cnew-chip {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.85);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(27,122,61,0.2);
-  border-radius: 8px;
-  padding: 9px 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.cnew-chip + .cnew-chip { margin-top: 6px; }
-.cnew-chip-icon {
-  font-size: 15px;
-  flex-shrink: 0;
-}
-.cnew-arrow { text-align: center; color: rgba(92,189,120,0.3); font-size: 14px; line-height: 1.4; padding: 2px 0; }
-.cnew-it-block {
-  border: 1px solid rgba(124,141,181,0.2);
-  border-radius: 14px;
-  padding: 14px;
-  background: rgba(124,141,181,0.05);
-}
-.cnew-it-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #7C8DB5;
-  margin-bottom: 8px;
-}
-.cnew-it-note {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  color: rgba(255,255,255,0.4);
-  font-style: italic;
-}
+.foundation .fkicker { font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6B86; white-space: nowrap; }
+.foundation .ftext { font-family: 'Inter', sans-serif; font-size: 12px; color: #6B7790; font-weight: 500; font-style: italic; }
 
-@media (max-width: 820px) {
-  .concept-cols { grid-template-columns: 1fr; gap: 16px; }
-  .concept-vs { transform: none; padding: 8px 0; }
+@media (max-width: 900px) {
+  .concept-title { font-size: 26px; }
+  .ctl-flow { overflow-x: auto; }
+  .station { min-width: 124px; }
 }
 
 /* ========== REPLY GENERATOR VIEW ========== */
@@ -2882,69 +2792,103 @@ select.dropdown-active {
 <!-- ===== CONCEPT SLIDE: new way of working (demo) ===== -->
 <div class="concept-view" id="conceptView">
   <div class="concept-inner">
-    <h2 class="concept-title">A new way of working</h2>
-    <p class="concept-subtitle">How change gets built, tested and shipped</p>
-    <div class="concept-cols">
+    <h2 class="concept-title">The way we work</h2>
+    <p class="concept-subtitle">From a new idea to live in the product — before, and with Charlie.</p>
 
-      <!-- OLD WAY -->
-      <div class="concept-col classic">
-        <div class="concept-col-head">The classic way</div>
-        <div class="cflow">
-          <div class="cflow-actor ops">Operations</div>
-          <div class="cstep">Write requirements</div>
-          <div class="carrow">↓</div>
-          <div class="cstep">Draft a PRD</div>
-          <div class="carrow">↓ hand off</div>
+    <!-- ===== TODAY: the loop between Operations and IT ===== -->
+    <section class="ctl today">
+      <div class="ctl-head">
+        <span class="ctl-kicker">Today · without Charlie</span>
+        <span class="ctl-title">Every change ping-pongs between Operations and IT</span>
+      </div>
+      <div class="ctl-body">
+        <div class="ctl-lanes">
+          <span class="lane-tag ops">Operations</span>
+          <span class="lane-tag it">IT / Dev</span>
+        </div>
+        <div class="ctl-flow">
+          <div class="ctl-rail"></div>
+          <div class="loop-band"><span class="loop-pill">↻ test → fix → test … repeats for weeks</span></div>
 
-          <div class="cflow-actor it">IT / Development</div>
-          <div class="cstep it-step">Build the feature</div>
-          <div class="carrow">↓ deliver</div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Requirements</div><div class="cs">Operations writes the spec</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Write the BRD</div><div class="cs">A formal requirements doc</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station it down">
+            <div class="card"><div class="ct">Build</div><div class="cs">IT develops the feature</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Test &amp; review</div><div class="cs">Back to Operations</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station it down">
+            <div class="card"><div class="ct">Re-develop</div><div class="cs">Fixes go back to IT</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Re-test</div><div class="cs">Operations checks again</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station it down">
+            <div class="card"><div class="ct">Fix again</div><div class="cs">… and back once more</div></div>
+            <span class="node"></span>
+          </div>
 
-          <div class="cloop">
-            <span class="cloop-label">The loop</span>
-            <div class="cloop-inner">
-              <div class="cflow-actor ops">Operations</div>
-              <div class="cstep">Test &amp; review</div>
-              <div class="cloop-arrow">↓ feedback</div>
-              <div class="cflow-actor it">IT / Development</div>
-              <div class="cstep it-step">Re-develop</div>
-              <div class="cloop-arrow">↑ deliver again</div>
-              <div class="cflow-actor ops">Operations</div>
-              <div class="cstep">Re-test …</div>
-            </div>
+          <div class="ctl-endcap">
+            <div class="endcap-num">Weeks</div>
+            <div class="endcap-sub">to ship one change</div>
           </div>
         </div>
-        <div class="concept-badge slow">Weeks — endless hand-offs — IT-dependent</div>
       </div>
+    </section>
 
-      <!-- VS -->
-      <div class="concept-vs">VS</div>
+    <!-- ===== WITH CHARLIE: one lane, IT as quiet foundation ===== -->
+    <section class="ctl charlie">
+      <div class="ctl-head">
+        <span class="ctl-kicker">With Charlie</span>
+        <span class="ctl-title">Operations owns it end-to-end — IT just runs the platform</span>
+      </div>
+      <div class="ctl-body">
+        <div class="ctl-lanes">
+          <span class="lane-tag ops">Operations<br>in Charlie</span>
+        </div>
+        <div class="ctl-flow">
+          <div class="ctl-rail"></div>
 
-      <!-- NEW WAY -->
-      <div class="concept-col charlie">
-        <div class="concept-col-head">With Charlie</div>
-        <div class="cnew-flow">
-          <div class="cnew-actor">Operations — in the app</div>
-          <div class="cnew-block">
-            <div class="cnew-block-label">Charlie is the product</div>
-            <div class="cnew-chip"><span class="cnew-chip-icon">📝</span> Write the rules — in plain language</div>
-            <div class="cnew-chip"><span class="cnew-chip-icon">🧪</span> Test on real examples — instantly</div>
-            <div class="cnew-chip"><span class="cnew-chip-icon">🎚️</span> Improve the LLM — by using it</div>
-            <div class="cnew-chip"><span class="cnew-chip-icon">🚀</span> Live — no deploy, no wait</div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Write the rule</div><div class="cs">In plain language</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Test on examples</div><div class="cs">Instantly, in-app</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Improve</div><div class="cs">Fine-tune the LLM</div></div>
+            <span class="node"></span>
+          </div>
+          <div class="station ops">
+            <div class="card"><div class="ct">Go live</div><div class="cs">No deploy, no wait</div></div>
+            <span class="node"></span>
           </div>
 
-          <div class="cnew-arrow">↓ only the backend</div>
+          <div class="foundation">
+            <span class="fkicker">IT · backend &amp; platform</span>
+            <span class="ftext">built once — runs quietly underneath</span>
+          </div>
 
-          <div class="cnew-actor it-actor">IT</div>
-          <div class="cnew-it-block">
-            <div class="cnew-it-label">Backend only</div>
-            <div class="cnew-it-note">API, infrastructure, integrations — no feature logic</div>
+          <div class="ctl-endcap">
+            <div class="endcap-num">Minutes</div>
+            <div class="endcap-sub">by the people who do the work</div>
           </div>
         </div>
-        <div class="concept-badge fast">Minutes — no hand-offs — Operations owns the product</div>
       </div>
-
-    </div>
+    </section>
   </div>
 </div>
 
