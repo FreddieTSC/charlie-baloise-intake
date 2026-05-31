@@ -741,100 +741,225 @@ body {
   position: fixed;
   inset: 0;
   z-index: 8600;
-  background: var(--bg-page, #F4F6F9);
+  background: #0B0E1A;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 40px 24px 150px;
+  overflow-y: auto;
 }
 .concept-view.visible { display: flex; }
-.concept-inner { width: 100%; max-width: 1080px; }
+.concept-inner { width: 100%; max-width: 1140px; }
 .concept-title {
   font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ced-navy);
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
   text-align: center;
-  margin: 0 0 28px;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+.concept-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  margin: 0 0 40px;
 }
 .concept-cols {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 24px;
+  grid-template-columns: 1fr 56px 1fr;
+  align-items: start;
+  gap: 0;
 }
+
+/* --- OLD WAY column --- */
 .concept-col {
-  background: var(--bg-white, #fff);
-  border: 1px solid var(--border, #E2E8F0);
-  border-radius: 16px;
-  padding: 22px 22px 18px;
-  box-shadow: 0 4px 14px rgba(28, 5, 79, 0.06);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
 }
-.concept-col.classic { opacity: 0.96; }
-.concept-col.charlie { border-color: #BBE5C7; box-shadow: 0 8px 26px rgba(134, 188, 52, 0.18); }
+.concept-col.classic {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.concept-col.charlie {
+  background: rgba(27,122,61,0.08);
+  border: 1px solid rgba(27,122,61,0.25);
+  box-shadow: 0 0 60px rgba(27,122,61,0.12);
+}
 .concept-col-head {
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
-.concept-col.classic .concept-col-head { color: #94A3B8; }
-.concept-col.charlie .concept-col-head { color: #1B7A3D; }
-.cflow { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+.concept-col.classic .concept-col-head { color: rgba(255,255,255,0.35); }
+.concept-col.charlie .concept-col-head { color: #5CBD78; }
+
+/* Flow diagram: actors + steps */
+.cflow { display: flex; flex-direction: column; align-items: stretch; gap: 0; position: relative; }
+.cflow-actor {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 0 4px;
+}
+.cflow-actor.ops { color: #7C8DB5; }
+.cflow-actor.it  { color: #E07A5F; }
 .cstep {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: #64748B;
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 8px 12px;
-  text-align: center;
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
 }
-.carrow { text-align: center; color: #CBD5E0; font-size: 13px; line-height: 1.6; }
-.carrow.loop { color: #E07A5F; font-weight: 600; font-size: 11px; }
-.cone { display: flex; flex-direction: column; gap: 8px; }
-.cone-chip {
+.cstep.it-step {
+  border-color: rgba(224,122,95,0.25);
+  background: rgba(224,122,95,0.08);
+}
+.carrow { text-align: center; color: rgba(255,255,255,0.15); font-size: 14px; line-height: 1.4; padding: 2px 0; }
+
+/* The loop — the visual problem */
+.cloop {
+  position: relative;
+  margin: 6px 0;
+  border: 2px dashed rgba(224,122,95,0.5);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(224,122,95,0.04);
+}
+.cloop-label {
+  position: absolute;
+  top: -10px;
+  right: 16px;
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #E07A5F;
+  background: #0B0E1A;
+  padding: 0 8px;
+}
+.cloop-inner { display: flex; flex-direction: column; gap: 0; }
+.cloop-arrow {
+  text-align: center;
+  font-size: 12px;
+  color: #E07A5F;
+  line-height: 1.5;
   font-weight: 600;
-  color: var(--ced-navy);
-  background: #F6FBF7;
-  border: 1px solid #CDEBD6;
-  border-radius: 8px;
-  padding: 11px 14px;
 }
-.cone-all {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-style: italic;
-  color: #1B7A3D;
-  text-align: center;
-  margin-top: 4px;
+@keyframes loopPulse {
+  0%, 100% { border-color: rgba(224,122,95,0.3); }
+  50% { border-color: rgba(224,122,95,0.7); }
 }
+.cloop { animation: loopPulse 2.5s ease-in-out infinite; }
+
+/* Badge */
 .concept-badge {
-  margin-top: 16px;
+  margin-top: 20px;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   text-align: center;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
 }
-.concept-badge.slow { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
-.concept-badge.fast { background: #EAF7EE; color: #1B7A3D; border: 1px solid #BBE5C7; }
+.concept-badge.slow { background: rgba(185,28,28,0.12); color: #F87171; border: 1px solid rgba(185,28,28,0.3); }
+.concept-badge.fast { background: rgba(27,122,61,0.12); color: #5CBD78; border: 1px solid rgba(27,122,61,0.3); }
+
+/* VS divider */
 .concept-vs {
   font-family: 'Raleway', 'Inter', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-muted, #999);
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  align-self: center;
+  letter-spacing: 0.1em;
+  writing-mode: vertical-lr;
 }
+
+/* --- NEW WAY column (Charlie) --- */
+.cnew-flow { display: flex; flex-direction: column; gap: 0; }
+.cnew-actor {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 0 4px;
+  color: #5CBD78;
+}
+.cnew-actor.it-actor { color: #7C8DB5; }
+.cnew-block {
+  border: 1px solid rgba(27,122,61,0.3);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(27,122,61,0.06);
+  margin-bottom: 2px;
+}
+.cnew-block-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5CBD78;
+  margin-bottom: 10px;
+}
+.cnew-chip {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(27,122,61,0.2);
+  border-radius: 8px;
+  padding: 9px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cnew-chip + .cnew-chip { margin-top: 6px; }
+.cnew-chip-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.cnew-arrow { text-align: center; color: rgba(92,189,120,0.3); font-size: 14px; line-height: 1.4; padding: 2px 0; }
+.cnew-it-block {
+  border: 1px solid rgba(124,141,181,0.2);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(124,141,181,0.05);
+}
+.cnew-it-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7C8DB5;
+  margin-bottom: 8px;
+}
+.cnew-it-note {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+}
+
 @media (max-width: 820px) {
-  .concept-cols { grid-template-columns: 1fr; }
-  .concept-vs { transform: rotate(90deg); }
+  .concept-cols { grid-template-columns: 1fr; gap: 16px; }
+  .concept-vs { transform: none; padding: 8px 0; }
 }
 
 /* ========== REPLY GENERATOR VIEW ========== */
@@ -2596,7 +2721,7 @@ select.dropdown-active {
 
 <!-- ===== DEMO FILM OVERLAY ===== -->
 <div class="demo-overlay" id="demoOverlay">
-  <div class="demo-progress"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
+  <div class="demo-progress" style="display:none"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
   <div class="demo-caption" id="demoCaption">
     <div class="dc-tag"><span class="dc-dot"></span> Demo narration</div>
     <div class="dc-title" id="demoCaptionTitle"></div>
@@ -2604,11 +2729,9 @@ select.dropdown-active {
   </div>
   <div class="demo-controls">
     <button class="demo-ctrl-btn" onclick="demoBack()" title="Previous (←)">‹ Back</button>
-    <button class="demo-ctrl-btn" id="demoPauseBtn" onclick="demoTogglePause()" title="Pause / Play (Space)">⏸ Pause</button>
     <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→)">Next ▶</button>
     <button class="demo-ctrl-btn" onclick="demoFullscreen()" title="Fullscreen (F)">⛶</button>
     <button class="demo-ctrl-btn" onclick="demoExit()" title="Close demo">✕</button>
-    <span class="demo-scene-label" id="demoClock">0:00 / 6:00</span>
     <span class="demo-scene-label" id="demoSceneLabel">1 / 25</span>
   </div>
 </div>
@@ -2760,34 +2883,67 @@ select.dropdown-active {
 <div class="concept-view" id="conceptView">
   <div class="concept-inner">
     <h2 class="concept-title">A new way of working</h2>
+    <p class="concept-subtitle">How change gets built, tested and shipped</p>
     <div class="concept-cols">
+
+      <!-- OLD WAY -->
       <div class="concept-col classic">
         <div class="concept-col-head">The classic way</div>
         <div class="cflow">
-          <div class="cstep">Operations request</div>
+          <div class="cflow-actor ops">Operations</div>
+          <div class="cstep">Write requirements</div>
           <div class="carrow">↓</div>
-          <div class="cstep">Write a PRD</div>
-          <div class="carrow">↓</div>
-          <div class="cstep">Hand off to developers</div>
-          <div class="carrow">↓</div>
-          <div class="cstep">Testing</div>
-          <div class="carrow loop">↺ back to dev → back to testing</div>
-          <div class="cstep">Re-develop &amp; re-test…</div>
+          <div class="cstep">Draft a PRD</div>
+          <div class="carrow">↓ hand off</div>
+
+          <div class="cflow-actor it">IT / Development</div>
+          <div class="cstep it-step">Build the feature</div>
+          <div class="carrow">↓ deliver</div>
+
+          <div class="cloop">
+            <span class="cloop-label">The loop</span>
+            <div class="cloop-inner">
+              <div class="cflow-actor ops">Operations</div>
+              <div class="cstep">Test &amp; review</div>
+              <div class="cloop-arrow">↓ feedback</div>
+              <div class="cflow-actor it">IT / Development</div>
+              <div class="cstep it-step">Re-develop</div>
+              <div class="cloop-arrow">↑ deliver again</div>
+              <div class="cflow-actor ops">Operations</div>
+              <div class="cstep">Re-test …</div>
+            </div>
+          </div>
         </div>
-        <div class="concept-badge slow">⏳ weeks · many hand-offs · IT-dependent</div>
+        <div class="concept-badge slow">Weeks — endless hand-offs — IT-dependent</div>
       </div>
-      <div class="concept-vs">vs</div>
+
+      <!-- VS -->
+      <div class="concept-vs">VS</div>
+
+      <!-- NEW WAY -->
       <div class="concept-col charlie">
         <div class="concept-col-head">With Charlie</div>
-        <div class="cone">
-          <div class="cone-chip">📝 Write the rule (PRD)</div>
-          <div class="cone-chip">🧪 Test on examples</div>
-          <div class="cone-chip">🎚️ Fine-tune</div>
-          <div class="cone-chip">🚀 Live in the product</div>
-          <div class="cone-all">all in one tool — by the handler</div>
+        <div class="cnew-flow">
+          <div class="cnew-actor">Operations — in the app</div>
+          <div class="cnew-block">
+            <div class="cnew-block-label">Charlie is the product</div>
+            <div class="cnew-chip"><span class="cnew-chip-icon">📝</span> Write the rules — in plain language</div>
+            <div class="cnew-chip"><span class="cnew-chip-icon">🧪</span> Test on real examples — instantly</div>
+            <div class="cnew-chip"><span class="cnew-chip-icon">🎚️</span> Improve the LLM — by using it</div>
+            <div class="cnew-chip"><span class="cnew-chip-icon">🚀</span> Live — no deploy, no wait</div>
+          </div>
+
+          <div class="cnew-arrow">↓ only the backend</div>
+
+          <div class="cnew-actor it-actor">IT</div>
+          <div class="cnew-it-block">
+            <div class="cnew-it-label">Backend only</div>
+            <div class="cnew-it-note">API, infrastructure, integrations — no feature logic</div>
+          </div>
         </div>
-        <div class="concept-badge fast">⚡ minutes · no hand-offs · no IT</div>
+        <div class="concept-badge fast">Minutes — no hand-offs — Operations owns the product</div>
       </div>
+
     </div>
   </div>
 </div>
@@ -4792,12 +4948,11 @@ function demoAnimSleep(ms) {
     }, 100);
   });
 }
-// Auto-advance once `dur` ms of unpaused time have elapsed since `baseMs`; or resolve on manual nav/exit
+// Wait for manual click (Next/Back) or exit — no auto-advance
 function demoWaitDelta(baseMs, dur) {
   return new Promise(resolve => {
     const iv = setInterval(() => {
       if (demoState.abort || demoState.advance || demoState.back) { clearInterval(iv); resolve(); return; }
-      if (demoState.auto && !demoState.paused && demoVirtualMs() - baseMs >= dur) { clearInterval(iv); demoState.advance = true; resolve(); }
     }, 150);
   });
 }
@@ -4857,9 +5012,8 @@ function demoExit() {
 document.addEventListener('keydown', (e) => {
   if (!demoState.running) return;
   const k = e.key;
-  if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); demoNext(); }
+  if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar') { e.preventDefault(); demoNext(); }
   else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); demoBack(); }
-  else if (k === ' ' || k === 'Spacebar') { e.preventDefault(); demoTogglePause(); }
   else if (k === 'f' || k === 'F') { e.preventDefault(); demoFullscreen(); }
 }, true);
 
@@ -4959,6 +5113,23 @@ async function demoTuneRunTest() {
   }
   document.getElementById('tuneTestSummary').classList.add('show');
 }
+function demoTuneRunTestInstant() {
+  const rows = Array.from(document.querySelectorAll('#tuneTestRows .tune-test-row'));
+  rows.forEach(r => {
+    r.classList.add('pass');
+    const st = r.querySelector('.tt-status');
+    st.className = 'tt-status pass'; st.textContent = '✓';
+    const detail = r.getAttribute('data-detail');
+    if (detail && !r.querySelector('.tt-applied')) {
+      const d = document.createElement('div');
+      d.className = 'tt-applied';
+      d.style.cssText = 'color: var(--ced-green, #86BC34); font-size:11px; font-weight:600; margin-top:3px;';
+      d.textContent = '✓ ' + detail;
+      r.querySelector('div').appendChild(d);
+    }
+  });
+  document.getElementById('tuneTestSummary').classList.add('show');
+}
 function demoOpenTune() { demoTuneReset(); document.getElementById('tuneView').classList.add('visible'); }
 function demoCloseTune() { document.getElementById('tuneView').classList.remove('visible'); }
 function demoOpenConcept() { document.getElementById('conceptView').classList.add('visible'); }
@@ -4994,35 +5165,15 @@ function buildDemoSteps() {
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
+        typewriterAbort = true; // skip typewriter — fill instantly
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
-        const capT = setTimeout(() => { typewriterAbort = true; }, 38000); // keep the build inside its time slot
-        const caps = [
-          ['Charlie reads everything', 'It opens the e-mail and every attachment, and starts filling the whole file itself.'],
-          ['The core, captured', 'File number, claimant, policy and dates — lifted out automatically.'],
-          ['Recognised, not guessed', 'Insurer and broker matched against more than 6,000 known offices.'],
-          ['Classified on the spot', 'Claim type and amounts determined automatically.'],
-          ['Sorted for you', 'Documents ordered; damage photos set aside in Multimedia.']
-        ];
-        const wrapper = document.getElementById('buildexForm');
-        await new Promise(r => setTimeout(r, 500));
-        let ci = 0;
-        while (wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
-          const c = caps[Math.min(ci, caps.length - 1)];
-          await demoSetCaption(c[0], c[1]);
-          let waited = 0;
-          while (waited < 6500 && wrapper.classList.contains('typewriter-active') && !demoState.abort && !demoState.advance && !demoState.back) {
-            await new Promise(r => setTimeout(r, 150)); if (!demoState.paused) waited += 150;
-          }
-          ci++;
-        }
-        if (demoState.advance || demoState.back) typewriterAbort = true;
+        await new Promise(r => setTimeout(r, 600));
         await demoWaitForTypewriter();
-        clearTimeout(capT);
       } else {
         showBuildex();
-        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
       }
+      await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
     },
     async () => {
       switchToTab(0);
@@ -5070,9 +5221,8 @@ function buildDemoSteps() {
       await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
     },
     async () => {
-      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
       pushToBuildex();
-      await demoAnimSleep(1600);
+      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
     },
     // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
     async () => {
@@ -5082,16 +5232,14 @@ function buildDemoSteps() {
     async () => {
       demoOpenTune();
       demoTuneSwitchTab('dossier');
-      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
       const ta = document.getElementById('tuneNewRule');
-      await demoType(ta, 'For Baloise: take the claim reference from the subject line, after "SIN-".', 34);
-      await demoAnimSleep(900);
-      demoTuneAddRule(ta.value || 'For Baloise: take the claim reference from the subject line, after "SIN-".', 'dossier');
+      ta.value = 'For Baloise: take the claim reference from the subject line, after "SIN-".';
+      demoTuneAddRule(ta.value, 'dossier');
+      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
     },
     async () => {
+      demoTuneRunTestInstant();
       await demoSetCaption('Test it on the spot', 'Then try the rule instantly on real example assignments. Right here — no waiting for anyone.');
-      await demoAnimSleep(600);
-      await demoTuneRunTest();
     },
     async () => {
       await demoSetCaption('One place for the rules', 'Same for the replies — every rule managed in one place, by the team that uses them.');
@@ -5100,10 +5248,10 @@ function buildDemoSteps() {
     async () => {
       demoCloseTune();
       demoOpenConcept();
-      await demoSetCaption('The old way', 'Compare that to before: write a PRD, hand it to developers, then testing, back to dev, back to testing — weeks.');
+      await demoSetCaption('The loop', 'This is how change used to work: Operations writes requirements, IT builds, Operations tests, sends it back — over and over. Weeks.');
     },
     async () => {
-      await demoSetCaption('All in one', 'Charlie collapses it into a single tool — write, test, ship — in minutes, by the people who do the work.');
+      await demoSetCaption('Charlie is the product', 'Now Operations owns the app. Write the rules, test on real examples, improve the LLM — all inside Charlie. IT only handles the backend.');
     },
     // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
     async () => {
@@ -5156,7 +5304,7 @@ function buildDemoSteps() {
 
 async function runDemoFilm() {
   if (demoState.running) return;
-  demoState = { running: true, abort: false, advance: false, back: false, paused: false, auto: true, step: 0, total: 0, parsed: false, startTs: 0, pausedTotal: 0, pauseStartTs: 0 };
+  demoState = { running: true, abort: false, advance: false, back: false, paused: false, auto: false, step: 0, total: 0, parsed: false, startTs: 0, pausedTotal: 0, pauseStartTs: 0 };
   window.__demoMode = true;
   demoLsSnapshot = localStorage.getItem(REPLY_LS_KEY);
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
@@ -5167,8 +5315,6 @@ async function runDemoFilm() {
   overlay.classList.add('active');
   const steps = buildDemoSteps();
   demoState.total = steps.length;
-  startDemoTicker();
-  demoBuildChapterTicks();
   let i = 0;
   while (i < steps.length && !demoState.abort) {
     demoState.step = i + 1;
