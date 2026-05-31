@@ -5165,15 +5165,15 @@ function buildDemoSteps() {
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
-        typewriterAbort = true; // skip typewriter — fill instantly
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
-        await new Promise(r => setTimeout(r, 600));
+        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
+        // Let the typewriter run visibly; wait for it to finish or for user to click Next
         await demoWaitForTypewriter();
       } else {
         showBuildex();
+        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
       }
-      await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
     },
     async () => {
       switchToTab(0);
