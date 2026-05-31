@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charlie — Dossier Intake</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -121,170 +120,191 @@ body {
   opacity: 0.35;
 }
 
-/* ========== CHOICE SCREEN — Calm Premium (Concept C) ========== */
+/* ========== CHOICE SCREEN — Editorial Luxury ========== */
 .choice-screen {
   position: fixed;
   inset: 0;
   z-index: 9000;
-  background: #FAFAF7;
+  background:
+    radial-gradient(1100px 560px at 50% -10%, #FFF8EC 0%, rgba(255,248,236,0) 60%),
+    radial-gradient(900px 720px at 50% 118%, #F2E0C2 0%, rgba(242,224,194,0) 55%),
+    #FAEEDA;
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 56px;
+  gap: 34px;
   padding: 40px 24px;
   opacity: 0;
   transition: opacity 0.6s cubic-bezier(.16,.84,.24,1);
 }
 .choice-screen.visible { display: flex; opacity: 1; }
 
-.choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .choice-logo {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
-  font-weight: 380;
-  font-size: clamp(56px, 9vw, 92px);
+  font-weight: 400;
+  font-size: clamp(46px, 7vw, 70px);
   color: var(--ced-navy);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 .choice-logo .dot { color: var(--ced-blue); }
 .choice-logo .ai { color: var(--ced-blue); }
 .choice-tagline {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--ced-navy);
-  opacity: 0.42;
-  letter-spacing: 0.32em;
+  opacity: 0.5;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
 }
-.choice-tagline::before, .choice-tagline::after { display: none; }
+.choice-tagline::before, .choice-tagline::after {
+  content: '';
+  width: 30px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(28,5,79,.3));
+}
+.choice-tagline::after { background: linear-gradient(90deg, rgba(28,5,79,.3), transparent); }
 
 .choice-cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 312px));
+  grid-template-columns: repeat(2, minmax(0, 322px));
   gap: 22px;
 }
 @media (max-width: 720px) {
   .choice-cards { grid-template-columns: minmax(0, 360px); }
 }
 
+/* Outer bezel — the card is a real button */
 .choice-card {
-  --cc: #3899DD;
+  --cc: #3899DD; --cc-soft: #EAF4FC; --cc-soft2: #D7EAF8;
   appearance: none;
   font: inherit;
   text-align: left;
   cursor: pointer;
   border: 1px solid rgba(28,5,79,.07);
-  background: #fff;
-  border-radius: 20px;
-  padding: 0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBF4E8 100%);
+  border-radius: 26px;
+  padding: 7px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(28,5,79,.04), 0 10px 30px -16px rgba(28,5,79,.12);
-  transition: transform .45s cubic-bezier(.16,.84,.24,1), box-shadow .45s cubic-bezier(.16,.84,.24,1), border-color .45s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 2px 6px -3px rgba(28,5,79,.14),
+    0 22px 46px -22px rgba(28,5,79,.26);
+  transition: transform .55s cubic-bezier(.16,.84,.24,1), box-shadow .55s cubic-bezier(.16,.84,.24,1);
 }
-.choice-card::after {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--cc);
-  opacity: 0;
-  transition: opacity .45s ease;
-}
-.choice-card[data-accent="purple"] { --cc: #56238E; }
+.choice-card[data-accent="purple"] { --cc: #56238E; --cc-soft: #F2ECF9; --cc-soft2: #E7D9F4; }
 .choice-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(28,5,79,.12);
-  box-shadow: 0 3px 8px rgba(28,5,79,.06), 0 26px 56px -20px rgba(28,5,79,.18);
+  transform: translateY(-7px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 4px 10px -4px rgba(28,5,79,.16),
+    0 40px 72px -28px color-mix(in srgb, var(--cc) 42%, rgba(28,5,79,.32));
 }
-.choice-card:hover::after { opacity: 1; }
-.choice-card:active { transform: translateY(-2px); }
-.choice-card:focus-visible { outline: 2px solid var(--cc); outline-offset: 3px; }
+.choice-card:active { transform: translateY(-3px); }
+.choice-card:focus-visible { outline: 2px solid var(--cc); outline-offset: 4px; }
 
+/* Inner panel — double-bezel */
 .cc-frame {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 28px 26px 24px;
-  min-height: 196px;
+  background: #FFFFFF;
+  border: 1px solid rgba(28,5,79,.05);
+  border-radius: 20px;
+  padding: 24px 24px 22px;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
 }
-.cc-frame::before { display: none; }
+.cc-frame::before {
+  content: '';
+  position: absolute; top: -42%; right: -32%;
+  width: 230px; height: 230px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--cc) 22%, transparent), transparent 70%);
+  opacity: .5;
+  transition: opacity .55s ease, transform .55s cubic-bezier(.16,.84,.24,1);
+  pointer-events: none;
+}
+.choice-card:hover .cc-frame::before { opacity: .95; transform: scale(1.18); }
 
-.cc-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.cc-head { display: flex; align-items: center; justify-content: space-between; }
 .cc-icon {
-  width: 48px; height: 48px;
-  border-radius: 13px;
+  width: 56px; height: 56px;
+  border-radius: 16px;
   display: grid; place-items: center;
-  font-size: 23px; line-height: 1;
-  background: #F6F6F3;
-  border: 1px solid rgba(28,5,79,.06);
-  box-shadow: none;
-  transition: transform .45s cubic-bezier(.16,.84,.24,1), background .45s ease;
+  font-size: 27px; line-height: 1;
+  background: linear-gradient(150deg, var(--cc-soft), var(--cc-soft2));
+  border: 1px solid color-mix(in srgb, var(--cc) 26%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px -10px color-mix(in srgb, var(--cc) 75%, transparent);
+  transition: transform .55s cubic-bezier(.16,.84,.24,1);
 }
-.choice-card:hover .cc-icon { transform: scale(1.05); background: #F0F0EC; }
+.choice-card:hover .cc-icon { transform: translateY(-2px) scale(1.06); }
 .cc-index {
-  font-family: 'Space Grotesk', monospace;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 13px;
-  color: rgba(28,5,79,.22);
-  letter-spacing: 0.04em;
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 22px; color: color-mix(in srgb, var(--cc) 48%, transparent);
 }
 .cc-body { display: flex; flex-direction: column; gap: 7px; flex: 1; }
 .cc-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 24px; font-weight: 500;
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-size: 21px; font-weight: 700;
   color: var(--ced-navy);
-  letter-spacing: -.015em;
+  letter-spacing: -.01em;
 }
 .cc-desc {
   font-family: 'Inter', sans-serif;
   font-size: 13.5px; font-weight: 400;
-  color: rgba(28,5,79,.45);
+  color: #6E6678;
   line-height: 1.55;
-  max-width: 34ch;
+  max-width: 30ch;
 }
+/* Button-in-button trailing chip */
 .cc-arrow {
   align-self: flex-end;
-  width: 36px; height: 36px;
+  width: 40px; height: 40px;
   border-radius: 50%;
   display: grid; place-items: center;
-  font-size: 16px; font-weight: 500;
-  color: rgba(28,5,79,.3);
-  background: #F6F6F3;
-  border: 1px solid rgba(28,5,79,.06);
-  box-shadow: none;
-  transition: all .4s cubic-bezier(.16,.84,.24,1);
+  font-size: 17px; font-weight: 600;
+  color: var(--cc);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--cc) 30%, transparent);
+  box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--cc) 70%, transparent);
+  transition: background .45s cubic-bezier(.16,.84,.24,1), color .45s ease, transform .45s cubic-bezier(.16,.84,.24,1);
 }
-.choice-card:hover .cc-arrow { background: var(--cc); color: #fff; border-color: var(--cc); transform: translateX(3px); }
+.choice-card:hover .cc-arrow { background: var(--cc); color: #fff; transform: translateX(4px); }
 
-@keyframes ccRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.choice-screen.visible .choice-card { animation: ccRise .55s cubic-bezier(.16,.84,.24,1) both; }
+/* staggered entrance */
+@keyframes ccRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.choice-screen.visible .choice-card { animation: ccRise .6s cubic-bezier(.16,.84,.24,1) both; }
 .choice-screen.visible .choice-card:nth-child(1) { animation-delay: .05s; }
 .choice-screen.visible .choice-card:nth-child(2) { animation-delay: .14s; }
 
 .choice-demo-btn {
-  margin-top: 0;
-  background: transparent;
-  border: none;
-  color: rgba(28,5,79,.5);
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  padding: 10px 4px;
+  margin-top: 4px;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(28,5,79,.12);
+  color: var(--ced-navy);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 22px;
+  border-radius: 24px;
   cursor: pointer;
-  transition: all .3s cubic-bezier(.16,.84,.24,1);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: all .35s cubic-bezier(.16,.84,.24,1);
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
-.choice-demo-btn .cdb-arrow { transition: transform .3s cubic-bezier(.16,.84,.24,1); }
-.choice-demo-btn:hover { color: var(--ced-navy); }
-.choice-demo-btn:hover .cdb-arrow { transform: translateX(5px); }
+.choice-demo-btn:hover { background: #fff; border-color: var(--ced-blue); transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(28,5,79,.42); }
 
-/* ========== DEMO FILM OVERLAY — Light Editorial ========== */
+/* ========== DEMO FILM OVERLAY ========== */
 .demo-overlay {
   position: fixed;
   inset: 0;
@@ -293,235 +313,181 @@ body {
   display: none;
 }
 .demo-overlay.active { display: block; }
-.demo-progress { display: none; }
-.demo-progress-bar { display: none; }
-.demo-progress-bar::after { display: none; }
-.demo-tick { display: none; }
-/* Soft bottom scrim — light frosted wash */
+/* Progress bar (top) — cinematic chapter bar with glowing leading edge */
+.demo-progress {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(28, 5, 79, 0.12);
+  overflow: visible;
+}
+.demo-progress-bar {
+  position: relative;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3899DD, #56238E 55%, #86BC34);
+  box-shadow: 0 0 12px rgba(56, 153, 221, 0.7);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.5s cubic-bezier(.16, .84, .24, 1);
+  z-index: 1;
+}
+.demo-progress-bar::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 50%; transform: translateY(-50%);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px 2px rgba(143, 203, 242, 0.95);
+}
+/* chapter ticks (segment boundaries) */
+.demo-tick {
+  position: absolute; top: 0;
+  width: 2px; height: 100%;
+  background: rgba(28, 5, 79, 0.30);
+  transform: translateX(-1px);
+  z-index: 2;
+}
+/* Soft bottom scrim so the narration reads as an overlay layer above the app */
 .demo-overlay::before {
   content: '';
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: 300px;
-  background: linear-gradient(to top, rgba(250,250,247,0.92), rgba(250,250,247,0));
+  height: 340px;
+  background: linear-gradient(to top, rgba(12, 6, 26, 0.5), rgba(12, 6, 26, 0));
   opacity: 0;
-  transition: opacity 0.7s ease;
+  transition: opacity 0.9s ease;
   pointer-events: none;
 }
 .demo-overlay.active::before { opacity: 1; }
 
-/* Caption — clean, understated (LIVE beats) */
+/* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
   position: absolute;
   left: 50%;
-  bottom: 92px;
-  transform: translateX(-50%) translateY(16px);
-  max-width: 540px;
-  width: calc(100% - 64px);
-  background: rgba(255,255,255,0.92);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  color: var(--ced-navy);
-  border: 1px solid rgba(28,5,79,.07);
-  border-radius: 18px;
-  padding: 20px 30px 22px;
-  box-shadow: 0 1px 2px rgba(28,5,79,.04), 0 14px 40px -16px rgba(28,5,79,.14);
+  bottom: 96px;
+  transform: translateX(-50%) translateY(28px) scale(0.98);
+  max-width: 620px;
+  width: calc(100% - 80px);
+  background: linear-gradient(180deg, rgba(26, 16, 46, 0.74), rgba(13, 7, 28, 0.80));
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  padding: 18px 30px 20px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 30px 80px -28px rgba(0, 0, 0, 0.65),
+    0 12px 40px -16px rgba(86, 35, 142, 0.50);
   opacity: 0;
-  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.16,.84,.24,1);
+  filter: blur(6px);
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16, .84, .24, 1), filter 0.9s ease;
   text-align: center;
 }
-.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.demo-caption::before { display: none; }
+.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); filter: blur(0); }
+/* gradient hairline ring */
+.demo-caption::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(143, 203, 242, 0.9), rgba(150, 90, 210, 0.5) 42%, rgba(134, 188, 52, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0.85;
+  pointer-events: none;
+}
+/* "live demo" marker pill with a pulsing dot */
 .demo-caption .dc-tag {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-family: 'Space Grotesk', monospace;
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(28,5,79,.32);
-  margin-bottom: 11px;
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-bottom: 12px;
 }
 .demo-caption .dc-dot {
-  width: 6px; height: 6px;
+  width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--ced-blue);
-  box-shadow: 0 0 6px rgba(56,153,221,0.5);
-  animation: dcPulse 2s infinite;
+  background: #7FC2F0;
+  box-shadow: 0 0 8px rgba(127, 194, 240, 0.9);
+  animation: dcPulse 1.8s infinite;
 }
 @keyframes dcPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(56,153,221,0.3), 0 0 6px rgba(56,153,221,0.5); }
-  50% { box-shadow: 0 0 0 5px rgba(56,153,221,0), 0 0 6px rgba(56,153,221,0.5); }
+  0% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0.55), 0 0 8px rgba(127, 194, 240, 0.9); }
+  70% { box-shadow: 0 0 0 7px rgba(127, 194, 240, 0), 0 0 8px rgba(127, 194, 240, 0.9); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0), 0 0 8px rgba(127, 194, 240, 0.9); }
 }
 .demo-caption .dc-title {
-  font-family: 'Space Grotesk', monospace;
+  font-family: 'Raleway', 'Inter', sans-serif;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ced-blue);
-  -webkit-text-fill-color: unset;
-  background: none;
+  background: linear-gradient(90deg, #8FCBF2, #C4A6E8);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: #8FCBF2;
   margin-bottom: 8px;
 }
 .demo-caption .dc-body {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 19px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16.5px;
   font-weight: 400;
-  line-height: 1.45;
-  color: var(--ced-navy);
-  letter-spacing: 0;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: 0.005em;
 }
-/* Control dock — light pill */
+/* Control dock (bottom center) — glass to match the caption */
 .demo-controls {
   position: absolute;
   left: 50%;
-  bottom: 28px;
+  bottom: 30px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 2px;
-  background: #fff;
-  border: 1px solid rgba(28,5,79,.08);
+  gap: 3px;
+  background: rgba(20, 12, 40, 0.60);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 100px;
-  padding: 5px 7px;
-  box-shadow: 0 1px 3px rgba(28,5,79,.06), 0 8px 24px -12px rgba(28,5,79,.10);
+  padding: 7px 9px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 16px 40px -16px rgba(0, 0, 0, 0.55);
   pointer-events: auto;
-  z-index: 10060;
 }
 .demo-ctrl-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 13px;
-  color: rgba(28,5,79,.45);
-  padding: 7px 12px;
+  color: rgba(255, 255, 255, 0.82);
+  padding: 8px 13px;
   border-radius: 100px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
-.demo-ctrl-btn:hover { background: #F6F6F3; color: var(--ced-navy); }
+.demo-ctrl-btn:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 .demo-ctrl-btn:active { transform: scale(0.94); }
 .demo-ctrl-btn.primary {
-  background: var(--ced-navy);
+  background: linear-gradient(135deg, #3899DD, #56238E);
   color: #fff;
-  box-shadow: 0 2px 8px -3px rgba(28,5,79,.3);
+  box-shadow: 0 6px 18px -6px rgba(86, 35, 142, 0.75);
 }
-.demo-ctrl-btn.primary:hover { background: #2a1068; color: #fff; }
-
-/* ========== DEMO STAGE — cinematic statements (Concept C) ========== */
-.demo-stage {
-  position: fixed;
-  inset: 0;
-  z-index: 10045;
-  background: #FAFAF7;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 10vh 6vw 16vh;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.demo-stage.show { display: flex; opacity: 1; }
-.ds-inner { text-align: center; max-width: 920px; width: 100%; }
-@keyframes dsRise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
-.demo-stage.show .ds-inner { animation: dsRise 0.75s cubic-bezier(.16,.84,.24,1) both; }
-
-.ds-kicker {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 13px; font-weight: 500;
-  letter-spacing: 0.3em; text-transform: uppercase;
-  color: var(--ced-blue);
-}
-.ds-statement {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 360;
-  font-size: clamp(38px, 6.5vw, 80px);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
-  color: var(--ced-navy);
-  margin-top: 20px;
-}
-.ds-statement em { font-style: italic; color: var(--ced-blue); }
-.ds-sub {
-  font-family: 'Inter', sans-serif;
-  font-size: 17px; font-weight: 400;
-  color: rgba(28,5,79,.5);
-  line-height: 1.55;
-  margin: 24px auto 0;
-  max-width: 38ch;
-}
-.ds-move {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 15px; font-weight: 600;
-  letter-spacing: 0.22em;
-  color: var(--ced-blue);
-}
-.ds-proof {
-  margin-top: 30px;
-  display: inline-flex; align-items: center; gap: 11px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14.5px; color: rgba(28,5,79,.6);
-  border: 1px solid rgba(28,5,79,.12);
-  padding: 11px 22px; border-radius: 100px;
-}
-.ds-proof .tick {
-  width: 19px; height: 19px; border-radius: 50%;
-  background: var(--ced-green); color: #fff;
-  display: grid; place-items: center;
-  font-size: 11px; font-weight: 700;
-}
-.ds-count {
-  font-family: 'Space Grotesk', monospace;
-  font-size: clamp(90px, 19vw, 210px);
-  font-weight: 600; color: var(--ced-navy);
-  line-height: 0.9; letter-spacing: -0.02em;
-}
-.ds-count .u {
-  display: block;
-  font-size: clamp(13px,1.4vw,16px); font-weight: 500;
-  letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(28,5,79,.4); margin-top: 22px;
-}
-.ds-grid {
-  display: flex; flex-wrap: wrap; gap: 9px;
-  justify-content: center; max-width: 460px;
-  margin: 34px auto 0;
-}
-.ds-env {
-  width: 50px; height: 36px; border-radius: 5px;
-  background: #fff; border: 1px solid rgba(28,5,79,.12);
-  box-shadow: 0 2px 6px -3px rgba(28,5,79,.18);
-  animation: dsEnv 0.5s cubic-bezier(.16,.84,.24,1) both;
-}
-@keyframes dsEnv { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
-.ds-logo {
-  font-family: 'Fraunces', Georgia, serif;
-  font-style: italic; font-weight: 360;
-  font-size: clamp(64px, 13vw, 128px);
-  letter-spacing: -0.03em; color: var(--ced-navy);
-  line-height: 1;
-}
-.ds-logo .d { color: var(--ced-blue); }
-.ds-tagline {
-  font-family: 'Space Grotesk', monospace;
-  font-size: 13px; letter-spacing: 0.24em;
-  text-transform: uppercase; color: rgba(28,5,79,.42);
-  margin-top: 18px;
-}
-.ds-arrow-row {
-  display: inline-flex; align-items: center; gap: 22px;
-  margin-top: 8px;
-}
-.ds-arrow-row .from { color: rgba(28,5,79,.32); }
-.ds-arrow-row .to { color: var(--ced-blue); }
-.ds-arrow-row .sep { font-size: 0.5em; color: rgba(28,5,79,.25); }
+.demo-ctrl-btn.primary:hover { filter: brightness(1.08); background: linear-gradient(135deg, #3899DD, #56238E); color: #fff; }
 
 /* ========== LANGUAGE SWITCHER ========== */
 .lang-switcher {
@@ -558,25 +524,25 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(28,5,79,.3);
+  color: rgba(255, 255, 255, 0.62);
   padding: 0 10px;
   margin-left: 3px;
-  border-left: 1px solid rgba(28,5,79,.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-/* Spotlight — soft blue outline */
+/* Spotlight — breathing glow ring that guides the eye */
 .demo-spotlight {
   position: relative;
   z-index: 10040;
-  outline: 2px solid rgba(56, 153, 221, 0.6);
+  outline: 2px solid rgba(56, 153, 221, 0.9);
   outline-offset: 4px;
   border-radius: 12px;
-  animation: demoSpot 2.5s ease-in-out infinite;
+  animation: demoSpot 2.2s ease-in-out infinite;
 }
 @keyframes demoSpot {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(56, 153, 221, 0.08), 0 0 16px 2px rgba(56, 153, 221, 0.15); }
-  50% { box-shadow: 0 0 0 7px rgba(56, 153, 221, 0.04), 0 0 24px 5px rgba(56, 153, 221, 0.25); }
+  0%, 100% { box-shadow: 0 0 0 6px rgba(56, 153, 221, 0.12), 0 0 22px 3px rgba(56, 153, 221, 0.30); }
+  50% { box-shadow: 0 0 0 9px rgba(56, 153, 221, 0.05), 0 0 32px 7px rgba(56, 153, 221, 0.5); }
 }
 
 /* ========== CHARLIE BIJSTUREN (self-service prompt — demo) ========== */
@@ -2720,18 +2686,18 @@ select.dropdown-active {
 <div class="choice-screen" id="choiceScreen">
   <div class="choice-head">
     <div class="choice-logo">Ch<span class="ai">a</span>rl<span class="ai">i</span>e<span class="dot">.</span></div>
-    <div class="choice-tagline">The claims assistant</div>
+    <div class="choice-tagline">Wat wil je doen?</div>
   </div>
   <div class="choice-cards">
     <button type="button" class="choice-card" data-accent="blue" onclick="chooseDossier()">
       <span class="cc-frame">
         <span class="cc-head">
-          <span class="cc-icon">📄</span>
+          <span class="cc-icon">📋</span>
           <span class="cc-index">01</span>
         </span>
         <span class="cc-body">
-          <span class="cc-title">New file</span>
-          <span class="cc-desc">Turn an insurer's assignment into a complete claim file.</span>
+          <span class="cc-title">Dossier aanmaken</span>
+          <span class="cc-desc">Verwerk een opdracht van de verzekeraar tot een volledig dossier.</span>
         </span>
         <span class="cc-arrow" aria-hidden="true">→</span>
       </span>
@@ -2743,26 +2709,21 @@ select.dropdown-active {
           <span class="cc-index">02</span>
         </span>
         <span class="cc-body">
-          <span class="cc-title">Incoming e-mail</span>
-          <span class="cc-desc">Draft the right reply to a routine question — in seconds.</span>
+          <span class="cc-title">Reply Generator</span>
+          <span class="cc-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</span>
         </span>
         <span class="cc-arrow" aria-hidden="true">→</span>
       </span>
     </button>
   </div>
-  <button class="choice-demo-btn" onclick="startDemo()">Watch the 90-second story <span class="cdb-arrow">→</span></button>
-</div>
-
-<!-- ===== DEMO STAGE (fullscreen cinematic statements) ===== -->
-<div class="demo-stage" id="demoStage">
-  <div class="ds-inner" id="demoStageInner"></div>
+  <button class="choice-demo-btn" onclick="startDemo()">▶ Watch the demo <span style="opacity:.6;font-weight:400;">(click to advance)</span></button>
 </div>
 
 <!-- ===== DEMO FILM OVERLAY ===== -->
 <div class="demo-overlay" id="demoOverlay">
   <div class="demo-progress" style="display:none"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
   <div class="demo-caption" id="demoCaption">
-    <div class="dc-tag"><span class="dc-dot"></span> <span id="demoCaptionTag">Live demo</span></div>
+    <div class="dc-tag"><span class="dc-dot"></span> Demo narration</div>
     <div class="dc-title" id="demoCaptionTitle"></div>
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
@@ -2771,7 +2732,7 @@ select.dropdown-active {
     <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→)">Next ▶</button>
     <button class="demo-ctrl-btn" onclick="demoFullscreen()" title="Fullscreen (F)">⛶</button>
     <button class="demo-ctrl-btn" onclick="demoExit()" title="Close demo">✕</button>
-    <span class="demo-scene-label" id="demoSceneLabel">1 / 13</span>
+    <span class="demo-scene-label" id="demoSceneLabel">1 / 25</span>
   </div>
 </div>
 
@@ -5174,132 +5135,169 @@ function demoCloseTune() { document.getElementById('tuneView').classList.remove(
 function demoOpenConcept() { document.getElementById('conceptView').classList.add('visible'); }
 function demoCloseConcept() { document.getElementById('conceptView').classList.remove('visible'); }
 
-// ── DEMO STAGE: fullscreen cinematic statement between live moments ──
-function demoShowStage(html) {
-  const stage = document.getElementById('demoStage');
-  document.getElementById('demoStageInner').innerHTML = html;
-  document.getElementById('demoCaption').classList.remove('show'); // captions never overlap the stage
-  stage.classList.remove('show');
-  void stage.offsetWidth; // restart entrance animation
-  stage.classList.add('show');
-}
-function demoHideStage() {
-  document.getElementById('demoStage').classList.remove('show');
-}
-
-// ====== THE FILM — "A morning with Lien" · 13 beats · Lien story × Concept-C calm ======
-// STAGE beats = fullscreen statements. LIVE beats = the real product, spotlighted.
+// Each step sets up its caption/animation, then the engine waits for the user to click Next.
 function buildDemoSteps() {
   return [
-
-    // ═══ ACT I — THE COST ═══
-    // 1 · cold open
+    // ── 1 · HOOK / PROBLEM ─────────────────────────────────────────
     async () => {
       demoClearSpotlight();
-      demoShowStage(`<div class="ds-kicker">Monday · 08:14</div><div class="ds-statement">Lien opens<br>her inbox.</div>`);
+      demoShowChoice();
+      await demoSetCaption('The problem', 'Every claim starts the same way: a handler reads the insurer’s e-mail and PDFs, then retypes it all into the system — ten minutes per file.');
     },
-    // 2 · the volume
     async () => {
-      demoShowStage(`<div class="ds-count">14<span class="u">new assignments</span></div><div class="ds-grid">${'<span class="ds-env"></span>'.repeat(14)}</div>`);
+      await demoSetCaption('At scale', 'Across a team that’s days of typing every week — slow, costly and easy to get wrong. All before the real work begins.');
     },
-    // 3 · the cost
     async () => {
-      demoShowStage(`<div class="ds-statement">Each one: <em>ten minutes</em><br>of retyping.</div><div class="ds-sub">Reading the e-mail, copying the PDFs, sorting it all — before the real work even begins.</div>`);
+      const cards = document.querySelectorAll('.choice-card');
+      if (cards[0]) demoSpotlight(cards[0]);
+      await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail. Let’s watch.');
     },
-
-    // ═══ ACT II — THE LIFT ═══
-    // 4 · drop it on Charlie
+    // ── 2 · SOLUTION — BUILD THE FILE ──────────────────────────────
     async () => {
-      demoHideStage();
+      demoClearSpotlight();
       chooseDossier();
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
-      await demoSetCaption('The lift', 'So she drops one assignment — the e-mail with all its PDFs — straight onto Charlie.');
+      await demoSetCaption('One assignment in', 'The handler simply drops the insurer’s assignment — the .msg with all its PDFs — straight onto Charlie.');
     },
-    // 5 · it builds itself
     async () => {
-      demoHideStage();
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
-        await demoSetCaption('Watch', 'Charlie reads everything and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
+        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
+        // Let the typewriter run visibly; wait for it to finish or for user to click Next
         await demoWaitForTypewriter();
       } else {
         showBuildex();
-        await demoSetCaption('Watch', 'Charlie reads everything and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
+        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
       }
     },
-    // 6 · a complete file
     async () => {
-      demoHideStage();
       switchToTab(0);
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
-      await demoSetCaption('Seconds later', 'A complete claim file — with a clear, plain-language summary of what happened.');
+      await demoSetCaption('A complete file', 'Seconds later: a full claim file — with a clear, plain-language summary of what happened.');
     },
-    // 7 · STAGE payoff
     async () => {
       demoClearSpotlight();
-      demoShowStage(`<div class="ds-kicker">The payoff</div><div class="ds-statement ds-arrow-row"><span class="from">Ten minutes</span><span class="sep">→</span><span class="to">ten seconds.</span></div>`);
+      const hdr = document.querySelector('.buildex-header'); if (hdr) demoSpotlight(hdr);
+      await demoSetCaption('Minutes become seconds', 'Ten minutes of manual typing — gone. The handler now reviews, instead of retypes.');
     },
-    // 8 · trust + control
+    // ── 3 · PROOF — TRUSTWORTHY & COMPLETE ─────────────────────────
     async () => {
-      demoHideStage();
       switchToTab(1);
       applyConfidenceHighlights();
       const lc = document.getElementById('fSchadebedrag');
       if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
-      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. Lien stays in control — she reviews only what matters.');
+      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. No silent mistakes — the eye goes straight to what needs a second look.');
     },
-
-    // ═══ ACT II.5 — THE SECOND PROOF ═══
-    // 9 · the inbox
-    async () => {
-      demoHideStage();
-      demoClearSpotlight();
-      chooseReply();
-      const rd = document.getElementById('replyDrop'); if (rd) rd.style.display = 'none';
-      const DEMO_MAIL_EN = 'Subject: Request — expert report, file 26-602007\n\nHello,\n\nCould you send me the expert report for my claim (fire damage, Lindelaan)? I’d like a copy for my records.\n\nThanks in advance,\nKarel Vermeulen';
-      const DEMO_REPLY_EN = 'Dear Mr Vermeulen,\n\nBy agreement with the insurer, we are unable to share the expert report directly.\n\nFor a copy of the report, please contact your insurance company.\n\nKind regards,';
-      document.getElementById('replyMailText').textContent = DEMO_MAIL_EN;
-      document.getElementById('replyMailPreview').classList.add('visible');
-      currentReply = { mailText: DEMO_MAIL_EN, detectedType: 'verslag', generatedReply: DEMO_REPLY_EN, confidence: 'high' };
-      showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: DEMO_REPLY_EN });
-      const ta = document.getElementById('replyTextarea'); if (ta) ta.value = DEMO_REPLY_EN;
-      const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
-      await demoSetCaption('The same on the inbox', 'A customer asks for their expert report. Charlie recognises the question and drafts the reply — ready to send.');
-    },
-
-    // ═══ ACT III — THE SHIFT (climax) ═══
-    // 10 · STAGE turn
     async () => {
       demoClearSpotlight();
-      demoShowStage(`<div class="ds-kicker">The real shift</div><div class="ds-statement">But here's what<br>truly changes.</div>`);
+      await demoSetCaption('Confidence, per field', 'That certainty comes from the model itself, field by field — so the handler checks only what matters.');
     },
-    // 11 · she writes a rule herself
     async () => {
-      demoHideStage();
+      switchToTab(1);
+      const t = document.getElementById('partijenTable'); if (t) demoSpotlight(t);
+      await demoSetCaption('Everyone involved', 'Insurer, broker and expert — captured together, and editable with smart lookup lists.');
+    },
+    async () => {
+      switchToTab(3);
+      const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
+      await demoSetCaption('Every document', 'Each document recognised, ordered chronologically and labelled with its type and amount.');
+    },
+    async () => {
+      switchToTab(8);
+      const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
+      await demoSetCaption('The photos', 'Damage photos pulled straight from the e-mail — ready in the file.');
+    },
+    async () => {
+      switchToTab(1);
+      demoClearSpotlight();
+      if (!editMode) toggleEditMode();
+      const claimEl = document.getElementById('fClaim');
+      if (claimEl) claimEl.value = '18750';
+      await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
+    },
+    async () => {
+      pushToBuildex();
+      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
+    },
+    // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
+    async () => {
+      closePushModal();
+      await demoSetCaption('And here’s the real shift', 'Want Charlie to work differently? You don’t open an IT ticket. The handler does it themselves.');
+    },
+    async () => {
       demoOpenTune();
       demoTuneSwitchTab('dossier');
       const ta = document.getElementById('tuneNewRule');
       ta.value = 'For Baloise: take the claim reference from the subject line, after "SIN-".';
       demoTuneAddRule(ta.value, 'dossier');
-      demoTuneRunTestInstant();
-      await demoSetCaption('No IT ticket', 'Lien changes how Charlie works — herself. She writes a rule in plain language, tests it on real examples, and ships it.');
+      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
     },
-    // 12 · STAGE climax statement
+    async () => {
+      demoTuneRunTestInstant();
+      await demoSetCaption('Test it on the spot', 'Then try the rule instantly on real example assignments. Right here — no waiting for anyone.');
+    },
+    async () => {
+      await demoSetCaption('One place for the rules', 'Same for the replies — every rule managed in one place, by the team that uses them.');
+      demoTuneSwitchTab('reply');
+    },
+    async () => {
+      demoCloseTune();
+      demoOpenConcept();
+      await demoSetCaption('The loop', 'This is how change used to work: Operations writes requirements, IT builds, Operations tests, sends it back — over and over. Weeks.');
+    },
+    async () => {
+      await demoSetCaption('Charlie is the product', 'Now Operations owns the app. Write the rules, test on real examples, improve the LLM — all inside Charlie. IT only handles the backend.');
+    },
+    // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
+    async () => {
+      demoCloseConcept();
+      demoShowChoice();
+      const cards = document.querySelectorAll('.choice-card');
+      if (cards[1]) demoSpotlight(cards[1]);
+      await demoSetCaption('The second job', 'Now the other time-sink: the routine mail that floods every team, every day.');
+    },
     async () => {
       demoClearSpotlight();
-      demoCloseTune();
-      demoShowStage(`<div class="ds-kicker">The new way of working</div><div class="ds-statement">The people who do the work<br>now <em>build the tool.</em></div><div class="ds-sub">No tickets. No waiting weeks. IT only builds the backend — the rules belong to the team that uses them.</div>`);
+      chooseReply();
+      document.getElementById('replyDrop').style.display = 'none';
+      document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
+      document.getElementById('replyMailPreview').classList.add('visible');
+      await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — exactly the kind of question that comes in over and over.');
     },
-    // 13 · STAGE close
+    async () => {
+      currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
+      showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
+      const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
+      await demoSetCaption('The answer, instantly', 'Charlie recognises the question and drafts the right reply — ready to send.');
+    },
+    async () => {
+      demoClearSpotlight();
+      const ta = document.getElementById('replyTextarea');
+      if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
+      const cm = document.getElementById('replyComment');
+      if (cm) cm.value = 'Always close with the team name.';
+      await demoSetCaption('It learns your style', 'The handler tweaks it once and saves — and Charlie remembers the house style for next time.');
+      try {
+        const corr = loadReplyCorrections();
+        corr.unshift({ timestamp: new Date().toISOString(), mailExcerpt: '', detectedType: 'verslag', correctedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, finalReply: ta ? ta.value : '', comment: cm ? cm.value : '' });
+        saveReplyCorrections(corr); updateLearnedCount();
+        showToast('Saved — Charlie learns from this', 'success');
+      } catch (e) {}
+    },
+    async () => {
+      await demoSetCaption('Every correction counts', 'Both jobs improve the same way: each correction makes the next file and the next reply better.');
+    },
+    // ── 6 · CLOSE / CTA ────────────────────────────────────────────
     async () => {
       demoRestoreLs(); updateLearnedCount();
-      demoCloseTune();
-      demoShowStage(`<div class="ds-logo">Ch<span class="d">a</span>rl<span class="d">i</span>e<span class="d">.</span></div><div class="ds-tagline">Faster files · smarter replies · owned by the people who use it</div>`);
+      demoClearSpotlight();
+      demoShowChoice();
+      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Improved every day by the people who use it — no IT in the loop. Where shall we start?');
     }
   ];
 }
@@ -5340,7 +5338,6 @@ async function runDemoFilm() {
     demoRestoreLs();
     window.__demoMode = false;
     document.getElementById('demoCaption').classList.remove('show');
-    demoHideStage();
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
     document.getElementById('conceptView').classList.remove('visible');
@@ -5538,9 +5535,8 @@ const I18N = {
   "Ontvangst": { en: "Received", fr: "Reçu" },
   // Choice screen
   "Wat wil je doen?": { en: "What would you like to do?", fr: "Que souhaitez-vous faire ?" },
-  "Nieuw dossier": { en: "New file", fr: "Nouveau dossier" },
+  "Dossier aanmaken": { en: "Create a file", fr: "Créer un dossier" },
   "Verwerk een opdracht van de verzekeraar tot een volledig dossier.": { en: "Turn an insurer's assignment into a complete file.", fr: "Transformez une mission de l'assureur en dossier complet." },
-  "Inkomende e-mail": { en: "Incoming e-mail", fr: "E-mail entrant" },
   "Genereer automatisch een antwoord op veelvoorkomende vragen.": { en: "Automatically generate an answer to common questions.", fr: "Générez automatiquement une réponse aux questions fréquentes." },
   // Reply view
   "← Terug": { en: "← Back", fr: "← Retour" },
