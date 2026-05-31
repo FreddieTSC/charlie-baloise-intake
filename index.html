@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charlie — Dossier Intake</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -120,8 +121,7 @@ body {
   opacity: 0.35;
 }
 
-/* ========== CHOICE SCREEN — Editorial Luxury ========== */
-/* ========== CHOICE SCREEN — Light Editorial ========== */
+/* ========== CHOICE SCREEN — Calm Premium (Concept C) ========== */
 .choice-screen {
   position: fixed;
   inset: 0;
@@ -131,43 +131,43 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 56px;
   padding: 40px 24px;
   opacity: 0;
   transition: opacity 0.6s cubic-bezier(.16,.84,.24,1);
 }
 .choice-screen.visible { display: flex; opacity: 1; }
 
-.choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .choice-logo {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
-  font-weight: 400;
-  font-size: clamp(46px, 7vw, 68px);
+  font-weight: 380;
+  font-size: clamp(56px, 9vw, 92px);
   color: var(--ced-navy);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
 }
 .choice-logo .dot { color: var(--ced-blue); }
 .choice-logo .ai { color: var(--ced-blue); }
 .choice-tagline {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 12px;
   font-weight: 500;
   color: var(--ced-navy);
-  opacity: 0.38;
-  letter-spacing: 0.22em;
+  opacity: 0.42;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
 }
 .choice-tagline::before, .choice-tagline::after { display: none; }
 
 .choice-cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 300px));
-  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 312px));
+  gap: 22px;
 }
 @media (max-width: 720px) {
-  .choice-cards { grid-template-columns: minmax(0, 340px); }
+  .choice-cards { grid-template-columns: minmax(0, 360px); }
 }
 
 .choice-card {
@@ -176,102 +176,113 @@ body {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  border: 1px solid rgba(28,5,79,.06);
+  border: 1px solid rgba(28,5,79,.07);
   background: #fff;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 0;
   position: relative;
-  box-shadow: 0 1px 3px rgba(28,5,79,.06), 0 8px 24px -12px rgba(28,5,79,.10);
-  transition: transform .4s cubic-bezier(.16,.84,.24,1), box-shadow .4s cubic-bezier(.16,.84,.24,1), border-color .4s ease;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(28,5,79,.04), 0 10px 30px -16px rgba(28,5,79,.12);
+  transition: transform .45s cubic-bezier(.16,.84,.24,1), box-shadow .45s cubic-bezier(.16,.84,.24,1), border-color .45s ease;
+}
+.choice-card::after {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--cc);
+  opacity: 0;
+  transition: opacity .45s ease;
 }
 .choice-card[data-accent="purple"] { --cc: #56238E; }
 .choice-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(28,5,79,.10);
-  box-shadow: 0 2px 6px rgba(28,5,79,.08), 0 20px 48px -16px rgba(28,5,79,.16);
+  transform: translateY(-5px);
+  border-color: rgba(28,5,79,.12);
+  box-shadow: 0 3px 8px rgba(28,5,79,.06), 0 26px 56px -20px rgba(28,5,79,.18);
 }
-.choice-card:active { transform: translateY(-1px); }
+.choice-card:hover::after { opacity: 1; }
+.choice-card:active { transform: translateY(-2px); }
 .choice-card:focus-visible { outline: 2px solid var(--cc); outline-offset: 3px; }
 
 .cc-frame {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 24px 22px 20px;
-  min-height: 170px;
+  gap: 16px;
+  padding: 28px 26px 24px;
+  min-height: 196px;
 }
 .cc-frame::before { display: none; }
 
-.cc-head { display: flex; align-items: center; justify-content: space-between; }
+.cc-head { display: flex; align-items: flex-start; justify-content: space-between; }
 .cc-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
+  width: 48px; height: 48px;
+  border-radius: 13px;
   display: grid; place-items: center;
-  font-size: 22px; line-height: 1;
+  font-size: 23px; line-height: 1;
   background: #F6F6F3;
   border: 1px solid rgba(28,5,79,.06);
   box-shadow: none;
-  transition: transform .4s cubic-bezier(.16,.84,.24,1), background .4s ease;
+  transition: transform .45s cubic-bezier(.16,.84,.24,1), background .45s ease;
 }
-.choice-card:hover .cc-icon { transform: scale(1.06); background: #F0F0EC; }
+.choice-card:hover .cc-icon { transform: scale(1.05); background: #F0F0EC; }
 .cc-index {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', monospace;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 13px;
-  color: rgba(28,5,79,.18);
-  letter-spacing: -0.02em;
+  color: rgba(28,5,79,.22);
+  letter-spacing: 0.04em;
 }
-.cc-body { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.cc-body { display: flex; flex-direction: column; gap: 7px; flex: 1; }
 .cc-title {
-  font-family: 'Inter', sans-serif;
-  font-size: 17px; font-weight: 600;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 24px; font-weight: 500;
   color: var(--ced-navy);
-  letter-spacing: -.01em;
+  letter-spacing: -.015em;
 }
 .cc-desc {
   font-family: 'Inter', sans-serif;
-  font-size: 13px; font-weight: 400;
-  color: rgba(28,5,79,.4);
-  line-height: 1.5;
-  max-width: 32ch;
+  font-size: 13.5px; font-weight: 400;
+  color: rgba(28,5,79,.45);
+  line-height: 1.55;
+  max-width: 34ch;
 }
 .cc-arrow {
   align-self: flex-end;
-  width: 34px; height: 34px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   display: grid; place-items: center;
-  font-size: 15px; font-weight: 500;
-  color: rgba(28,5,79,.25);
+  font-size: 16px; font-weight: 500;
+  color: rgba(28,5,79,.3);
   background: #F6F6F3;
   border: 1px solid rgba(28,5,79,.06);
   box-shadow: none;
-  transition: all .35s cubic-bezier(.16,.84,.24,1);
+  transition: all .4s cubic-bezier(.16,.84,.24,1);
 }
 .choice-card:hover .cc-arrow { background: var(--cc); color: #fff; border-color: var(--cc); transform: translateX(3px); }
 
-@keyframes ccRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.choice-screen.visible .choice-card { animation: ccRise .5s cubic-bezier(.16,.84,.24,1) both; }
-.choice-screen.visible .choice-card:nth-child(1) { animation-delay: .04s; }
-.choice-screen.visible .choice-card:nth-child(2) { animation-delay: .12s; }
+@keyframes ccRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.choice-screen.visible .choice-card { animation: ccRise .55s cubic-bezier(.16,.84,.24,1) both; }
+.choice-screen.visible .choice-card:nth-child(1) { animation-delay: .05s; }
+.choice-screen.visible .choice-card:nth-child(2) { animation-delay: .14s; }
 
 .choice-demo-btn {
   margin-top: 0;
   background: transparent;
-  border: 1px solid rgba(28,5,79,.10);
-  color: var(--ced-navy);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  border: none;
+  color: rgba(28,5,79,.5);
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 12.5px;
   font-weight: 500;
-  padding: 10px 20px;
-  border-radius: 100px;
+  letter-spacing: 0.04em;
+  padding: 10px 4px;
   cursor: pointer;
   transition: all .3s cubic-bezier(.16,.84,.24,1);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 }
-.choice-demo-btn:hover { background: #fff; border-color: rgba(28,5,79,.18); box-shadow: 0 4px 12px -6px rgba(28,5,79,.15); }
+.choice-demo-btn .cdb-arrow { transition: transform .3s cubic-bezier(.16,.84,.24,1); }
+.choice-demo-btn:hover { color: var(--ced-navy); }
+.choice-demo-btn:hover .cdb-arrow { transform: translateX(5px); }
 
 /* ========== DEMO FILM OVERLAY — Light Editorial ========== */
 .demo-overlay {
@@ -299,43 +310,39 @@ body {
 }
 .demo-overlay.active::before { opacity: 1; }
 
-/* Caption — clean white card */
+/* Caption — clean, understated (LIVE beats) */
 .demo-caption {
   position: absolute;
   left: 50%;
-  bottom: 88px;
-  transform: translateX(-50%) translateY(20px) scale(0.98);
-  max-width: 580px;
+  bottom: 92px;
+  transform: translateX(-50%) translateY(16px);
+  max-width: 540px;
   width: calc(100% - 64px);
-  background: #fff;
+  background: rgba(255,255,255,0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   color: var(--ced-navy);
-  border: 1px solid rgba(28,5,79,.08);
-  border-radius: 16px;
-  padding: 18px 28px 20px;
-  box-shadow: 0 1px 3px rgba(28,5,79,.06), 0 12px 36px -12px rgba(28,5,79,.12);
+  border: 1px solid rgba(28,5,79,.07);
+  border-radius: 18px;
+  padding: 20px 30px 22px;
+  box-shadow: 0 1px 2px rgba(28,5,79,.04), 0 14px 40px -16px rgba(28,5,79,.14);
   opacity: 0;
-  filter: blur(4px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(.16,.84,.24,1), filter 0.7s ease;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.16,.84,.24,1);
   text-align: center;
 }
-.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); filter: blur(0); }
+.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .demo-caption::before { display: none; }
-/* tag pill */
 .demo-caption .dc-tag {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Inter', sans-serif;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(28,5,79,.35);
-  background: #F6F6F3;
-  border: 1px solid rgba(28,5,79,.06);
-  padding: 4px 11px;
-  border-radius: 100px;
-  margin-bottom: 12px;
+  color: rgba(28,5,79,.32);
+  margin-bottom: 11px;
 }
 .demo-caption .dc-dot {
   width: 6px; height: 6px;
@@ -349,25 +356,23 @@ body {
   50% { box-shadow: 0 0 0 5px rgba(56,153,221,0), 0 0 6px rgba(56,153,221,0.5); }
 }
 .demo-caption .dc-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ced-blue);
   -webkit-text-fill-color: unset;
   background: none;
-  -webkit-background-clip: unset;
-  background-clip: unset;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 .demo-caption .dc-body {
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 19px;
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.45;
   color: var(--ced-navy);
-  letter-spacing: 0.005em;
+  letter-spacing: 0;
 }
 /* Control dock — light pill */
 .demo-controls {
@@ -384,6 +389,7 @@ body {
   padding: 5px 7px;
   box-shadow: 0 1px 3px rgba(28,5,79,.06), 0 8px 24px -12px rgba(28,5,79,.10);
   pointer-events: auto;
+  z-index: 10060;
 }
 .demo-ctrl-btn {
   background: none;
@@ -408,6 +414,114 @@ body {
   box-shadow: 0 2px 8px -3px rgba(28,5,79,.3);
 }
 .demo-ctrl-btn.primary:hover { background: #2a1068; color: #fff; }
+
+/* ========== DEMO STAGE — cinematic statements (Concept C) ========== */
+.demo-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10045;
+  background: #FAFAF7;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 10vh 6vw 16vh;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.demo-stage.show { display: flex; opacity: 1; }
+.ds-inner { text-align: center; max-width: 920px; width: 100%; }
+@keyframes dsRise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+.demo-stage.show .ds-inner { animation: dsRise 0.75s cubic-bezier(.16,.84,.24,1) both; }
+
+.ds-kicker {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ced-blue);
+}
+.ds-statement {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 360;
+  font-size: clamp(38px, 6.5vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--ced-navy);
+  margin-top: 20px;
+}
+.ds-statement em { font-style: italic; color: var(--ced-blue); }
+.ds-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px; font-weight: 400;
+  color: rgba(28,5,79,.5);
+  line-height: 1.55;
+  margin: 24px auto 0;
+  max-width: 38ch;
+}
+.ds-move {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 15px; font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--ced-blue);
+}
+.ds-proof {
+  margin-top: 30px;
+  display: inline-flex; align-items: center; gap: 11px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14.5px; color: rgba(28,5,79,.6);
+  border: 1px solid rgba(28,5,79,.12);
+  padding: 11px 22px; border-radius: 100px;
+}
+.ds-proof .tick {
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--ced-green); color: #fff;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700;
+}
+.ds-count {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(90px, 19vw, 210px);
+  font-weight: 600; color: var(--ced-navy);
+  line-height: 0.9; letter-spacing: -0.02em;
+}
+.ds-count .u {
+  display: block;
+  font-size: clamp(13px,1.4vw,16px); font-weight: 500;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(28,5,79,.4); margin-top: 22px;
+}
+.ds-grid {
+  display: flex; flex-wrap: wrap; gap: 9px;
+  justify-content: center; max-width: 460px;
+  margin: 34px auto 0;
+}
+.ds-env {
+  width: 50px; height: 36px; border-radius: 5px;
+  background: #fff; border: 1px solid rgba(28,5,79,.12);
+  box-shadow: 0 2px 6px -3px rgba(28,5,79,.18);
+  animation: dsEnv 0.5s cubic-bezier(.16,.84,.24,1) both;
+}
+@keyframes dsEnv { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+.ds-logo {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic; font-weight: 360;
+  font-size: clamp(64px, 13vw, 128px);
+  letter-spacing: -0.03em; color: var(--ced-navy);
+  line-height: 1;
+}
+.ds-logo .d { color: var(--ced-blue); }
+.ds-tagline {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 13px; letter-spacing: 0.24em;
+  text-transform: uppercase; color: rgba(28,5,79,.42);
+  margin-top: 18px;
+}
+.ds-arrow-row {
+  display: inline-flex; align-items: center; gap: 22px;
+  margin-top: 8px;
+}
+.ds-arrow-row .from { color: rgba(28,5,79,.32); }
+.ds-arrow-row .to { color: var(--ced-blue); }
+.ds-arrow-row .sep { font-size: 0.5em; color: rgba(28,5,79,.25); }
 
 /* ========== LANGUAGE SWITCHER ========== */
 .lang-switcher {
@@ -2606,18 +2720,18 @@ select.dropdown-active {
 <div class="choice-screen" id="choiceScreen">
   <div class="choice-head">
     <div class="choice-logo">Ch<span class="ai">a</span>rl<span class="ai">i</span>e<span class="dot">.</span></div>
-    <div class="choice-tagline">Wat wil je doen?</div>
+    <div class="choice-tagline">The claims assistant</div>
   </div>
   <div class="choice-cards">
     <button type="button" class="choice-card" data-accent="blue" onclick="chooseDossier()">
       <span class="cc-frame">
         <span class="cc-head">
-          <span class="cc-icon">📋</span>
+          <span class="cc-icon">📄</span>
           <span class="cc-index">01</span>
         </span>
         <span class="cc-body">
-          <span class="cc-title">Nieuw dossier</span>
-          <span class="cc-desc">Verwerk een opdracht van de verzekeraar tot een volledig dossier.</span>
+          <span class="cc-title">New file</span>
+          <span class="cc-desc">Turn an insurer's assignment into a complete claim file.</span>
         </span>
         <span class="cc-arrow" aria-hidden="true">→</span>
       </span>
@@ -2629,21 +2743,26 @@ select.dropdown-active {
           <span class="cc-index">02</span>
         </span>
         <span class="cc-body">
-          <span class="cc-title">Inkomende e-mail</span>
-          <span class="cc-desc">Genereer automatisch een antwoord op veelvoorkomende vragen.</span>
+          <span class="cc-title">Incoming e-mail</span>
+          <span class="cc-desc">Draft the right reply to a routine question — in seconds.</span>
         </span>
         <span class="cc-arrow" aria-hidden="true">→</span>
       </span>
     </button>
   </div>
-  <button class="choice-demo-btn" onclick="startDemo()">▶ Watch the demo <span style="opacity:.6;font-weight:400;">(click to advance)</span></button>
+  <button class="choice-demo-btn" onclick="startDemo()">Watch the 90-second story <span class="cdb-arrow">→</span></button>
+</div>
+
+<!-- ===== DEMO STAGE (fullscreen cinematic statements) ===== -->
+<div class="demo-stage" id="demoStage">
+  <div class="ds-inner" id="demoStageInner"></div>
 </div>
 
 <!-- ===== DEMO FILM OVERLAY ===== -->
 <div class="demo-overlay" id="demoOverlay">
   <div class="demo-progress" style="display:none"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
   <div class="demo-caption" id="demoCaption">
-    <div class="dc-tag"><span class="dc-dot"></span> Demo narration</div>
+    <div class="dc-tag"><span class="dc-dot"></span> <span id="demoCaptionTag">Live demo</span></div>
     <div class="dc-title" id="demoCaptionTitle"></div>
     <div class="dc-body" id="demoCaptionBody"></div>
   </div>
@@ -2652,7 +2771,7 @@ select.dropdown-active {
     <button class="demo-ctrl-btn primary" id="demoNextBtn" onclick="demoNext()" title="Next (→)">Next ▶</button>
     <button class="demo-ctrl-btn" onclick="demoFullscreen()" title="Fullscreen (F)">⛶</button>
     <button class="demo-ctrl-btn" onclick="demoExit()" title="Close demo">✕</button>
-    <span class="demo-scene-label" id="demoSceneLabel">1 / 25</span>
+    <span class="demo-scene-label" id="demoSceneLabel">1 / 13</span>
   </div>
 </div>
 
@@ -5055,169 +5174,132 @@ function demoCloseTune() { document.getElementById('tuneView').classList.remove(
 function demoOpenConcept() { document.getElementById('conceptView').classList.add('visible'); }
 function demoCloseConcept() { document.getElementById('conceptView').classList.remove('visible'); }
 
-// Each step sets up its caption/animation, then the engine waits for the user to click Next.
+// ── DEMO STAGE: fullscreen cinematic statement between live moments ──
+function demoShowStage(html) {
+  const stage = document.getElementById('demoStage');
+  document.getElementById('demoStageInner').innerHTML = html;
+  document.getElementById('demoCaption').classList.remove('show'); // captions never overlap the stage
+  stage.classList.remove('show');
+  void stage.offsetWidth; // restart entrance animation
+  stage.classList.add('show');
+}
+function demoHideStage() {
+  document.getElementById('demoStage').classList.remove('show');
+}
+
+// ====== THE FILM — "A morning with Lien" · 13 beats · Lien story × Concept-C calm ======
+// STAGE beats = fullscreen statements. LIVE beats = the real product, spotlighted.
 function buildDemoSteps() {
   return [
-    // ── 1 · HOOK / PROBLEM ─────────────────────────────────────────
+
+    // ═══ ACT I — THE COST ═══
+    // 1 · cold open
     async () => {
       demoClearSpotlight();
-      demoShowChoice();
-      await demoSetCaption('The problem', 'Every claim starts the same way: a handler reads the insurer’s e-mail and PDFs, then retypes it all into the system — ten minutes per file.');
+      demoShowStage(`<div class="ds-kicker">Monday · 08:14</div><div class="ds-statement">Lien opens<br>her inbox.</div>`);
     },
+    // 2 · the volume
     async () => {
-      await demoSetCaption('At scale', 'Across a team that’s days of typing every week — slow, costly and easy to get wrong. All before the real work begins.');
+      demoShowStage(`<div class="ds-count">14<span class="u">new assignments</span></div><div class="ds-grid">${'<span class="ds-env"></span>'.repeat(14)}</div>`);
     },
+    // 3 · the cost
     async () => {
-      const cards = document.querySelectorAll('.choice-card');
-      if (cards[0]) demoSpotlight(cards[0]);
-      await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail. Let’s watch.');
+      demoShowStage(`<div class="ds-statement">Each one: <em>ten minutes</em><br>of retyping.</div><div class="ds-sub">Reading the e-mail, copying the PDFs, sorting it all — before the real work even begins.</div>`);
     },
-    // ── 2 · SOLUTION — BUILD THE FILE ──────────────────────────────
+
+    // ═══ ACT II — THE LIFT ═══
+    // 4 · drop it on Charlie
     async () => {
-      demoClearSpotlight();
+      demoHideStage();
       chooseDossier();
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
-      await demoSetCaption('One assignment in', 'The handler simply drops the insurer’s assignment — the .msg with all its PDFs — straight onto Charlie.');
+      await demoSetCaption('The lift', 'So she drops one assignment — the e-mail with all its PDFs — straight onto Charlie.');
     },
+    // 5 · it builds itself
     async () => {
+      demoHideStage();
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
-        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
-        // Let the typewriter run visibly; wait for it to finish or for user to click Next
+        await demoSetCaption('Watch', 'Charlie reads everything and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
         await demoWaitForTypewriter();
       } else {
         showBuildex();
-        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
+        await demoSetCaption('Watch', 'Charlie reads everything and fills the whole file itself — claimant, policy, insurer, broker, amounts and documents.');
       }
     },
+    // 6 · a complete file
     async () => {
+      demoHideStage();
       switchToTab(0);
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
-      await demoSetCaption('A complete file', 'Seconds later: a full claim file — with a clear, plain-language summary of what happened.');
+      await demoSetCaption('Seconds later', 'A complete claim file — with a clear, plain-language summary of what happened.');
     },
+    // 7 · STAGE payoff
     async () => {
       demoClearSpotlight();
-      const hdr = document.querySelector('.buildex-header'); if (hdr) demoSpotlight(hdr);
-      await demoSetCaption('Minutes become seconds', 'Ten minutes of manual typing — gone. The handler now reviews, instead of retypes.');
+      demoShowStage(`<div class="ds-kicker">The payoff</div><div class="ds-statement ds-arrow-row"><span class="from">Ten minutes</span><span class="sep">→</span><span class="to">ten seconds.</span></div>`);
     },
-    // ── 3 · PROOF — TRUSTWORTHY & COMPLETE ─────────────────────────
+    // 8 · trust + control
     async () => {
+      demoHideStage();
       switchToTab(1);
       applyConfidenceHighlights();
       const lc = document.getElementById('fSchadebedrag');
       if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
-      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. No silent mistakes — the eye goes straight to what needs a second look.');
+      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. Lien stays in control — she reviews only what matters.');
     },
+
+    // ═══ ACT II.5 — THE SECOND PROOF ═══
+    // 9 · the inbox
+    async () => {
+      demoHideStage();
+      demoClearSpotlight();
+      chooseReply();
+      const rd = document.getElementById('replyDrop'); if (rd) rd.style.display = 'none';
+      const DEMO_MAIL_EN = 'Subject: Request — expert report, file 26-602007\n\nHello,\n\nCould you send me the expert report for my claim (fire damage, Lindelaan)? I’d like a copy for my records.\n\nThanks in advance,\nKarel Vermeulen';
+      const DEMO_REPLY_EN = 'Dear Mr Vermeulen,\n\nBy agreement with the insurer, we are unable to share the expert report directly.\n\nFor a copy of the report, please contact your insurance company.\n\nKind regards,';
+      document.getElementById('replyMailText').textContent = DEMO_MAIL_EN;
+      document.getElementById('replyMailPreview').classList.add('visible');
+      currentReply = { mailText: DEMO_MAIL_EN, detectedType: 'verslag', generatedReply: DEMO_REPLY_EN, confidence: 'high' };
+      showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: DEMO_REPLY_EN });
+      const ta = document.getElementById('replyTextarea'); if (ta) ta.value = DEMO_REPLY_EN;
+      const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
+      await demoSetCaption('The same on the inbox', 'A customer asks for their expert report. Charlie recognises the question and drafts the reply — ready to send.');
+    },
+
+    // ═══ ACT III — THE SHIFT (climax) ═══
+    // 10 · STAGE turn
     async () => {
       demoClearSpotlight();
-      await demoSetCaption('Confidence, per field', 'That certainty comes from the model itself, field by field — so the handler checks only what matters.');
+      demoShowStage(`<div class="ds-kicker">The real shift</div><div class="ds-statement">But here's what<br>truly changes.</div>`);
     },
+    // 11 · she writes a rule herself
     async () => {
-      switchToTab(1);
-      const t = document.getElementById('partijenTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Everyone involved', 'Insurer, broker and expert — captured together, and editable with smart lookup lists.');
-    },
-    async () => {
-      switchToTab(3);
-      const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Every document', 'Each document recognised, ordered chronologically and labelled with its type and amount.');
-    },
-    async () => {
-      switchToTab(8);
-      const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
-      await demoSetCaption('The photos', 'Damage photos pulled straight from the e-mail — ready in the file.');
-    },
-    async () => {
-      switchToTab(1);
-      demoClearSpotlight();
-      if (!editMode) toggleEditMode();
-      const claimEl = document.getElementById('fClaim');
-      if (claimEl) claimEl.value = '18750';
-      await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
-    },
-    async () => {
-      pushToBuildex();
-      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
-    },
-    // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
-    async () => {
-      closePushModal();
-      await demoSetCaption('And here’s the real shift', 'Want Charlie to work differently? You don’t open an IT ticket. The handler does it themselves.');
-    },
-    async () => {
+      demoHideStage();
       demoOpenTune();
       demoTuneSwitchTab('dossier');
       const ta = document.getElementById('tuneNewRule');
       ta.value = 'For Baloise: take the claim reference from the subject line, after "SIN-".';
       demoTuneAddRule(ta.value, 'dossier');
-      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
-    },
-    async () => {
       demoTuneRunTestInstant();
-      await demoSetCaption('Test it on the spot', 'Then try the rule instantly on real example assignments. Right here — no waiting for anyone.');
+      await demoSetCaption('No IT ticket', 'Lien changes how Charlie works — herself. She writes a rule in plain language, tests it on real examples, and ships it.');
     },
+    // 12 · STAGE climax statement
     async () => {
-      await demoSetCaption('One place for the rules', 'Same for the replies — every rule managed in one place, by the team that uses them.');
-      demoTuneSwitchTab('reply');
-    },
-    async () => {
+      demoClearSpotlight();
       demoCloseTune();
-      demoOpenConcept();
-      await demoSetCaption('The loop', 'This is how change used to work: Operations writes requirements, IT builds, Operations tests, sends it back — over and over. Weeks.');
+      demoShowStage(`<div class="ds-kicker">The new way of working</div><div class="ds-statement">The people who do the work<br>now <em>build the tool.</em></div><div class="ds-sub">No tickets. No waiting weeks. IT only builds the backend — the rules belong to the team that uses them.</div>`);
     },
-    async () => {
-      await demoSetCaption('Charlie is the product', 'Now Operations owns the app. Write the rules, test on real examples, improve the LLM — all inside Charlie. IT only handles the backend.');
-    },
-    // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
-    async () => {
-      demoCloseConcept();
-      demoShowChoice();
-      const cards = document.querySelectorAll('.choice-card');
-      if (cards[1]) demoSpotlight(cards[1]);
-      await demoSetCaption('The second job', 'Now the other time-sink: the routine mail that floods every team, every day.');
-    },
-    async () => {
-      demoClearSpotlight();
-      chooseReply();
-      document.getElementById('replyDrop').style.display = 'none';
-      document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
-      document.getElementById('replyMailPreview').classList.add('visible');
-      await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — exactly the kind of question that comes in over and over.');
-    },
-    async () => {
-      currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
-      showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
-      const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
-      await demoSetCaption('The answer, instantly', 'Charlie recognises the question and drafts the right reply — ready to send.');
-    },
-    async () => {
-      demoClearSpotlight();
-      const ta = document.getElementById('replyTextarea');
-      if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
-      const cm = document.getElementById('replyComment');
-      if (cm) cm.value = 'Always close with the team name.';
-      await demoSetCaption('It learns your style', 'The handler tweaks it once and saves — and Charlie remembers the house style for next time.');
-      try {
-        const corr = loadReplyCorrections();
-        corr.unshift({ timestamp: new Date().toISOString(), mailExcerpt: '', detectedType: 'verslag', correctedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, finalReply: ta ? ta.value : '', comment: cm ? cm.value : '' });
-        saveReplyCorrections(corr); updateLearnedCount();
-        showToast('Saved — Charlie learns from this', 'success');
-      } catch (e) {}
-    },
-    async () => {
-      await demoSetCaption('Every correction counts', 'Both jobs improve the same way: each correction makes the next file and the next reply better.');
-    },
-    // ── 6 · CLOSE / CTA ────────────────────────────────────────────
+    // 13 · STAGE close
     async () => {
       demoRestoreLs(); updateLearnedCount();
-      demoClearSpotlight();
-      demoShowChoice();
-      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Improved every day by the people who use it — no IT in the loop. Where shall we start?');
+      demoCloseTune();
+      demoShowStage(`<div class="ds-logo">Ch<span class="d">a</span>rl<span class="d">i</span>e<span class="d">.</span></div><div class="ds-tagline">Faster files · smarter replies · owned by the people who use it</div>`);
     }
   ];
 }
@@ -5258,6 +5340,7 @@ async function runDemoFilm() {
     demoRestoreLs();
     window.__demoMode = false;
     document.getElementById('demoCaption').classList.remove('show');
+    demoHideStage();
     document.getElementById('demoOverlay').classList.remove('active');
     document.getElementById('tuneView').classList.remove('visible');
     document.getElementById('conceptView').classList.remove('visible');
