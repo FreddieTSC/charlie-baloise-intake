@@ -313,127 +313,181 @@ body {
   display: none;
 }
 .demo-overlay.active { display: block; }
-/* Progress bar (top) */
+/* Progress bar (top) — cinematic chapter bar with glowing leading edge */
 .demo-progress {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 4px;
+  height: 3px;
   background: rgba(28, 5, 79, 0.12);
+  overflow: visible;
 }
 .demo-progress-bar {
+  position: relative;
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--ced-blue), var(--ced-green));
-  transition: width 0.6s linear;
+  background: linear-gradient(90deg, #3899DD, #56238E 55%, #86BC34);
+  box-shadow: 0 0 12px rgba(56, 153, 221, 0.7);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.5s cubic-bezier(.16, .84, .24, 1);
+  z-index: 1;
+}
+.demo-progress-bar::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 50%; transform: translateY(-50%);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px 2px rgba(143, 203, 242, 0.95);
+}
+/* chapter ticks (segment boundaries) */
+.demo-tick {
+  position: absolute; top: 0;
+  width: 2px; height: 100%;
+  background: rgba(28, 5, 79, 0.30);
+  transform: translateX(-1px);
+  z-index: 2;
 }
 /* Soft bottom scrim so the narration reads as an overlay layer above the app */
 .demo-overlay::before {
   content: '';
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: 300px;
-  background: linear-gradient(to top, rgba(15, 8, 35, 0.38), rgba(15, 8, 35, 0));
+  height: 340px;
+  background: linear-gradient(to top, rgba(12, 6, 26, 0.5), rgba(12, 6, 26, 0));
   opacity: 0;
   transition: opacity 0.9s ease;
   pointer-events: none;
 }
 .demo-overlay.active::before { opacity: 1; }
 
-/* Caption — a light, frosted voice-over bubble (clearly NOT an app element) */
+/* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
   position: absolute;
   left: 50%;
-  bottom: 92px;
-  transform: translateX(-50%) translateY(26px);
-  max-width: 600px;
+  bottom: 96px;
+  transform: translateX(-50%) translateY(28px) scale(0.98);
+  max-width: 620px;
   width: calc(100% - 80px);
-  background: linear-gradient(135deg, rgba(86, 35, 142, 0.97), rgba(28, 5, 79, 0.97));
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(26, 16, 46, 0.74), rgba(13, 7, 28, 0.80));
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 18px;
-  padding: 14px 28px 18px;
-  box-shadow: 0 20px 60px rgba(28, 5, 79, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  padding: 18px 30px 20px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 30px 80px -28px rgba(0, 0, 0, 0.65),
+    0 12px 40px -16px rgba(86, 35, 142, 0.50);
   opacity: 0;
-  transition: opacity 1s ease, transform 1s cubic-bezier(.2, .7, .2, 1);
+  filter: blur(6px);
+  transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.16, .84, .24, 1), filter 0.9s ease;
   text-align: center;
 }
-.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-/* "DEMO" narrator marker with a gently pulsing dot */
+.demo-caption.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); filter: blur(0); }
+/* gradient hairline ring */
+.demo-caption::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(143, 203, 242, 0.9), rgba(150, 90, 210, 0.5) 42%, rgba(134, 188, 52, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0.85;
+  pointer-events: none;
+}
+/* "live demo" marker pill with a pulsing dot */
 .demo-caption .dc-tag {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-family: 'Inter', sans-serif;
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 9px;
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-bottom: 12px;
 }
 .demo-caption .dc-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
   background: #7FC2F0;
+  box-shadow: 0 0 8px rgba(127, 194, 240, 0.9);
   animation: dcPulse 1.8s infinite;
 }
 @keyframes dcPulse {
-  0% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0.55); }
-  70% { box-shadow: 0 0 0 8px rgba(127, 194, 240, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0.55), 0 0 8px rgba(127, 194, 240, 0.9); }
+  70% { box-shadow: 0 0 0 7px rgba(127, 194, 240, 0), 0 0 8px rgba(127, 194, 240, 0.9); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0), 0 0 8px rgba(127, 194, 240, 0.9); }
 }
 .demo-caption .dc-title {
   font-family: 'Raleway', 'Inter', sans-serif;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8FCBF2;
-  margin-bottom: 7px;
+  background: linear-gradient(90deg, #8FCBF2, #C4A6E8);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: #8FCBF2;
+  margin-bottom: 8px;
 }
 .demo-caption .dc-body {
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 400;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.96);
+  letter-spacing: 0.005em;
 }
-/* Control bar (bottom center) */
+/* Control dock (bottom center) — glass to match the caption */
 .demo-controls {
   position: absolute;
   left: 50%;
-  bottom: 28px;
+  bottom: 30px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid var(--border, #E2E8F0);
-  border-radius: 30px;
-  padding: 8px 14px;
-  box-shadow: 0 6px 20px rgba(28, 5, 79, 0.18);
+  gap: 3px;
+  background: rgba(20, 12, 40, 0.60);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  padding: 7px 9px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 16px 40px -16px rgba(0, 0, 0, 0.55);
   pointer-events: auto;
 }
 .demo-ctrl-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 15px;
-  color: var(--ced-navy);
-  padding: 6px 10px;
-  border-radius: 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  padding: 8px 13px;
+  border-radius: 100px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
-.demo-ctrl-btn:hover { background: var(--bg-page, #F4F6F9); }
-.demo-ctrl-btn.primary { background: var(--ced-navy); color: #fff; }
-.demo-ctrl-btn.primary:hover { background: var(--ced-purple); }
+.demo-ctrl-btn:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.demo-ctrl-btn:active { transform: scale(0.94); }
+.demo-ctrl-btn.primary {
+  background: linear-gradient(135deg, #3899DD, #56238E);
+  color: #fff;
+  box-shadow: 0 6px 18px -6px rgba(86, 35, 142, 0.75);
+}
+.demo-ctrl-btn.primary:hover { filter: brightness(1.08); background: linear-gradient(135deg, #3899DD, #56238E); color: #fff; }
 
 /* ========== LANGUAGE SWITCHER ========== */
 .lang-switcher {
@@ -469,21 +523,26 @@ body {
 .demo-scene-label {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary, #666);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.62);
   padding: 0 10px;
-  border-left: 1px solid var(--border, #E2E8F0);
+  margin-left: 3px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-/* Spotlight highlight for elements during demo */
+/* Spotlight — breathing glow ring that guides the eye */
 .demo-spotlight {
   position: relative;
   z-index: 10040;
-  outline: 3px solid rgba(56, 153, 221, 0.85);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 7px rgba(56, 153, 221, 0.20);
-  border-radius: 10px;
-  transition: box-shadow 0.3s ease, outline-color 0.3s ease;
+  outline: 2px solid rgba(56, 153, 221, 0.9);
+  outline-offset: 4px;
+  border-radius: 12px;
+  animation: demoSpot 2.2s ease-in-out infinite;
+}
+@keyframes demoSpot {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(56, 153, 221, 0.12), 0 0 22px 3px rgba(56, 153, 221, 0.30); }
+  50% { box-shadow: 0 0 0 9px rgba(56, 153, 221, 0.05), 0 0 32px 7px rgba(56, 153, 221, 0.5); }
 }
 
 /* ========== CHARLIE BIJSTUREN (self-service prompt — demo) ========== */
@@ -4708,6 +4767,20 @@ function startDemoTicker() {
   demoTicker = setInterval(updateDemoClock, 250);
 }
 function stopDemoTicker() { clearInterval(demoTicker); demoTicker = null; }
+// Chapter ticks on the progress bar at the 6 narrative-segment boundaries
+function demoBuildChapterTicks() {
+  const cont = document.querySelector('.demo-progress');
+  if (!cont) return;
+  cont.querySelectorAll('.demo-tick').forEach(t => t.remove());
+  const total = DEMO_SECONDS.reduce((a, b) => a + b, 0) || 360;
+  [3, 7, 14, 20, 25].forEach(idx => {
+    let cum = 0; for (let k = 0; k < idx && k < DEMO_SECONDS.length; k++) cum += DEMO_SECONDS[k];
+    const t = document.createElement('span');
+    t.className = 'demo-tick';
+    t.style.left = (cum / total * 100) + '%';
+    cont.appendChild(t);
+  });
+}
 
 // Sleep used inside short animations; pauses with the demo, resolves early on navigate/exit
 function demoAnimSleep(ms) {
@@ -5095,6 +5168,7 @@ async function runDemoFilm() {
   const steps = buildDemoSteps();
   demoState.total = steps.length;
   startDemoTicker();
+  demoBuildChapterTicks();
   let i = 0;
   while (i < steps.length && !demoState.abort) {
     demoState.step = i + 1;
