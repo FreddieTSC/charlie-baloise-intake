@@ -5066,6 +5066,26 @@ function demoShowChoice() {
   document.getElementById('choiceScreen').classList.add('visible');
 }
 
+// Hide the narration balloon — a "rest pause" / watch-only step (no balloon)
+function demoHideCaption() {
+  const cap = document.getElementById('demoCaption');
+  if (cap) cap.classList.remove('show');
+}
+// Reveal table rows / cards one by one, slowly, so viewers can watch them drop in
+async function demoRevealRowsSlowly(selector, perItemMs) {
+  const items = Array.from(document.querySelectorAll(selector));
+  items.forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(12px)'; el.style.transition = 'opacity .6s ease, transform .6s ease'; });
+  void document.body.offsetHeight; // flush styles so the first item animates
+  for (const el of items) {
+    if (demoState.abort || demoState.advance || demoState.back) {
+      items.forEach(x => { x.style.opacity = '1'; x.style.transform = 'none'; });
+      break;
+    }
+    el.style.opacity = '1'; el.style.transform = 'none';
+    await new Promise(r => setTimeout(r, perItemMs));
+  }
+}
+
 // Big section-divider title card (its own demo step)
 function demoChapter(num, title, sub) {
   demoClearSpotlight();
@@ -5120,16 +5140,16 @@ function demoScene(tag) {
 // Scene tag per demo step (index-aligned with buildDemoSteps()). Keep in sync
 // when adding/removing steps.
 const DEMO_SCENES = [
-  'choice', 'choice',                                             // 0-1  opening (problem + meet Charlie)
-  'chapter',                                                      // 2   ACT 1 · Charlie builds the file
-  'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-8 drop, fill, complete, everything, control, send
-  'chapter',                                                      // 9   ACT 2 · Charlie answers the mail
-  'reply', 'reply',                                               // 10-11 customer writes + answer
-  'chapter',                                                      // 12  ACT 3 · It gets better every day
-  'reply',                                                        // 13  you tweak it learns (live save)
-  'buildex',                                                      // 14  the same for every file (animated rename)
-  'concept', 'concept',                                           // 15-16 the timeline slide
-  'choice'                                                        // 17  close
+  'choice', 'choice',                                                          // 0-1  opening (problem + meet Charlie)
+  'chapter',                                                                   // 2   ACT 1 · Charlie builds the file
+  'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-9 drop, fill, complete, docs, photos, control, send
+  'chapter',                                                                   // 10  ACT 2 · Charlie answers the mail
+  'reply', 'reply',                                                            // 11-12 customer writes + answer
+  'chapter',                                                                   // 13  ACT 3 · It gets better every day
+  'reply',                                                                     // 14  you tweak it learns (live save)
+  'buildex',                                                                   // 15  the same for every file (animated rename)
+  'concept', 'concept', 'concept',                                             // 16-18 timeline + "fully automatic"
+  'choice'                                                                     // 19  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5263,16 +5283,16 @@ function buildDemoSteps() {
       await demoSetCaption('One drop in', 'The handler drops the insurer’s .msg — with all its PDFs — straight onto Charlie.');
     },
     async () => {
+      // Watch-only: no balloon — just see Charlie type the whole file in
       demoClearSpotlight();
+      demoHideCaption();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });   // typewriter starts immediately
         demoState.parsed = true;
-        await demoSetCaption('Charlie fills it in', 'It reads every page and types the whole file in itself — claimant, policy, insurer, amounts and documents.');
         await demoWaitForTypewriter();
       } else {
         showBuildex();
-        await demoSetCaption('Charlie fills it in', 'It reads every page and types the whole file in itself — claimant, policy, insurer, amounts and documents.');
       }
     },
     async () => {
@@ -5280,10 +5300,21 @@ function buildDemoSteps() {
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
       await demoSetCaption('A complete file', 'Seconds later: the whole file is filled — with a clear, plain-language summary of what happened.');
     },
+    // Documents — slow reveal, watch-only (no balloon)
     async () => {
+      demoHideCaption();
       switchToTab(3);
+      renderDocTable();
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Everything’s in there', 'Parties, documents — renamed and sorted — and the damage photos: all pulled straight from the e-mail.');
+      await demoRevealRowsSlowly('#docTableBody tr', 850);
+    },
+    // Photos — slow reveal, watch-only (no balloon)
+    async () => {
+      demoHideCaption();
+      switchToTab(8);
+      renderMediaGrid();
+      const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
+      await demoRevealRowsSlowly('#mediaGrid .media-card', 950);
     },
     async () => {
       switchToTab(1);
@@ -5376,6 +5407,9 @@ function buildDemoSteps() {
     },
     async () => {
       await demoSetCaption('The Charlie way', 'Now the people who use it improve it — every day, no hand-offs, no IT.');
+    },
+    async () => {
+      await demoSetCaption('In time, fully automatic', 'And once Operations has tested it enough, the input review can be dropped — the files are built end-to-end, fully automatically.');
     },
     // ── CLOSE ──────────────────────────────────────────────────────
     async () => {
