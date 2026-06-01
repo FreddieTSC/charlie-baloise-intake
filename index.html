@@ -5342,8 +5342,10 @@ function buildDemoSteps() {
       if (nameInput) {
         polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
         demoSpotlight(nameInput);
-        const base = nameInput.value;
-        const suffix = ' — ingang 25/06/2023';
+        const suffix = ' — start polis 25/06/2023';
+        // strip any previously-added suffix so re-runs (back-nav) never duplicate it
+        const base = nameInput.value.replace(/\s*—\s*(start polis|ingang)\b.*$/i, '').trim();
+        nameInput.value = base;
         nameInput.focus();
         for (let i = 0; i < suffix.length; i++) {
           if (demoState.abort || demoState.advance || demoState.back) { nameInput.value = base + suffix; break; }
@@ -5351,7 +5353,7 @@ function buildDemoSteps() {
           await new Promise(r => setTimeout(r, 60));
         }
       }
-      await demoSetCaption('Correct it once', 'This document is the policy. The handler renames it to add the start date — “polis brandverzekering — ingang 25/06/2023”.');
+      await demoSetCaption('Correct it once', 'This document is the policy. The handler renames it to add the start date — “polis brandverzekering — start polis 25/06/2023”.');
     },
     // The payoff — the model learns the correction
     async () => {
