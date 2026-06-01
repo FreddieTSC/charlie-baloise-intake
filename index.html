@@ -5118,14 +5118,14 @@ function demoScene(tag) {
 const DEMO_SCENES = [
   'choice', 'choice',                                             // 0-1  opening (problem + meet Charlie)
   'chapter',                                                      // 2   ACT 1 · Charlie builds the file
-  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 3-7  drop+fill, complete, everything, control, send
-  'chapter',                                                      // 8   ACT 2 · Charlie answers the mail
-  'reply', 'reply',                                               // 9-10 customer writes + answer
-  'chapter',                                                      // 11  ACT 3 · It gets better every day
-  'reply',                                                        // 12  you tweak it learns (live save)
-  'buildex',                                                      // 13  the same for every file (animated rename)
-  'concept', 'concept',                                           // 14-15 the timeline slide
-  'choice'                                                        // 16  close
+  'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-8 drop, fill, complete, everything, control, send
+  'chapter',                                                      // 9   ACT 2 · Charlie answers the mail
+  'reply', 'reply',                                               // 10-11 customer writes + answer
+  'chapter',                                                      // 12  ACT 3 · It gets better every day
+  'reply',                                                        // 13  you tweak it learns (live save)
+  'buildex',                                                      // 14  the same for every file (animated rename)
+  'concept', 'concept',                                           // 15-16 the timeline slide
+  'choice'                                                        // 17  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5256,15 +5256,19 @@ function buildDemoSteps() {
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
-      await demoSetCaption('One drop in', 'The handler drops the .msg with all its PDFs. Charlie reads every page and fills the file itself.');
+      await demoSetCaption('One drop in', 'The handler drops the insurer’s .msg — with all its PDFs — straight onto Charlie.');
+    },
+    async () => {
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
-        populateFromApiResponse({ data: SAMPLE_DOSSIER });
+        populateFromApiResponse({ data: SAMPLE_DOSSIER });   // typewriter starts immediately
         demoState.parsed = true;
+        await demoSetCaption('Charlie fills it in', 'It reads every page and types the whole file in itself — claimant, policy, insurer, amounts and documents.');
         await demoWaitForTypewriter();
       } else {
         showBuildex();
+        await demoSetCaption('Charlie fills it in', 'It reads every page and types the whole file in itself — claimant, policy, insurer, amounts and documents.');
       }
     },
     async () => {
