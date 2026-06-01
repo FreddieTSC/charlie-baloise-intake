@@ -360,6 +360,71 @@ body {
 }
 .demo-overlay.active::before { opacity: 1; }
 
+/* Chapter title card — big section divider (sits above the app, below the controls) */
+.demo-chapter {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1100px 560px at 50% -12%, #FFF8EC 0%, rgba(255,248,236,0) 60%),
+    radial-gradient(1000px 760px at 50% 122%, #F2E0C2 0%, rgba(242,224,194,0) 58%),
+    #FAEEDA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  pointer-events: none;
+}
+.demo-chapter.show { opacity: 1; visibility: visible; }
+.dch-num {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.34em;
+  color: var(--ced-blue);
+  margin-bottom: 18px;
+}
+.dch-title {
+  font-family: 'Raleway', 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 6vw, 82px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ced-navy);
+  max-width: 16ch;
+}
+.dch-rule {
+  width: 64px; height: 4px; border-radius: 4px;
+  background: linear-gradient(90deg, #3899DD, #86BC34);
+  margin: 26px 0 22px;
+}
+.dch-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: #6B6150;
+  max-width: 48ch;
+  line-height: 1.5;
+}
+/* staggered entrance */
+.demo-chapter .dch-num,
+.demo-chapter .dch-title,
+.demo-chapter .dch-rule,
+.demo-chapter .dch-sub {
+  transform: translateY(18px);
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.16,.84,.24,1);
+}
+.demo-chapter.show .dch-num   { transform: none; opacity: 1; transition-delay: 0.05s; }
+.demo-chapter.show .dch-title { transform: none; opacity: 1; transition-delay: 0.13s; }
+.demo-chapter.show .dch-rule  { transform: none; opacity: 1; transition-delay: 0.24s; }
+.demo-chapter.show .dch-sub   { transform: none; opacity: 1; transition-delay: 0.32s; }
+
 /* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
   position: absolute;
@@ -2646,6 +2711,12 @@ select.dropdown-active {
 <!-- ===== DEMO FILM OVERLAY ===== -->
 <div class="demo-overlay" id="demoOverlay">
   <div class="demo-progress" style="display:none"><div class="demo-progress-bar" id="demoProgressBar"></div></div>
+  <div class="demo-chapter" id="demoChapter">
+    <div class="dch-num" id="demoChapterNum"></div>
+    <div class="dch-title" id="demoChapterTitle"></div>
+    <div class="dch-rule"></div>
+    <div class="dch-sub" id="demoChapterSub"></div>
+  </div>
   <div class="demo-caption" id="demoCaption">
     <div class="dc-tag"><span class="dc-dot"></span> Demo narration</div>
     <div class="dc-title" id="demoCaptionTitle"></div>
@@ -4991,11 +5062,29 @@ function demoShowChoice() {
   document.getElementById('choiceScreen').classList.add('visible');
 }
 
+// Big section-divider title card (its own demo step)
+function demoChapter(num, title, sub) {
+  demoClearSpotlight();
+  const cap = document.getElementById('demoCaption');
+  if (cap) cap.classList.remove('show'); // hide the narration while the chapter title is up
+  const el = document.getElementById('demoChapter');
+  if (!el) return;
+  document.getElementById('demoChapterNum').textContent = num || '';
+  document.getElementById('demoChapterTitle').textContent = title || '';
+  document.getElementById('demoChapterSub').textContent = sub || '';
+  el.classList.remove('show');
+  void el.offsetWidth; // restart the staggered entrance animation
+  el.classList.add('show');
+}
+
 // Restore the correct base "scene" for a step, so navigating BACK shows the
 // right view (not just the right caption). Only toggles visibility — never
 // calls the reset-heavy openers, so tune/reply state survives back-nav.
 function demoScene(tag) {
   if (!tag) return;
+  const chap = document.getElementById('demoChapter');
+  if (chap && tag !== 'chapter') chap.classList.remove('show');
+  if (tag === 'chapter') return; // the chapter step shows its own full-screen title card
   const choice = document.getElementById('choiceScreen');
   const reply = document.getElementById('replyView');
   const tune = document.getElementById('tuneView');
@@ -5026,15 +5115,21 @@ function demoScene(tag) {
 // when adding/removing steps.
 const DEMO_SCENES = [
   'choice', 'choice', 'choice',                                   // 0-2  hook
-  'buildex', 'buildex', 'buildex', 'buildex',                     // 3-6  build the file
-  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 7-11 proof
-  'buildex', 'buildex', 'buildex',                                // 12-14 control + rename + learn
-  'buildex', 'buildex',                                           // 15-16 push modal + the shift
-  'tune', 'tune', 'tune',                                         // 17-19 self-service tuning
-  'concept', 'concept',                                           // 20-21 the "tuning the tool" slide
-  'choice',                                                       // 22 second job
-  'reply', 'reply', 'reply', 'reply',                             // 23-26 replies
-  'choice'                                                        // 27 close
+  'chapter',                                                      // 3   C1 · Auto-create new files
+  'buildex', 'buildex', 'buildex', 'buildex',                     // 4-7  build the file
+  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 8-12 proof
+  'buildex', 'buildex', 'buildex',                                // 13-15 control + rename + learn
+  'buildex',                                                      // 16  one click onward (push modal)
+  'chapter',                                                      // 17  C2 · Improve the tool
+  'buildex',                                                      // 18  the shift
+  'tune', 'tune', 'tune',                                         // 19-21 self-service tuning
+  'concept', 'concept',                                           // 22-23 the "tuning the tool" slide
+  'chapter',                                                      // 24  C3 · Generate auto-replies
+  'choice',                                                       // 25  second job
+  'reply', 'reply',                                               // 26-27 customer writes + answer
+  'chapter',                                                      // 28  C4 · Improve the email tool
+  'reply', 'reply',                                               // 29-30 learns style + every correction
+  'choice'                                                        // 31  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5160,6 +5255,10 @@ function buildDemoSteps() {
       if (cards[0]) demoSpotlight(cards[0]);
       await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail. Let’s watch.');
     },
+    // ── CHAPTER 1 ──────────────────────────────────────────────────
+    async () => {
+      demoChapter('Function 01', 'Auto-create new files', 'Drop the insurer’s assignment — Charlie builds the whole claim file in seconds.');
+    },
     // ── 2 · SOLUTION — BUILD THE FILE ──────────────────────────────
     async () => {
       demoClearSpotlight();
@@ -5263,6 +5362,10 @@ function buildDemoSteps() {
       pushToBuildex();
       await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
     },
+    // ── CHAPTER 2 ──────────────────────────────────────────────────
+    async () => {
+      demoChapter('No IT needed', 'Improve the tool', 'Change how Charlie works yourself — in plain language, tested on the spot, live in minutes.');
+    },
     // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
     async () => {
       closePushModal();
@@ -5292,6 +5395,10 @@ function buildDemoSteps() {
     async () => {
       await demoSetCaption('Charlie is the product', 'Now Operations owns the app. Write the rules, test on real examples, improve the LLM — all inside Charlie. IT only handles the backend.');
     },
+    // ── CHAPTER 3 ──────────────────────────────────────────────────
+    async () => {
+      demoChapter('Function 02', 'Generate auto-replies', 'Charlie reads the routine mail and drafts the right answer — ready to send.');
+    },
     // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
     async () => {
       demoCloseConcept();
@@ -5313,6 +5420,10 @@ function buildDemoSteps() {
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
       const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
       await demoSetCaption('The answer, instantly', 'Charlie recognises the question and drafts the right reply — ready to send.');
+    },
+    // ── CHAPTER 4 ──────────────────────────────────────────────────
+    async () => {
+      demoChapter('It keeps learning', 'Improve the email tool', 'Every correction the handler makes tunes the next reply — automatically.');
     },
     async () => {
       demoClearSpotlight();
