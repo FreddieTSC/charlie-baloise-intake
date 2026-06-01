@@ -5149,7 +5149,7 @@ function buildDemoSteps() {
     async () => {
       switchToTab(3);
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Every document', 'Each document recognised, ordered chronologically and labelled with its type and amount.');
+      await demoSetCaption('Renamed and filed', 'Every attachment gets a clean, consistent name and lands in the right category — “aangifte.pdf” becomes a labelled claim form, “factuur.pdf” an invoice with its € amount. Compare the Document and Source columns.');
     },
     async () => {
       switchToTab(8);
@@ -6543,8 +6543,9 @@ function removeNota(idx) { state.Notas.splice(idx, 1); renderNotas(); }
 
 // ========== TYPEWRITER ANIMATION ==========
 let typewriterAbort = false;
+let TYPE_SPEED = 1; // >1 slows the fill animation (set during the demo so it's easy to follow)
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms * TYPE_SPEED)); }
 
 async function typeIntoField(el, value, charDelay = 18) {
   if (!el || !value || typewriterAbort) return;
@@ -6681,6 +6682,7 @@ function switchToTab(tabIdx) {
 
 async function typewriterAnimate() {
   typewriterAbort = false;
+  TYPE_SPEED = window.__demoMode ? 1.7 : 1; // slower, easy-to-follow fill during the demo only
   const wrapper = document.getElementById('buildexForm');
   wrapper.classList.add('typewriter-active');
 
@@ -6950,6 +6952,7 @@ async function typewriterAnimate() {
 }
 
 function finishTypewriter() {
+  TYPE_SPEED = 1;
   const wrapper = document.getElementById('buildexForm');
   wrapper.classList.remove('typewriter-active');
   syncFormFromState();
