@@ -5082,6 +5082,7 @@ function demoChapter(num, title, sub) {
 // calls the reset-heavy openers, so tune/reply state survives back-nav.
 function demoScene(tag) {
   if (!tag) return;
+  demoClearSpotlight(); // never let a spotlight (z-index 10040) bleed across steps/overlays
   const chap = document.getElementById('demoChapter');
   const choice = document.getElementById('choiceScreen');
   const reply = document.getElementById('replyView');
@@ -5365,6 +5366,10 @@ function buildDemoSteps() {
       await demoSetCaption('Just fix it', 'While reviewing, the handler renames the policy document to add its start date — a normal correction, nothing more.');
     },
     async () => {
+      const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
+      const polisRow = rows.find(tr => { const d = documents[parseInt(tr.dataset.docIdx)]; return d && (d.docType || d.type || '').toLowerCase().includes('polis'); });
+      const ni = polisRow && polisRow.querySelector('input[data-field="name"]');
+      if (ni) demoSpotlight(ni);
       await demoSetCaption('…and it learned', 'That fix wasn’t extra work — it taught Charlie. Next time, it adds the policy start date itself. Fixing the file and improving the tool are the same action.');
     },
     // Self-service rule — write + test in one beat
