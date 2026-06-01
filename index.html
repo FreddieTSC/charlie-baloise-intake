@@ -5122,7 +5122,8 @@ const DEMO_SCENES = [
   'chapter',                                                      // 8   ACT 2 · Charlie answers the mail
   'reply', 'reply',                                               // 9-10 customer writes + answer
   'chapter',                                                      // 11  ACT 3 · It gets better every day
-  'reply', 'reply',                                               // 12-13 you tweak it learns + same for files
+  'reply',                                                        // 12  you tweak it learns (live save)
+  'buildex',                                                      // 13  the same for every file (animated rename)
   'concept', 'concept',                                           // 14-15 the timeline slide
   'choice'                                                        // 16  close
 ];
@@ -5335,7 +5336,31 @@ function buildDemoSteps() {
       if (typeof saveReplyCorrection === 'function') saveReplyCorrection();
     },
     async () => {
-      await demoSetCaption('The same for every file', 'Fix a name or a field on a file, and it learns that too. Correcting and improving are one and the same — no extra work.');
+      closePushModal();
+      switchToTab(3);
+      if (!editMode) toggleEditMode();
+      renderDocTableEditable();
+      await new Promise(r => setTimeout(r, 250));
+      const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
+      const polisRow = rows.find(tr => {
+        const d = documents[parseInt(tr.dataset.docIdx)];
+        return d && (d.docType || d.type || '').toLowerCase().includes('polis');
+      }) || rows[1];
+      const nameInput = polisRow && polisRow.querySelector('input[data-field="name"]');
+      if (nameInput) {
+        polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        demoSpotlight(nameInput);
+        const suffix = ' — start polis 25/06/2023';
+        const base = nameInput.value.replace(/\s*—\s*(start polis|ingang)\b.*$/i, '').trim();
+        nameInput.value = base;
+        nameInput.focus();
+        for (let i = 0; i < suffix.length; i++) {
+          if (demoState.abort || demoState.advance || demoState.back) { nameInput.value = base + suffix; break; }
+          nameInput.value = base + suffix.slice(0, i + 1);
+          await new Promise(r => setTimeout(r, 60));
+        }
+      }
+      await demoSetCaption('The same for every file', 'On a file, the handler renames the policy to add its start date — and Charlie remembers it next time. Correcting and improving are one and the same.');
     },
     async () => {
       demoOpenConcept();
