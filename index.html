@@ -2896,11 +2896,11 @@ select.dropdown-active {
           <div class="loop-band"><span class="loop-pill">↻ test → fix → test … repeats for weeks</span></div>
 
           <div class="station ops">
-            <div class="card"><div class="ct">Requirements</div><div class="cs">Operations writes the spec</div></div>
+            <div class="card"><div class="ct">The request</div><div class="cs">Operations wants a change</div></div>
             <span class="node"></span>
           </div>
           <div class="station ops">
-            <div class="card"><div class="ct">Write the BRD</div><div class="cs">A formal requirements doc</div></div>
+            <div class="card"><div class="ct">Write a spec</div><div class="cs">A formal requirements doc</div></div>
             <span class="node"></span>
           </div>
           <div class="station it down">
@@ -5083,17 +5083,18 @@ function demoChapter(num, title, sub) {
 function demoScene(tag) {
   if (!tag) return;
   const chap = document.getElementById('demoChapter');
-  if (chap && tag !== 'chapter') chap.classList.remove('show');
-  if (tag === 'chapter') return; // the chapter step shows its own full-screen title card
   const choice = document.getElementById('choiceScreen');
   const reply = document.getElementById('replyView');
   const tune = document.getElementById('tuneView');
   const concept = document.getElementById('conceptView');
   const push = document.getElementById('pushOverlay');
-  // Close overlays that don't belong to this scene
+  if (chap && tag !== 'chapter') chap.classList.remove('show');
+  // Always clear transient overlays so they never bleed over the next step
+  // (a chapter card or a fresh scene). Steps re-open what they need in their body.
+  if (push) push.classList.remove('open');
   if (tag !== 'tune' && tune) tune.classList.remove('visible');
   if (tag !== 'concept' && concept) concept.classList.remove('visible');
-  if (push) push.classList.remove('open'); // steps re-open the push modal in their body
+  if (tag === 'chapter') return; // full-screen title card covers the base scene
   if (tag === 'choice') {
     if (reply) reply.classList.remove('visible');
     if (choice) choice.classList.add('visible');
@@ -5118,18 +5119,17 @@ const DEMO_SCENES = [
   'chapter',                                                      // 3   C1 · Auto-create new files
   'buildex', 'buildex', 'buildex', 'buildex',                     // 4-7  build the file
   'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 8-12 proof
-  'buildex', 'buildex', 'buildex',                                // 13-15 control + rename + learn
-  'buildex',                                                      // 16  one click onward (push modal)
-  'chapter',                                                      // 17  C2 · Improve the tool
-  'buildex',                                                      // 18  the shift
-  'tune', 'tune', 'tune',                                         // 19-21 self-service tuning
-  'concept', 'concept',                                           // 22-23 the "tuning the tool" slide
-  'chapter',                                                      // 24  C3 · Generate auto-replies
-  'choice',                                                       // 25  second job
-  'reply', 'reply',                                               // 26-27 customer writes + answer
-  'chapter',                                                      // 28  C4 · Improve the email tool
-  'reply', 'reply',                                               // 29-30 learns style + every correction
-  'choice'                                                        // 31  close
+  'buildex', 'buildex',                                           // 13-14 you're in control + send
+  'chapter',                                                      // 15  C2 · Improve the tool
+  'buildex', 'buildex',                                           // 16-17 just fix it + it learned
+  'tune',                                                         // 18  change it on purpose
+  'concept', 'concept',                                           // 19-20 the timeline slide
+  'chapter',                                                      // 21  C3 · Generate auto-replies
+  'choice',                                                       // 22  second job
+  'reply', 'reply',                                               // 23-24 customer writes + answer
+  'chapter',                                                      // 25  C4 · Improve the email tool
+  'reply', 'reply',                                               // 26-27 learns style + every correction
+  'choice'                                                        // 28  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5325,10 +5325,20 @@ function buildDemoSteps() {
       if (!editMode) toggleEditMode();
       const claimEl = document.getElementById('fClaim');
       if (claimEl) claimEl.value = '18750';
-      await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
+      await demoSetCaption('You stay in control', 'Nothing is locked. The handler reviews and adjusts any field before the file moves on.');
     },
-    // Document rename — a concrete self-learning example
     async () => {
+      demoClearSpotlight();
+      pushToBuildex();
+      await demoSetCaption('One click onward', 'One click sends the finished file to BuildeX II. Done.');
+    },
+    // ── CHAPTER 2 ──────────────────────────────────────────────────
+    async () => {
+      demoChapter('No double work', 'Improve the tool', 'You never train Charlie separately. The corrections you already make improve it — automatically, no IT.');
+    },
+    // Self-learning: a normal correction trains the tool
+    async () => {
+      closePushModal();
       switchToTab(3);
       if (!editMode) toggleEditMode();
       renderDocTableEditable();
@@ -5343,7 +5353,6 @@ function buildDemoSteps() {
         polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
         demoSpotlight(nameInput);
         const suffix = ' — start polis 25/06/2023';
-        // strip any previously-added suffix so re-runs (back-nav) never duplicate it
         const base = nameInput.value.replace(/\s*—\s*(start polis|ingang)\b.*$/i, '').trim();
         nameInput.value = base;
         nameInput.focus();
@@ -5353,49 +5362,28 @@ function buildDemoSteps() {
           await new Promise(r => setTimeout(r, 60));
         }
       }
-      await demoSetCaption('Correct it once', 'This document is the policy. The handler renames it to add the start date — “polis brandverzekering — start polis 25/06/2023”.');
-    },
-    // The payoff — the model learns the correction
-    async () => {
-      await demoSetCaption('Charlie learns it', 'Next time a policy comes in, Charlie adds its start date by itself. One correction by the handler, applied to every file that follows.');
+      await demoSetCaption('Just fix it', 'While reviewing, the handler renames the policy document to add its start date — a normal correction, nothing more.');
     },
     async () => {
-      demoClearSpotlight();
-      pushToBuildex();
-      await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
+      await demoSetCaption('…and it learned', 'That fix wasn’t extra work — it taught Charlie. Next time, it adds the policy start date itself. Fixing the file and improving the tool are the same action.');
     },
-    // ── CHAPTER 2 ──────────────────────────────────────────────────
-    async () => {
-      demoChapter('No IT needed', 'Improve the tool', 'Change how Charlie works yourself — in plain language, tested on the spot, live in minutes.');
-    },
-    // ── 4 · THE SHIFT — SELF-SERVICE, NO IT ────────────────────────
-    async () => {
-      closePushModal();
-      await demoSetCaption('And here’s the real shift', 'Want Charlie to work differently? You don’t open an IT ticket. The handler does it themselves.');
-    },
+    // Self-service rule — write + test in one beat
     async () => {
       demoOpenTune();
       demoTuneSwitchTab('dossier');
       const ta = document.getElementById('tuneNewRule');
       ta.value = 'For Baloise: take the claim reference from the subject line, after "SIN-".';
       demoTuneAddRule(ta.value, 'dossier');
-      await demoSetCaption('Write the rule yourself', 'In plain language — and it goes straight into Charlie. No developer in between.');
-    },
-    async () => {
       demoTuneRunTestInstant();
-      await demoSetCaption('Test it on the spot', 'Then try the rule instantly on real example assignments. Right here — no waiting for anyone.');
-    },
-    async () => {
-      await demoSetCaption('One place for the rules', 'Same for the replies — every rule managed in one place, by the team that uses them.');
-      demoTuneSwitchTab('reply');
+      await demoSetCaption('Or change it on purpose', 'Want a bigger change? Write the rule yourself in plain language — tested on real examples and live in minutes. No IT ticket.');
     },
     async () => {
       demoCloseTune();
       demoOpenConcept();
-      await demoSetCaption('The loop', 'This is how change used to work: Operations writes requirements, IT builds, Operations tests, sends it back — over and over. Weeks.');
+      await demoSetCaption('The old way', 'Before, any change went through IT: write a spec, wait for a build, test, send it back — for weeks.');
     },
     async () => {
-      await demoSetCaption('Charlie is the product', 'Now Operations owns the app. Write the rules, test on real examples, improve the LLM — all inside Charlie. IT only handles the backend.');
+      await demoSetCaption('The Charlie way', 'Now the people who use Charlie improve it themselves — every day, no hand-offs, no waiting.');
     },
     // ── CHAPTER 3 ──────────────────────────────────────────────────
     async () => {
