@@ -5182,7 +5182,38 @@ function buildDemoSteps() {
       if (claimEl) claimEl.value = '18750';
       await demoSetCaption('You stay in control', 'Nothing is locked. The handler can adjust any field before the file moves on.');
     },
+    // Document rename — a concrete self-learning example
     async () => {
+      switchToTab(3);
+      if (!editMode) toggleEditMode();
+      renderDocTableEditable();
+      await new Promise(r => setTimeout(r, 250));
+      const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
+      const polisRow = rows.find(tr => {
+        const d = documents[parseInt(tr.dataset.docIdx)];
+        return d && (d.docType || d.type || '').toLowerCase().includes('polis');
+      }) || rows[1];
+      const nameInput = polisRow && polisRow.querySelector('input[data-field="name"]');
+      if (nameInput) {
+        polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        demoSpotlight(nameInput);
+        const base = nameInput.value;
+        const suffix = ' — ingang 25/06/2023';
+        nameInput.focus();
+        for (let i = 0; i < suffix.length; i++) {
+          if (demoState.abort || demoState.advance || demoState.back) { nameInput.value = base + suffix; break; }
+          nameInput.value = base + suffix.slice(0, i + 1);
+          await new Promise(r => setTimeout(r, 60));
+        }
+      }
+      await demoSetCaption('Correct it once', 'This document is the policy. The handler renames it to add the start date — “polis brandverzekering — ingang 25/06/2023”.');
+    },
+    // The payoff — the model learns the correction
+    async () => {
+      await demoSetCaption('Charlie learns it', 'Next time a policy comes in, Charlie adds its start date by itself. One correction by the handler, applied to every file that follows.');
+    },
+    async () => {
+      demoClearSpotlight();
       pushToBuildex();
       await demoSetCaption('One click onward', 'One click sends the file to BuildeX II — and every correction is remembered, so Charlie keeps getting better.');
     },
