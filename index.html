@@ -4991,6 +4991,52 @@ function demoShowChoice() {
   document.getElementById('choiceScreen').classList.add('visible');
 }
 
+// Restore the correct base "scene" for a step, so navigating BACK shows the
+// right view (not just the right caption). Only toggles visibility — never
+// calls the reset-heavy openers, so tune/reply state survives back-nav.
+function demoScene(tag) {
+  if (!tag) return;
+  const choice = document.getElementById('choiceScreen');
+  const reply = document.getElementById('replyView');
+  const tune = document.getElementById('tuneView');
+  const concept = document.getElementById('conceptView');
+  const push = document.getElementById('pushOverlay');
+  // Close overlays that don't belong to this scene
+  if (tag !== 'tune' && tune) tune.classList.remove('visible');
+  if (tag !== 'concept' && concept) concept.classList.remove('visible');
+  if (push) push.classList.remove('open'); // steps re-open the push modal in their body
+  if (tag === 'choice') {
+    if (reply) reply.classList.remove('visible');
+    if (choice) choice.classList.add('visible');
+  } else if (tag === 'reply') {
+    if (choice) choice.classList.remove('visible');
+    showBuildex();
+    if (reply) reply.classList.add('visible');
+  } else {
+    // buildex / tune / concept all sit on the buildex base
+    if (choice) choice.classList.remove('visible');
+    if (reply) reply.classList.remove('visible');
+    showBuildex();
+    if (tag === 'tune' && tune) tune.classList.add('visible');
+    if (tag === 'concept' && concept) concept.classList.add('visible');
+  }
+}
+
+// Scene tag per demo step (index-aligned with buildDemoSteps()). Keep in sync
+// when adding/removing steps.
+const DEMO_SCENES = [
+  'choice', 'choice', 'choice',                                   // 0-2  hook
+  'buildex', 'buildex', 'buildex', 'buildex',                     // 3-6  build the file
+  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 7-11 proof
+  'buildex', 'buildex', 'buildex',                                // 12-14 control + rename + learn
+  'buildex', 'buildex',                                           // 15-16 push modal + the shift
+  'tune', 'tune', 'tune',                                         // 17-19 self-service tuning
+  'concept', 'concept',                                           // 20-21 the "tuning the tool" slide
+  'choice',                                                       // 22 second job
+  'reply', 'reply', 'reply', 'reply',                             // 23-26 replies
+  'choice'                                                        // 27 close
+];
+
 async function demoWaitForTypewriter() {
   const wrapper = document.getElementById('buildexForm');
   await new Promise(r => setTimeout(r, 400));
@@ -5308,6 +5354,7 @@ async function runDemoFilm() {
   overlay.classList.add('active');
   const steps = buildDemoSteps();
   demoState.total = steps.length;
+  if (DEMO_SCENES.length !== steps.length) console.warn('[Demo] DEMO_SCENES out of sync', DEMO_SCENES.length, steps.length);
   let i = 0;
   while (i < steps.length && !demoState.abort) {
     demoState.step = i + 1;
@@ -5315,6 +5362,7 @@ async function runDemoFilm() {
     demoState.back = false;
     typewriterAbort = false;
     document.getElementById('demoSceneLabel').textContent = `${i + 1} / ${steps.length}`;
+    try { demoScene(DEMO_SCENES[i]); } catch (e) { console.error('[Demo] scene error:', e); }
     const baseMs = demoVirtualMs();
     try { await steps[i](); } catch (e) { console.error('[Demo] step error:', e); }
     if (demoState.abort) break;
