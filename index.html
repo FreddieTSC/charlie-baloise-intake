@@ -5421,18 +5421,29 @@ function buildDemoSteps() {
       demoChapter('It keeps learning', 'Improve the email tool', 'Every correction the handler makes tunes the next reply — automatically.');
     },
     async () => {
-      demoClearSpotlight();
+      // start clean so the live save lands on exactly "1 learned"
+      try { saveReplyCorrections([]); updateLearnedCount(); } catch (e) {}
+      const learnBtn = document.getElementById('replyLearnBtn');
+      if (learnBtn) { learnBtn.classList.remove('saved'); learnBtn.innerHTML = '💾 Opslaan &amp; leren'; }
       const ta = document.getElementById('replyTextarea');
-      if (ta) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
+      if (ta && !/Team CED Schaderegeling/.test(ta.value)) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
       const cm = document.getElementById('replyComment');
-      if (cm) cm.value = 'Always close with the team name.';
-      await demoSetCaption('It learns your style', 'The handler tweaks it once and saves — and Charlie remembers the house style for next time.');
-      try {
-        const corr = loadReplyCorrections();
-        corr.unshift({ timestamp: new Date().toISOString(), mailExcerpt: '', detectedType: 'verslag', correctedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, finalReply: ta ? ta.value : '', comment: cm ? cm.value : '' });
-        saveReplyCorrections(corr); updateLearnedCount();
-        showToast('Saved — Charlie learns from this', 'success');
-      } catch (e) {}
+      if (cm) cm.value = '';
+      await demoSetCaption('It learns your style', 'The handler tweaks the reply, adds a note — “Always close with the team name.” — and clicks Save & learn.');
+      // type the note for a live feel
+      if (cm) {
+        const note = 'Always close with the team name.';
+        for (let i = 0; i < note.length; i++) {
+          if (demoState.abort || demoState.advance || demoState.back) { cm.value = note; break; }
+          cm.value = note.slice(0, i + 1);
+          await new Promise(r => setTimeout(r, 32));
+        }
+        cm.value = note;
+      }
+      // LIVE: spotlight and actually fire the real "Save & learn" button
+      if (learnBtn) { learnBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); demoSpotlight(learnBtn); }
+      await new Promise(r => setTimeout(r, 500));
+      if (typeof saveReplyCorrection === 'function') saveReplyCorrection();
     },
     async () => {
       await demoSetCaption('Every correction counts', 'Both jobs improve the same way: each correction makes the next file and the next reply better.');
@@ -5699,6 +5710,8 @@ const I18N = {
   "Opmerking voor Charlie (optioneel) — bv. waarom paste je het antwoord aan?": { en: "Note for Charlie (optional) — e.g. why did you change the answer?", fr: "Remarque pour Charlie (facultatif) — p. ex. pourquoi avez-vous modifié la réponse ?" },
   "Nieuwe mail": { en: "New email", fr: "Nouvel e-mail" },
   "💾 Opslaan & leren": { en: "💾 Save & learn", fr: "💾 Enregistrer & apprendre" },
+  "✓ Opgeslagen": { en: "✓ Saved", fr: "✓ Enregistré" },
+  "Correctie opgeslagen — Charlie leert hiervan": { en: "Correction saved — Charlie learns from this", fr: "Correction enregistrée — Charlie en tire des leçons" },
   "📋 Kopiëren": { en: "📋 Copy", fr: "📋 Copier" },
   "Geen automatisch antwoord beschikbaar": { en: "No automatic answer available", fr: "Aucune réponse automatique disponible" },
   "Deze mail komt niet overeen met een bekend vraagtype. Beoordeel de mail hieronder zelf.": { en: "This email does not match a known question type. Review the email below yourself.", fr: "Cet e-mail ne correspond à aucun type connu. Évaluez l'e-mail ci-dessous vous-même." },
