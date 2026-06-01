@@ -910,7 +910,7 @@ body {
 
 /* the loop band (today) */
 .loop-band {
-  position: absolute; left: 43%; right: 118px; top: -4px; bottom: 6px;
+  position: absolute; left: 43%; right: 118px; top: -24px; bottom: 6px;
   border: 2px dashed #E0975F; border-radius: 16px; background: rgba(224,151,90,0.06); z-index: 1;
   pointer-events: none; animation: loopPulse 2.6s ease-in-out infinite;
 }
@@ -2014,34 +2014,34 @@ textarea.form-input { resize: vertical; min-height: 60px; }
 
 /* Confidence indicators */
 .confidence-low {
-  border: 1.5px solid #ED8936 !important;
-  background: #FFE2C2 !important;
-  box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.22) !important;
+  border: 2px solid #EA580C !important;
+  background: #FFD4AB !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.34) !important;
   color: #7C2D12 !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   animation: confidencePulse 1.8s ease-in-out infinite;
 }
 .confidence-medium {
-  border: 1.5px solid #E0A93C !important;
-  background: #FFF1CC !important;
-  box-shadow: 0 0 0 3px rgba(224, 169, 60, 0.18) !important;
+  border: 2px solid #F59E0B !important;
+  background: #FFE3B5 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.26) !important;
   color: #92400E !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 @keyframes confidencePulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.18) !important; }
-  50% { box-shadow: 0 0 0 5px rgba(237, 137, 54, 0.40) !important; }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.30) !important; }
+  50% { box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.52) !important; }
 }
 /* Confidence tooltip */
 .confidence-low[title], .confidence-medium[title] { cursor: help; }
 /* Partijen table confidence */
 .partijen-table td.confidence-low {
-  border: 1.5px solid #ED8936;
-  background: #FFE2C2;
+  border: 2px solid #EA580C;
+  background: #FFD4AB;
 }
 .partijen-table td.confidence-medium {
-  border: 1.5px solid #E0A93C;
-  background: #FFF1CC;
+  border: 2px solid #F59E0B;
+  background: #FFE3B5;
 }
 /* Confidence badge in meta bar */
 .confidence-badge {
