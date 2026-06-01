@@ -2950,19 +2950,19 @@ select.dropdown-active {
           <div class="ctl-rail"></div>
 
           <div class="station ops">
-            <div class="card"><div class="ct">Write the rule</div><div class="cs">In plain language</div></div>
+            <div class="card"><div class="ct">Use it</div><div class="cs">day to day</div></div>
             <span class="node"></span>
           </div>
           <div class="station ops">
-            <div class="card"><div class="ct">Test on examples</div><div class="cs">Instantly, in-app</div></div>
+            <div class="card"><div class="ct">Spot what’s off</div><div class="cs">while reviewing</div></div>
             <span class="node"></span>
           </div>
           <div class="station ops">
-            <div class="card"><div class="ct">Improve</div><div class="cs">Fine-tune the LLM</div></div>
+            <div class="card"><div class="ct">Fix it</div><div class="cs">a name, a field</div></div>
             <span class="node"></span>
           </div>
           <div class="station ops">
-            <div class="card"><div class="ct">Go live</div><div class="cs">No deploy, no wait</div></div>
+            <div class="card"><div class="ct">It learns</div><div class="cs">better next time</div></div>
             <span class="node"></span>
           </div>
 
@@ -5116,21 +5116,15 @@ function demoScene(tag) {
 // Scene tag per demo step (index-aligned with buildDemoSteps()). Keep in sync
 // when adding/removing steps.
 const DEMO_SCENES = [
-  'choice', 'choice', 'choice',                                   // 0-2  hook
-  'chapter',                                                      // 3   C1 · Auto-create new files
-  'buildex', 'buildex', 'buildex', 'buildex',                     // 4-7  build the file
-  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 8-12 proof
-  'buildex', 'buildex',                                           // 13-14 you're in control + send
-  'chapter',                                                      // 15  C2 · Improve the tool
-  'buildex', 'buildex',                                           // 16-17 just fix it + it learned
-  'tune',                                                         // 18  change it on purpose
-  'concept', 'concept',                                           // 19-20 the timeline slide
-  'chapter',                                                      // 21  C3 · Generate auto-replies
-  'choice',                                                       // 22  second job
-  'reply', 'reply',                                               // 23-24 customer writes + answer
-  'chapter',                                                      // 25  C4 · Improve the email tool
-  'reply', 'reply',                                               // 26-27 learns style + every correction
-  'choice'                                                        // 28  close
+  'choice', 'choice',                                             // 0-1  opening (problem + meet Charlie)
+  'chapter',                                                      // 2   ACT 1 · Charlie builds the file
+  'buildex', 'buildex', 'buildex', 'buildex', 'buildex',          // 3-7  drop+fill, complete, everything, control, send
+  'chapter',                                                      // 8   ACT 2 · Charlie answers the mail
+  'reply', 'reply',                                               // 9-10 customer writes + answer
+  'chapter',                                                      // 11  ACT 3 · It gets better every day
+  'reply', 'reply',                                               // 12-13 you tweak it learns + same for files
+  'concept', 'concept',                                           // 14-15 the timeline slide
+  'choice'                                                        // 16  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5242,183 +5236,78 @@ function demoCloseConcept() { document.getElementById('conceptView').classList.r
 // Each step sets up its caption/animation, then the engine waits for the user to click Next.
 function buildDemoSteps() {
   return [
-    // ── 1 · HOOK / PROBLEM ─────────────────────────────────────────
+    // ── OPENING ────────────────────────────────────────────────────
     async () => {
-      demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('The problem', 'Every claim starts the same way: a handler reads the insurer’s e-mail and PDFs, then retypes it all into the system — ten minutes per file.');
-    },
-    async () => {
-      await demoSetCaption('At scale', 'Across a team that’s days of typing every week — slow, costly and easy to get wrong. All before the real work begins.');
+      await demoSetCaption('The problem', 'Every claim starts the same way: read the insurer’s e-mail and PDFs, then retype it all. Ten minutes a file — before the real work even begins.');
     },
     async () => {
       const cards = document.querySelectorAll('.choice-card');
       if (cards[0]) demoSpotlight(cards[0]);
-      await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail. Let’s watch.');
+      await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail.');
     },
-    // ── CHAPTER 1 ──────────────────────────────────────────────────
+    // ── ACT 1 · CHARLIE BUILDS THE FILE ────────────────────────────
     async () => {
-      demoChapter('Function 01', 'Auto-create new files', 'Drop the insurer’s assignment — Charlie builds the whole claim file in seconds.');
+      demoChapter('Function 01', 'Charlie builds the file', 'Drop the insurer’s assignment — the whole claim file, in seconds.');
     },
-    // ── 2 · SOLUTION — BUILD THE FILE ──────────────────────────────
     async () => {
-      demoClearSpotlight();
       chooseDossier();
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
-      await demoSetCaption('One assignment in', 'The handler simply drops the insurer’s assignment — the .msg with all its PDFs — straight onto Charlie.');
-    },
-    async () => {
+      await demoSetCaption('One drop in', 'The handler drops the .msg with all its PDFs. Charlie reads every page and fills the file itself.');
       demoClearSpotlight();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });
         demoState.parsed = true;
-        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
-        // Let the typewriter run visibly; wait for it to finish or for user to click Next
         await demoWaitForTypewriter();
       } else {
         showBuildex();
-        await demoSetCaption('Charlie reads everything', 'It opens the e-mail and every attachment and fills the whole file — claimant, policy, insurer, broker, amounts and documents.');
       }
     },
     async () => {
       switchToTab(0);
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
-      await demoSetCaption('A complete file', 'Seconds later: a full claim file — with a clear, plain-language summary of what happened.');
-    },
-    async () => {
-      demoClearSpotlight();
-      const hdr = document.querySelector('.buildex-header'); if (hdr) demoSpotlight(hdr);
-      await demoSetCaption('Minutes become seconds', 'Ten minutes of manual typing — gone. The handler now reviews, instead of retypes.');
-    },
-    // ── 3 · PROOF — TRUSTWORTHY & COMPLETE ─────────────────────────
-    async () => {
-      switchToTab(1);
-      applyConfidenceHighlights();
-      const lc = document.getElementById('fSchadebedrag');
-      if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
-      await demoSetCaption('Honest about doubt', 'Where Charlie is unsure, the field turns orange. No silent mistakes — the eye goes straight to what needs a second look.');
-    },
-    async () => {
-      demoClearSpotlight();
-      await demoSetCaption('Confidence, per field', 'That certainty comes from the model itself, field by field — so the handler checks only what matters.');
-    },
-    async () => {
-      switchToTab(1);
-      const t = document.getElementById('partijenTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Everyone involved', 'Insurer, broker and expert — captured together, and editable with smart lookup lists.');
+      await demoSetCaption('A complete file', 'Seconds later: the whole file is filled — with a clear, plain-language summary of what happened.');
     },
     async () => {
       switchToTab(3);
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
-      await demoSetCaption('Renamed and filed', 'Every attachment gets a clean, consistent name and lands in the right category — “aangifte.pdf” becomes a labelled claim form, “factuur.pdf” an invoice with its € amount. Compare the Document and Source columns.');
-    },
-    async () => {
-      switchToTab(8);
-      const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
-      await demoSetCaption('The photos', 'Damage photos pulled straight from the e-mail — ready in the file.');
+      await demoSetCaption('Everything’s in there', 'Parties, documents — renamed and sorted — and the damage photos: all pulled straight from the e-mail.');
     },
     async () => {
       switchToTab(1);
-      demoClearSpotlight();
+      applyConfidenceHighlights();
       if (!editMode) toggleEditMode();
-      const claimEl = document.getElementById('fClaim');
-      if (claimEl) claimEl.value = '18750';
-      await demoSetCaption('You stay in control', 'Nothing is locked. The handler reviews and adjusts any field before the file moves on.');
+      const lc = document.getElementById('fSchadebedrag');
+      if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
+      await demoSetCaption('You stay in control', 'Where Charlie is unsure, the field turns orange. Nothing’s locked — the handler reviews and adjusts anything first.');
     },
     async () => {
-      demoClearSpotlight();
       pushToBuildex();
-      await demoSetCaption('One click onward', 'One click sends the finished file to BuildeX II. Done.');
+      await demoSetCaption('One click onward', 'Then one click sends the finished file to BuildeX II. Done.');
     },
-    // ── CHAPTER 2 ──────────────────────────────────────────────────
+    // ── ACT 2 · CHARLIE ANSWERS THE MAIL ───────────────────────────
     async () => {
-      demoChapter('No double work', 'Improve the tool', 'You never train Charlie separately. The corrections you already make improve it — automatically, no IT.');
-    },
-    // Self-learning: a normal correction trains the tool
-    async () => {
-      closePushModal();
-      switchToTab(3);
-      if (!editMode) toggleEditMode();
-      renderDocTableEditable();
-      await new Promise(r => setTimeout(r, 250));
-      const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
-      const polisRow = rows.find(tr => {
-        const d = documents[parseInt(tr.dataset.docIdx)];
-        return d && (d.docType || d.type || '').toLowerCase().includes('polis');
-      }) || rows[1];
-      const nameInput = polisRow && polisRow.querySelector('input[data-field="name"]');
-      if (nameInput) {
-        polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        demoSpotlight(nameInput);
-        const suffix = ' — start polis 25/06/2023';
-        const base = nameInput.value.replace(/\s*—\s*(start polis|ingang)\b.*$/i, '').trim();
-        nameInput.value = base;
-        nameInput.focus();
-        for (let i = 0; i < suffix.length; i++) {
-          if (demoState.abort || demoState.advance || demoState.back) { nameInput.value = base + suffix; break; }
-          nameInput.value = base + suffix.slice(0, i + 1);
-          await new Promise(r => setTimeout(r, 60));
-        }
-      }
-      await demoSetCaption('Just fix it', 'While reviewing, the handler renames the policy document to add its start date — a normal correction, nothing more.');
+      demoChapter('Function 02', 'Charlie answers the mail', 'The routine questions that flood every team — drafted in one click.');
     },
     async () => {
-      const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
-      const polisRow = rows.find(tr => { const d = documents[parseInt(tr.dataset.docIdx)]; return d && (d.docType || d.type || '').toLowerCase().includes('polis'); });
-      const ni = polisRow && polisRow.querySelector('input[data-field="name"]');
-      if (ni) demoSpotlight(ni);
-      await demoSetCaption('…and it learned', 'That fix wasn’t extra work — it taught Charlie. Next time, it adds the policy start date itself. Fixing the file and improving the tool are the same action.');
-    },
-    // Self-service rule — write + test in one beat
-    async () => {
-      demoOpenTune();
-      demoTuneSwitchTab('dossier');
-      const ta = document.getElementById('tuneNewRule');
-      ta.value = 'For Baloise: take the claim reference from the subject line, after "SIN-".';
-      demoTuneAddRule(ta.value, 'dossier');
-      demoTuneRunTestInstant();
-      await demoSetCaption('Or change it on purpose', 'Want a bigger change? Write the rule yourself in plain language — tested on real examples and live in minutes. No IT ticket.');
-    },
-    async () => {
-      demoCloseTune();
-      demoOpenConcept();
-      await demoSetCaption('The old way', 'Before, any change went through IT: write a spec, wait for a build, test, send it back — for weeks.');
-    },
-    async () => {
-      await demoSetCaption('The Charlie way', 'Now the people who use Charlie improve it themselves — every day, no hand-offs, no waiting.');
-    },
-    // ── CHAPTER 3 ──────────────────────────────────────────────────
-    async () => {
-      demoChapter('Function 02', 'Generate auto-replies', 'Charlie reads the routine mail and drafts the right answer — ready to send.');
-    },
-    // ── 5 · SECOND FUNCTION — REPLIES ──────────────────────────────
-    async () => {
-      demoCloseConcept();
-      demoShowChoice();
-      const cards = document.querySelectorAll('.choice-card');
-      if (cards[1]) demoSpotlight(cards[1]);
-      await demoSetCaption('The second job', 'Now the other time-sink: the routine mail that floods every team, every day.');
-    },
-    async () => {
-      demoClearSpotlight();
       chooseReply();
       document.getElementById('replyDrop').style.display = 'none';
       document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
       document.getElementById('replyMailPreview').classList.add('visible');
-      await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — exactly the kind of question that comes in over and over.');
+      await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — the kind of question that comes in over and over.');
     },
     async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
       const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
-      await demoSetCaption('The answer, instantly', 'Charlie recognises the question and drafts the right reply — ready to send.');
+      await demoSetCaption('The answer, instantly', 'Charlie recognises it and drafts the right reply — ready to send.');
     },
-    // ── CHAPTER 4 ──────────────────────────────────────────────────
+    // ── ACT 3 · IT GETS BETTER EVERY DAY ───────────────────────────
     async () => {
-      demoChapter('It keeps learning', 'Improve the email tool', 'Every correction the handler makes tunes the next reply — automatically.');
+      demoChapter('No IT', 'It gets better every day', 'Every correction you make teaches Charlie — automatically.');
     },
     async () => {
       // start clean so the live save lands on exactly "1 learned"
@@ -5429,7 +5318,7 @@ function buildDemoSteps() {
       if (ta && !/Team CED Schaderegeling/.test(ta.value)) ta.value = REPLY_TEMPLATES.verslag.text + '\nTeam CED Schaderegeling';
       const cm = document.getElementById('replyComment');
       if (cm) cm.value = '';
-      await demoSetCaption('It learns your style', 'The handler tweaks the reply, adds a note — “Always close with the team name.” — and clicks Save & learn.');
+      await demoSetCaption('You tweak, it learns', 'The handler adjusts the reply, adds a note — “Always close with the team name.” — and clicks Save & learn.');
       // type the note for a live feel
       if (cm) {
         const note = 'Always close with the team name.';
@@ -5446,14 +5335,20 @@ function buildDemoSteps() {
       if (typeof saveReplyCorrection === 'function') saveReplyCorrection();
     },
     async () => {
-      await demoSetCaption('Every correction counts', 'Both jobs improve the same way: each correction makes the next file and the next reply better.');
+      await demoSetCaption('The same for every file', 'Fix a name or a field on a file, and it learns that too. Correcting and improving are one and the same — no extra work.');
     },
-    // ── 6 · CLOSE / CTA ────────────────────────────────────────────
+    async () => {
+      demoOpenConcept();
+      await demoSetCaption('The old way', 'Improving a tool used to mean a trip through IT: spec it, build it, test it, send it back — for weeks.');
+    },
+    async () => {
+      await demoSetCaption('The Charlie way', 'Now the people who use it improve it — every day, no hand-offs, no IT.');
+    },
+    // ── CLOSE ──────────────────────────────────────────────────────
     async () => {
       demoRestoreLs(); updateLearnedCount();
-      demoClearSpotlight();
       demoShowChoice();
-      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Improved every day by the people who use it — no IT in the loop. Where shall we start?');
+      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Better every day — by the people who use it, with no IT in the loop.');
     }
   ];
 }
