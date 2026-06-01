@@ -866,6 +866,20 @@ body {
 .foundation .fkicker { font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6B86; white-space: nowrap; }
 .foundation .ftext { font-family: 'Inter', sans-serif; font-size: 12px; color: #6B7790; font-weight: 500; font-style: italic; }
 
+/* self-tuning callout (charlie) */
+.autotune {
+  display: flex; align-items: center; gap: 11px;
+  margin: 2px 0 14px 2px; padding: 9px 15px;
+  border: 1px solid #BBE5C7; border-radius: 11px; background: rgba(134,188,52,0.10);
+}
+.autotune-ic {
+  flex-shrink: 0; font-size: 17px; font-weight: 800; color: #1B7A3D; line-height: 1;
+  animation: autotuneSpin 5s linear infinite;
+}
+@keyframes autotuneSpin { to { transform: rotate(360deg); } }
+.autotune-tx { font-family: 'Inter', sans-serif; font-size: 12.5px; color: #235E33; font-weight: 500; line-height: 1.35; }
+.autotune-tx b { color: #1B7A3D; font-weight: 800; }
+
 @media (max-width: 900px) {
   .concept-title { font-size: 26px; }
   .ctl-flow { overflow-x: auto; }
@@ -2852,6 +2866,10 @@ select.dropdown-active {
       <div class="ctl-head">
         <span class="ctl-kicker">With Charlie</span>
         <span class="ctl-title">Operations owns it end-to-end — IT just runs the platform</span>
+      </div>
+      <div class="autotune">
+        <span class="autotune-ic">↻</span>
+        <span class="autotune-tx"><b>It tunes itself.</b> The prompt to the LLM improves automatically — every correction makes the next file better, just by using the tool.</span>
       </div>
       <div class="ctl-body">
         <div class="ctl-lanes">
