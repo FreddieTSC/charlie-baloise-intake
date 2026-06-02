@@ -2676,7 +2676,7 @@ select.dropdown-active {
 <!-- ===== SPLASH SCREEN ===== -->
 <div class="splash" id="splashScreen" onclick="dismissSplash()">
   <div class="splash-logo">Ch<span class="ai-reveal" id="logoA">a</span>rl<span class="ai-reveal" id="logoI">i</span>e<span class="dot">.</span></div>
-  <div class="splash-subtitle" id="splashSubtitle"><span class="splash-cursor" id="splashCursor"></span></div>
+  <div class="splash-subtitle" id="splashSubtitle"><span class="splash-cursor" id="splashCursor" style="display:none"></span></div>
   <div class="splash-hint" id="splashHint">klik om verder te gaan</div>
 </div>
 
@@ -8005,13 +8005,23 @@ console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
 
 // ========== SPLASH SCREEN ==========
 let splashDismissed = false;
+let splashStage = 0; // 0 = only the "Charlie." logo; 1 = subtitle revealed → next click enters
 
 // Clean up any stale demo-autostart flag from older versions (demo now runs in-place, no reload)
 try { sessionStorage.removeItem('charlie_demo_autostart'); } catch (e) {}
 
+// Stage 0: show just the logo; nudge to click after a short beat
+setTimeout(() => { if (!splashDismissed && splashStage === 0) document.getElementById('splashHint').classList.add('visible'); }, 1100);
+
 function dismissSplash() {
   if (splashDismissed) return;
-  splashDismissed = true;
+  if (splashStage === 0) {            // first click: reveal the subtitle, stay on the splash
+    splashStage = 1;
+    document.getElementById('splashHint').classList.remove('visible');
+    runSplashSubtitle();
+    return;
+  }
+  splashDismissed = true;             // next click: enter the app
   document.getElementById('splashScreen').classList.add('hidden');
   // Show the mode choice screen
   setTimeout(() => document.getElementById('choiceScreen').classList.add('visible'), 300);
@@ -8034,11 +8044,12 @@ function backToChoice() {
   document.getElementById('choiceScreen').classList.add('visible');
 }
 
-(async function splashTypewriter() {
+async function runSplashSubtitle() {
   const subtitle = document.getElementById('splashSubtitle');
   const cursor = document.getElementById('splashCursor');
   const hint = document.getElementById('splashHint');
   const d = ms => new Promise(r => setTimeout(r, ms));
+  cursor.style.display = 'inline-block'; // reveal the typing cursor now that the subtitle starts
 
   async function typeChars(str, speed = 70) {
     for (const ch of str) {
@@ -8064,7 +8075,7 @@ function backToChoice() {
     }
   }
 
-  await d(600);
+  await d(150);
 
   // 1. Type "Virtual companion"
   await typeChars('Virtual companion');
@@ -8113,10 +8124,10 @@ function backToChoice() {
   await d(200);
   if (!splashDismissed) document.getElementById('logoI').classList.add('active');
 
-  // 9. Show click hint
+  // 9. Show click hint (now prompts the click that enters the app)
   await d(800);
   if (!splashDismissed) hint.classList.add('visible');
-})();
+}
 </script>
 </body>
 </html>
