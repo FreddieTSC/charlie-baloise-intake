@@ -803,6 +803,95 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 }
 .tune-test-summary.show { opacity: 1; }
 
+/* ========== MOCK OUTLOOK (demo: drag-from-outlook flow) ========== */
+.mock-outlook {
+  position: fixed; inset: 0; z-index: 8600;
+  background: rgba(28, 5, 79, 0.35);
+  backdrop-filter: blur(3px);
+  display: none; align-items: center; justify-content: center;
+  padding: 40px;
+}
+.mock-outlook.visible { display: flex; }
+.mock-outlook.visible .mo-window {
+  animation: moSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes moSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.mo-window {
+  width: 960px; max-width: 96vw; height: 520px; max-height: 72vh;
+  background: #fff; border-radius: 8px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column;
+}
+.mo-titlebar {
+  background: #0F6CBD; color: #fff; padding: 7px 16px;
+  display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600;
+}
+.mo-titlebar .mo-dots { display: flex; gap: 6px; margin-left: auto; }
+.mo-titlebar .mo-dots span { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+.mo-body { display: flex; flex: 1; min-height: 0; }
+.mo-sidebar {
+  width: 200px; background: #F3F2F1; border-right: 1px solid #E1DFDD;
+  padding: 12px 0; font-size: 12px; color: #323130;
+}
+.mo-folder { padding: 6px 16px; cursor: default; display: flex; align-items: center; gap: 8px; }
+.mo-folder.active { background: #EDEBE9; font-weight: 600; }
+.mo-folder .mo-fi { font-size: 14px; }
+.mo-list {
+  width: 300px; border-right: 1px solid #E1DFDD; overflow-y: auto;
+}
+.mo-list-header {
+  padding: 10px 14px; font-size: 12px; font-weight: 600; color: #605E5C;
+  border-bottom: 1px solid #E1DFDD; background: #FAFAFA;
+}
+.mo-mail {
+  padding: 10px 14px; border-bottom: 1px solid #F3F2F1;
+  cursor: pointer; transition: background 0.15s;
+}
+.mo-mail:hover { background: #F3F2F1; }
+.mo-mail.selected { background: #EBF3FC; border-left: 3px solid #0F6CBD; }
+.mo-mail .mo-from { font-size: 12px; font-weight: 600; color: #323130; }
+.mo-mail .mo-subj { font-size: 12px; color: #605E5C; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mo-mail .mo-date { font-size: 11px; color: #A19F9D; margin-top: 2px; }
+.mo-mail .mo-att { font-size: 10px; color: #0F6CBD; margin-top: 3px; }
+.mo-preview {
+  flex: 1; padding: 20px 24px; overflow-y: auto; font-size: 13px; color: #323130;
+}
+.mo-preview h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; color: #201F1E; }
+.mo-preview .mo-meta { font-size: 12px; color: #605E5C; margin-bottom: 16px; line-height: 1.6; }
+.mo-preview .mo-attachments {
+  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.mo-preview .mo-att-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: #F3F2F1; border: 1px solid #E1DFDD; border-radius: 4px;
+  padding: 6px 12px; font-size: 12px; color: #323130; cursor: grab;
+}
+.mo-preview .mo-att-chip .mo-att-icon { color: #0F6CBD; font-size: 16px; }
+.mo-preview .mo-mail-body { line-height: 1.6; white-space: pre-wrap; }
+.demo-msg-drag {
+  position: fixed; z-index: 8700;
+  width: 72px; display: flex; flex-direction: column; align-items: center;
+  gap: 4px; pointer-events: none;
+  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.demo-msg-drag .msg-icon {
+  width: 52px; height: 64px; background: #fff; border: 2px solid #0F6CBD;
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18); font-size: 13px; font-weight: 700; color: #0F6CBD;
+}
+.demo-msg-drag .msg-label {
+  font-size: 9px; color: #605E5C; text-align: center; white-space: nowrap;
+  max-width: 90px; overflow: hidden; text-overflow: ellipsis;
+  font-family: 'Inter', sans-serif;
+}
+.demo-msg-drag.flying {
+  transform: scale(0.85);
+  filter: drop-shadow(0 12px 32px rgba(15, 108, 189, 0.3));
+}
+
 /* ========== CONCEPT SLIDE (new way of working — demo) ========== */
 .concept-view {
   position: fixed;
@@ -2883,6 +2972,90 @@ select.dropdown-active {
   </div>
 </div>
 
+<!-- ===== MOCK OUTLOOK (demo: drag-from-outlook flow) ===== -->
+<div class="mock-outlook" id="mockOutlook">
+  <div class="mo-window">
+    <div class="mo-titlebar">
+      <span>&#9993;</span> <span>Outlook</span> &mdash; <span style="font-weight:400; opacity:.8">Postvak IN</span>
+      <div class="mo-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="mo-body">
+      <div class="mo-sidebar">
+        <div class="mo-folder active"><span class="mo-fi">&#128229;</span> Postvak IN</div>
+        <div class="mo-folder"><span class="mo-fi">&#128228;</span> Verzonden</div>
+        <div class="mo-folder"><span class="mo-fi">&#128193;</span> Baloise</div>
+        <div class="mo-folder"><span class="mo-fi">&#128193;</span> AXA</div>
+        <div class="mo-folder"><span class="mo-fi">&#128193;</span> AG Insurance</div>
+        <div class="mo-folder"><span class="mo-fi">&#128465;</span> Verwijderd</div>
+      </div>
+      <div class="mo-list">
+        <div class="mo-list-header">Vandaag</div>
+        <div class="mo-mail selected" id="moMail1">
+          <div class="mo-from">Deborah De Poorter</div>
+          <div class="mo-subj">26-555513 opdracht baloise</div>
+          <div class="mo-date">15:38</div>
+          <div class="mo-att">&#128206; 2 bijlagen (5 MB)</div>
+        </div>
+        <div class="mo-mail">
+          <div class="mo-from">BE - CED - RMEA</div>
+          <div class="mo-subj">FW: Nieuwe opdracht O.ref.: B2602007</div>
+          <div class="mo-date">14:12</div>
+          <div class="mo-att">&#128206; 1 bijlage</div>
+        </div>
+        <div class="mo-mail">
+          <div class="mo-from">Sofie Van Dyck</div>
+          <div class="mo-subj">Dossier van mijn vriendin</div>
+          <div class="mo-date">11:10</div>
+        </div>
+        <div class="mo-list-header">Gisteren</div>
+        <div class="mo-mail">
+          <div class="mo-from">Deborah De Poorter</div>
+          <div class="mo-subj">26-555407</div>
+          <div class="mo-date">Vr 8/05</div>
+          <div class="mo-att">&#128206; 3 bijlagen</div>
+        </div>
+        <div class="mo-mail">
+          <div class="mo-from">Deborah De Poorter</div>
+          <div class="mo-subj">26-552994</div>
+          <div class="mo-date">Vr 8/05</div>
+          <div class="mo-att">&#128206; 2 bijlagen</div>
+        </div>
+      </div>
+      <div class="mo-preview" id="moPreview">
+        <h3>26-555513 opdracht baloise</h3>
+        <div class="mo-meta">
+          <strong>Deborah De Poorter</strong> &mdash; Operations Coordinator Property Noord<br>
+          Aan: Tiemen Schotsaert &lt;tiemen.schotsaert@ced.be&gt;<br>
+          Wo 06/05/2026 15:38
+        </div>
+        <div class="mo-attachments">
+          <div class="mo-att-chip" id="moAttachment1">
+            <span class="mo-att-icon">&#128231;</span>
+            <span>26-555513 - Nieuwe opdracht wat&hellip;</span>
+          </div>
+          <div class="mo-att-chip">
+            <span class="mo-att-icon">&#128231;</span>
+            <span>26-555513</span>
+          </div>
+        </div>
+        <div class="mo-mail-body">Met vriendelijke groeten,
+Cordialement,
+
+Deborah De Poorter
+Operations Coordinator Property Noord
++32(0)9 280 00 60
+noord@ced.be
+
+CED | Noorderlaan 87 | 2030 Antwerpen</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="demo-msg-drag" id="demoMsgDrag" style="display:none;">
+  <div class="msg-icon">.msg</div>
+  <div class="msg-label">26-555513.msg</div>
+</div>
+
 <!-- ===== CONCEPT SLIDE: new way of working (demo) ===== -->
 <div class="concept-view" id="conceptView">
   <div class="concept-inner">
@@ -4939,7 +5112,7 @@ let demoLsSnapshot = null;
 let demoTicker = null;
 
 // Per-step durations (seconds) — the timed run sums to exactly 360s (6:00)
-const DEMO_SECONDS = [15, 12, 13, 11, 41, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13, 12, 12, 14, 13, 11, 14];
+const DEMO_SECONDS = [15, 12, 13, 11, 10, 8, 41, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13, 12, 12, 14, 13, 11, 14];
 
 // Unpaused milliseconds since the demo started — uses wall-clock timestamps so it
 // stays accurate even when timers are throttled (background tab, slow machine).
@@ -4971,7 +5144,7 @@ function demoBuildChapterTicks() {
   if (!cont) return;
   cont.querySelectorAll('.demo-tick').forEach(t => t.remove());
   const total = DEMO_SECONDS.reduce((a, b) => a + b, 0) || 360;
-  [3, 7, 14, 20, 25].forEach(idx => {
+  [3, 9, 16, 22, 27].forEach(idx => {
     let cum = 0; for (let k = 0; k < idx && k < DEMO_SECONDS.length; k++) cum += DEMO_SECONDS[k];
     const t = document.createElement('span');
     t.className = 'demo-tick';
@@ -5176,6 +5349,11 @@ function demoScene(tag) {
     showBuildex();
     if (tag === 'tune' && tune) tune.classList.add('visible');
     if (tag === 'concept' && concept) concept.classList.add('visible');
+    var outlook = document.getElementById('mockOutlook');
+    if (tag === 'outlook' && outlook) outlook.classList.add('visible');
+    if (tag !== 'outlook' && outlook) outlook.classList.remove('visible');
+    var msgDrag = document.getElementById('demoMsgDrag');
+    if (tag !== 'outlook' && msgDrag) msgDrag.style.display = 'none';
   }
 }
 
@@ -5184,7 +5362,7 @@ function demoScene(tag) {
 const DEMO_SCENES = [
   'choice', 'choice',                                                          // 0-1  opening (problem + meet Charlie)
   'chapter',                                                                   // 2   ACT 1 · Charlie builds the file
-  'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-9 drop, fill, complete, docs, photos, control, send
+  'buildex', 'outlook', 'outlook', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-12 drop, fill, complete, docs, photos, control, send
   'chapter',                                                                   // 10  ACT 2 · Charlie answers the mail
   'reply', 'reply',                                                            // 11-12 customer writes + answer
   'chapter',                                                                   // 13  ACT 3 · It gets better every day
@@ -5299,6 +5477,43 @@ function demoOpenTune() { demoTuneReset(); document.getElementById('tuneView').c
 function demoCloseTune() { document.getElementById('tuneView').classList.remove('visible'); }
 function demoOpenConcept() { document.getElementById('conceptView').classList.add('visible'); }
 function demoCloseConcept() { document.getElementById('conceptView').classList.remove('visible'); }
+// Mock Outlook helpers
+function demoShowOutlook() { document.getElementById('mockOutlook').classList.add('visible'); }
+function demoHideOutlook() { document.getElementById('mockOutlook').classList.remove('visible'); }
+async function demoAnimateMsgDrag() {
+  var att = document.getElementById('moAttachment1');
+  var iz = document.getElementById('intakeZone');
+  var drag = document.getElementById('demoMsgDrag');
+  if (!att || !iz || !drag) return;
+  var attR = att.getBoundingClientRect();
+  drag.style.left = (attR.left + attR.width / 2 - 36) + 'px';
+  drag.style.top = (attR.top + attR.height / 2 - 32) + 'px';
+  drag.style.display = 'flex';
+  drag.style.opacity = '1';
+  drag.style.transition = 'none';
+  drag.classList.remove('flying');
+  void drag.offsetWidth;
+  await new Promise(function(r) { setTimeout(r, 400); });
+  if (demoState.abort || demoState.advance) { drag.style.display = 'none'; return; }
+  demoHideOutlook();
+  await new Promise(function(r) { setTimeout(r, 300); });
+  if (demoState.abort || demoState.advance) { drag.style.display = 'none'; return; }
+  var izR = iz.getBoundingClientRect();
+  drag.style.transition = 'all 1.2s cubic-bezier(0.22, 1, 0.36, 1)';
+  drag.classList.add('flying');
+  drag.style.left = (izR.left + izR.width / 2 - 36) + 'px';
+  drag.style.top = (izR.top + izR.height / 2 - 32) + 'px';
+  iz.classList.add('drag-over');
+  await new Promise(function(r) { setTimeout(r, 1400); });
+  drag.style.opacity = '0';
+  await new Promise(function(r) { setTimeout(r, 400); });
+  drag.style.display = 'none';
+  drag.classList.remove('flying');
+  iz.classList.remove('drag-over');
+  iz.classList.add('processing');
+  await new Promise(function(r) { setTimeout(r, 600); });
+  iz.classList.remove('processing');
+}
 
 // Each step sets up its caption/animation, then the engine waits for the user to click Next.
 function buildDemoSteps() {
@@ -5323,6 +5538,17 @@ function buildDemoSteps() {
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
       await demoSetCaption('One drop in', 'The handler drops the insurer’s .msg — with all its PDFs — straight onto Charlie.');
+    },
+    async () => {
+      // Mock Outlook: show the email where the .msg comes from
+      demoClearSpotlight();
+      demoShowOutlook();
+      await demoSetCaption('From Outlook', 'The assignment arrives as an e-mail \u2014 with the insurer\u2019s PDFs as attachments.');
+    },
+    async () => {
+      // Watch-only: animate the .msg file flying from Outlook to the drop zone
+      demoHideCaption();
+      await demoAnimateMsgDrag();
     },
     async () => {
       // Watch-only: no balloon — just see Charlie type the whole file in
