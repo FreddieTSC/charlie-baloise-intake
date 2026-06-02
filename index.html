@@ -5107,7 +5107,7 @@ let demoLsSnapshot = null;
 let demoTicker = null;
 
 // Per-step durations (seconds) — the timed run sums to exactly 360s (6:00)
-const DEMO_SECONDS = [15, 12, 13, 11, 10, 8, 41, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13, 12, 12, 14, 13, 11, 14];
+const DEMO_SECONDS = [15, 12, 13, 11, 10, 44, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13];
 
 // Unpaused milliseconds since the demo started — uses wall-clock timestamps so it
 // stays accurate even when timers are throttled (background tab, slow machine).
@@ -5139,7 +5139,7 @@ function demoBuildChapterTicks() {
   if (!cont) return;
   cont.querySelectorAll('.demo-tick').forEach(t => t.remove());
   const total = DEMO_SECONDS.reduce((a, b) => a + b, 0) || 360;
-  [3, 9, 16, 22, 27].forEach(idx => {
+  [3, 8, 12, 15].forEach(idx => {
     let cum = 0; for (let k = 0; k < idx && k < DEMO_SECONDS.length; k++) cum += DEMO_SECONDS[k];
     const t = document.createElement('span');
     t.className = 'demo-tick';
@@ -5356,15 +5356,15 @@ function demoScene(tag) {
 // when adding/removing steps.
 const DEMO_SCENES = [
   'choice', 'choice',                                                          // 0-1  opening (problem + meet Charlie)
-  'chapter',                                                                   // 2   ACT 1 · Charlie builds the file
-  'buildex', 'outlook', 'outlook', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-12 drop, fill, complete, docs, photos, control, send
-  'chapter',                                                                   // 10  ACT 2 · Charlie answers the mail
-  'reply', 'reply',                                                            // 11-12 customer writes + answer
-  'chapter',                                                                   // 13  ACT 3 · It gets better every day
-  'reply',                                                                     // 14  you tweak it learns (live save)
-  'buildex',                                                                   // 15  the same for every file (animated rename)
-  'concept', 'concept', 'concept',                                             // 16-18 timeline + "fully automatic"
-  'choice'                                                                     // 19  close
+  'chapter',                                                                   // 2   ACT 1 / Charlie builds the file
+  'buildex', 'outlook', 'outlook', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-10 drop, outlook, drag+fill, complete, docs, photos, control, send
+  'chapter',                                                                   // 11  ACT 2 / Charlie answers the mail
+  'reply', 'reply',                                                            // 12-13 customer writes + answer
+  'chapter',                                                                   // 14  ACT 3 / It gets better every day
+  'reply',                                                                     // 15  you tweak it learns (live save)
+  'buildex',                                                                   // 16  the same for every file (animated rename)
+  'concept', 'concept', 'concept',                                             // 17-19 timeline + fully automatic
+  'choice'                                                                     // 20  close
 ];
 
 async function demoWaitForTypewriter() {
@@ -5541,14 +5541,12 @@ function buildDemoSteps() {
       await demoSetCaption('From Outlook', 'The assignment arrives as an e-mail \u2014 with the insurer\u2019s PDFs as attachments.');
     },
     async () => {
-      // Watch-only: animate the .msg file flying from Outlook to the drop zone
+      // Watch-only: the .msg lands in the drop zone, then the data fills in right away.
       demoHideCaption();
       await demoAnimateMsgDrag();
-    },
-    async () => {
-      // Watch-only: no balloon — just see Charlie type the whole file in
+      if (demoState.back) return;
+      demoHideOutlook();
       demoClearSpotlight();
-      demoHideCaption();
       if (!demoState.parsed) {
         mediaFiles = buildDemoMedia();
         populateFromApiResponse({ data: SAMPLE_DOSSIER });   // typewriter starts immediately
