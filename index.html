@@ -5550,12 +5550,12 @@ function buildDemoSteps() {
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
       await demoSetCaption('A complete file', 'Seconds later: the whole file is filled — with a clear, plain-language summary of what happened.');
     }),
-    // Documents — AI renames each file from its content, live (watch-only, no balloon)
+    // Documents — AI renames each file from its content, live (with a balloon)
     demoStep('buildex', async () => {
-      demoHideCaption();
       switchToTab(3);
       renderDocTable();
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
+      demoSetCaption('Renamed automatically', 'Charlie reads each document and renames it from its content, so the whole file is instantly scannable.');
       await demoRevealDocsWithRename();
     }),
     // Photos — slow reveal, watch-only (no balloon)
