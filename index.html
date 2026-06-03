@@ -5669,7 +5669,7 @@ function buildDemoSteps() {
       document.getElementById('replyDrop').style.display = 'none';
       document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
       document.getElementById('replyMailPreview').classList.add('visible');
-      await demoSetCaption('Trained on the routine', 'Charlie is trained on the most common recurring emails (for example a report request or a follow-up question), so it recognises this one and drafts a reply.');
+      await demoSetCaption('Trained on the routine', 'Charlie is trained on the most common recurring emails, so it recognises this one and drafts a reply.');
     }),
     demoStep('reply', async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
@@ -5752,7 +5752,7 @@ function buildDemoSteps() {
     // ── CLOSE ──────────────────────────────────────────────────────
     demoStep('chapter', async () => {
       demoRestoreLs(); updateLearnedCount();
-      demoChapter('', 'That’s Charlie.', '<span class="end-lead">Less admin. Better quality.</span><br>Automated file creation · smarter replies · better every day — with <span class="dch-hl">no IT in the loop</span>.');
+      demoChapter('', 'That’s Charlie.', '<span class="end-lead">Less admin. Better quality.</span><br>Automated file creation · smarter replies · better every day.');
     })
   ];
 }
