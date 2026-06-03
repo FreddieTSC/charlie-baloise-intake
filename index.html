@@ -5107,7 +5107,7 @@ let demoLsSnapshot = null;
 let demoTicker = null;
 
 // Per-step durations (seconds) — the timed run sums to exactly 360s (6:00)
-const DEMO_SECONDS = [15, 12, 13, 11, 10, 44, 13, 14, 15, 11, 11, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13];
+const DEMO_SECONDS = [15, 12, 13, 11, 10, 44, 13, 14, 15, 11, 9, 10, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13];
 
 // Unpaused milliseconds since the demo started — uses wall-clock timestamps so it
 // stays accurate even when timers are throttled (background tab, slow machine).
@@ -5139,7 +5139,7 @@ function demoBuildChapterTicks() {
   if (!cont) return;
   cont.querySelectorAll('.demo-tick').forEach(t => t.remove());
   const total = DEMO_SECONDS.reduce((a, b) => a + b, 0) || 360;
-  [3, 8, 12, 15].forEach(idx => {
+  [3, 8, 13, 16].forEach(idx => {
     let cum = 0; for (let k = 0; k < idx && k < DEMO_SECONDS.length; k++) cum += DEMO_SECONDS[k];
     const t = document.createElement('span');
     t.className = 'demo-tick';
@@ -5574,8 +5574,12 @@ function buildDemoSteps() {
       await demoSetCaption('You stay in control', 'Where Charlie is unsure, the field turns orange. Nothing’s locked — the handler reviews and adjusts anything first.');
     }),
     demoStep('buildex', async () => {
+      // Reviewed file stays on screen (orange confidence fields visible); the send popup comes on the next click.
+      await demoSetCaption('One click onward', 'Reviewed and ready. One click sends the finished file to BuildeX II.');
+    }),
+    demoStep('buildex', async () => {
       pushToBuildex();
-      await demoSetCaption('One click onward', 'Then one click sends the finished file to BuildeX II. Done.');
+      await demoSetCaption('Done', 'The finished file lands straight in BuildeX II. Done.');
     }),
     // ── ACT 2 · CHARLIE ANSWERS THE MAIL ───────────────────────────
     demoStep('chapter', async () => {
