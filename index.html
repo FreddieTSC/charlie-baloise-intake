@@ -5352,20 +5352,8 @@ function demoScene(tag) {
   }
 }
 
-// Scene tag per demo step (index-aligned with buildDemoSteps()). Keep in sync
-// when adding/removing steps.
-const DEMO_SCENES = [
-  'choice', 'choice',                                                          // 0-1  opening (problem + meet Charlie)
-  'chapter',                                                                   // 2   ACT 1 / Charlie builds the file
-  'buildex', 'outlook', 'outlook', 'buildex', 'buildex', 'buildex', 'buildex', 'buildex', // 3-10 drop, outlook, drag+fill, complete, docs, photos, control, send
-  'chapter',                                                                   // 11  ACT 2 / Charlie answers the mail
-  'reply', 'reply',                                                            // 12-13 customer writes + answer
-  'chapter',                                                                   // 14  ACT 3 / It gets better every day
-  'reply',                                                                     // 15  you tweak it learns (live save)
-  'buildex',                                                                   // 16  the same for every file (animated rename)
-  'concept', 'concept', 'concept',                                             // 17-19 timeline + fully automatic
-  'choice'                                                                     // 20  close
-];
+// Each demo step carries its own scene tag via demoStep() — no fragile parallel array to keep in sync.
+function demoStep(scene, fn) { fn.scene = scene; return fn; }
 
 async function demoWaitForTypewriter() {
   const wrapper = document.getElementById('buildexForm');
@@ -5514,33 +5502,33 @@ async function demoAnimateMsgDrag() {
 function buildDemoSteps() {
   return [
     // ── OPENING ────────────────────────────────────────────────────
-    async () => {
+    demoStep('choice', async () => {
       demoShowChoice();
       await demoSetCaption('The problem', 'Every claim starts the same way: read the insurer’s e-mail and PDFs, then retype it all. Ten minutes a file — before the real work even begins.');
-    },
-    async () => {
+    }),
+    demoStep('choice', async () => {
       const cards = document.querySelectorAll('.choice-card');
       if (cards[0]) demoSpotlight(cards[0]);
       await demoSetCaption('Meet Charlie', 'Charlie is CED’s claims assistant. Two jobs: build the file, and answer the routine mail.');
-    },
+    }),
     // ── ACT 1 · CHARLIE BUILDS THE FILE ────────────────────────────
-    async () => {
+    demoStep('chapter', async () => {
       demoChapter('Function 01', 'Charlie builds the file', 'Drop the insurer’s assignment — the whole claim file, in seconds.');
-    },
-    async () => {
+    }),
+    demoStep('buildex', async () => {
       chooseDossier();
       showBuildex();
       const iz = document.getElementById('intakeZone');
       if (iz) demoSpotlight(iz);
       await demoSetCaption('One drop in', 'The handler drops the insurer’s .msg — with all its PDFs — straight onto Charlie.');
-    },
-    async () => {
+    }),
+    demoStep('outlook', async () => {
       // Mock Outlook: show the email where the .msg comes from
       demoClearSpotlight();
       demoShowOutlook();
       await demoSetCaption('From Outlook', 'The assignment arrives as an e-mail \u2014 with the insurer\u2019s PDFs as attachments.');
-    },
-    async () => {
+    }),
+    demoStep('outlook', async () => {
       // Watch-only: the .msg lands in the drop zone, then the data fills in right away.
       demoHideCaption();
       await demoAnimateMsgDrag();
@@ -5555,62 +5543,62 @@ function buildDemoSteps() {
       } else {
         showBuildex();
       }
-    },
-    async () => {
+    }),
+    demoStep('buildex', async () => {
       switchToTab(0);
       const sb = document.getElementById('summaryBox'); if (sb) demoSpotlight(sb);
       await demoSetCaption('A complete file', 'Seconds later: the whole file is filled — with a clear, plain-language summary of what happened.');
-    },
+    }),
     // Documents — AI renames each file from its content, live (watch-only, no balloon)
-    async () => {
+    demoStep('buildex', async () => {
       demoHideCaption();
       switchToTab(3);
       renderDocTable();
       const t = document.getElementById('docTable'); if (t) demoSpotlight(t);
       await demoRevealDocsWithRename();
-    },
+    }),
     // Photos — slow reveal, watch-only (no balloon)
-    async () => {
+    demoStep('buildex', async () => {
       demoHideCaption();
       switchToTab(8);
       renderMediaGrid();
       const g = document.getElementById('mediaGrid'); if (g) demoSpotlight(g);
       await demoRevealRowsSlowly('#mediaGrid .media-card', 950);
-    },
-    async () => {
+    }),
+    demoStep('buildex', async () => {
       switchToTab(1);
       applyConfidenceHighlights();
       if (!editMode) toggleEditMode();
       const lc = document.getElementById('fSchadebedrag');
       if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
       await demoSetCaption('You stay in control', 'Where Charlie is unsure, the field turns orange. Nothing’s locked — the handler reviews and adjusts anything first.');
-    },
-    async () => {
+    }),
+    demoStep('buildex', async () => {
       pushToBuildex();
       await demoSetCaption('One click onward', 'Then one click sends the finished file to BuildeX II. Done.');
-    },
+    }),
     // ── ACT 2 · CHARLIE ANSWERS THE MAIL ───────────────────────────
-    async () => {
+    demoStep('chapter', async () => {
       demoChapter('Function 02', 'Charlie answers the mail', 'The routine questions that flood every team — drafted in one click.');
-    },
-    async () => {
+    }),
+    demoStep('reply', async () => {
       chooseReply();
       document.getElementById('replyDrop').style.display = 'none';
       document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
       document.getElementById('replyMailPreview').classList.add('visible');
       await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — the kind of question that comes in over and over.');
-    },
-    async () => {
+    }),
+    demoStep('reply', async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
       const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
       await demoSetCaption('The answer, instantly', 'Charlie recognises it and drafts the right reply — ready to send.');
-    },
+    }),
     // ── ACT 3 · IT GETS BETTER EVERY DAY ───────────────────────────
-    async () => {
+    demoStep('chapter', async () => {
       demoChapter('No IT', 'It gets better every day', 'Every correction you make teaches Charlie — automatically.');
-    },
-    async () => {
+    }),
+    demoStep('reply', async () => {
       // start clean so the live save lands on exactly "1 learned"
       try { saveReplyCorrections([]); updateLearnedCount(); } catch (e) {}
       const learnBtn = document.getElementById('replyLearnBtn');
@@ -5634,8 +5622,8 @@ function buildDemoSteps() {
       if (learnBtn) { learnBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); demoSpotlight(learnBtn); }
       await new Promise(r => setTimeout(r, 500));
       if (typeof saveReplyCorrection === 'function') saveReplyCorrection();
-    },
-    async () => {
+    }),
+    demoStep('buildex', async () => {
       closePushModal();
       switchToTab(3);
       if (!editMode) toggleEditMode();
@@ -5661,23 +5649,23 @@ function buildDemoSteps() {
         }
       }
       await demoSetCaption('The same for every file', 'On a file, the handler renames the policy to add its start date — and Charlie remembers it next time. Correcting and improving are one and the same.');
-    },
-    async () => {
+    }),
+    demoStep('concept', async () => {
       demoOpenConcept();
       await demoSetCaption('The old way', 'Improving a tool used to mean a trip through IT: spec it, build it, test it, send it back — for weeks.');
-    },
-    async () => {
+    }),
+    demoStep('concept', async () => {
       await demoSetCaption('The Charlie way', 'Now the people who use it improve it — every day, no hand-offs, no IT.');
-    },
-    async () => {
+    }),
+    demoStep('concept', async () => {
       await demoSetCaption('In time, fully automatic', 'And once Operations has tested it enough, the input review can be dropped — the files are built end-to-end, fully automatically.');
-    },
+    }),
     // ── CLOSE ──────────────────────────────────────────────────────
-    async () => {
+    demoStep('choice', async () => {
       demoRestoreLs(); updateLearnedCount();
       demoShowChoice();
       await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Better every day — by the people who use it, with no IT in the loop.');
-    }
+    })
   ];
 }
 
@@ -5695,7 +5683,6 @@ async function runDemoFilm() {
   document.body.classList.add('demo-running');
   const steps = buildDemoSteps();
   demoState.total = steps.length;
-  if (DEMO_SCENES.length !== steps.length) console.warn('[Demo] DEMO_SCENES out of sync', DEMO_SCENES.length, steps.length);
   let i = 0;
   while (i < steps.length && !demoState.abort) {
     demoState.step = i + 1;
@@ -5703,7 +5690,7 @@ async function runDemoFilm() {
     demoState.back = false;
     typewriterAbort = false;
     document.getElementById('demoSceneLabel').textContent = `${i + 1} / ${steps.length}`;
-    try { demoScene(DEMO_SCENES[i]); } catch (e) { console.error('[Demo] scene error:', e); }
+    try { demoScene(steps[i].scene); } catch (e) { console.error('[Demo] scene error:', e); }
     const baseMs = demoVirtualMs();
     try { await steps[i](); } catch (e) { console.error('[Demo] step error:', e); }
     if (demoState.abort) break;
