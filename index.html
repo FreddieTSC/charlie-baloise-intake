@@ -282,6 +282,7 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 .choice-card:hover .cc-arrow { background: var(--cc); color: #fff; transform: translateX(4px); }
 
 .dch-hl { color: #3899DD; font-weight: 700; }
+.end-lead { display: inline-block; font-size: 1.55em; font-weight: 700; color: #3899DD; letter-spacing: -0.01em; margin-bottom: 10px; }
 /* staggered entrance */
 @keyframes ccRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .choice-screen.visible .choice-card { animation: ccRise .6s cubic-bezier(.16,.84,.24,1) both; }
@@ -5682,10 +5683,9 @@ function buildDemoSteps() {
       await demoSetCaption('In time, fully automatic', 'And once Operations has tested it enough, the input review can be dropped — the files are built end-to-end, fully automatically.');
     }),
     // ── CLOSE ──────────────────────────────────────────────────────
-    demoStep('choice', async () => {
+    demoStep('chapter', async () => {
       demoRestoreLs(); updateLearnedCount();
-      demoShowChoice();
-      await demoSetCaption('That’s Charlie', 'Faster files. Smarter replies. Better every day — by the people who use it, with no IT in the loop.');
+      demoChapter('', 'That’s Charlie.', '<span class="end-lead">Less admin. Better quality.</span><br>Automated file creation · smarter replies · better every day — with <span class="dch-hl">no IT in the loop</span>.');
     })
   ];
 }
@@ -5735,6 +5735,7 @@ async function runDemoFilm() {
     const lsw2 = document.getElementById('langSwitcher'); if (lsw2) lsw2.style.display = '';
     const ddb2 = document.querySelector('.choice-demo-btn'); if (ddb2) ddb2.style.display = '';
     demoClearSpotlight();
+    document.getElementById('demoChapter').classList.remove('show');
     demoShowChoice();
     demoState.running = false;
   }
