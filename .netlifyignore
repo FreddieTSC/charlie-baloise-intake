@@ -10,4 +10,7 @@ node_modules/
 *.md
 *.txt
 baloise-dossier-intake.html
+charlie-demo-standalone.html
+build-standalone.js
+test-all-msgs.mjs
 Procfile
