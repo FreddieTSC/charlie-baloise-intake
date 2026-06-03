@@ -54,9 +54,24 @@ async function main() {
   html = html.replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/pdfjs-dist@[^"]*"><\/script>/, '');
   html = html.replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/jszip@[^"]*"><\/script>/, '');
 
-  // 4. Sanity: no remaining external http(s) resource that would block offline
-  const leftover = (html.match(/(?:href|src)="https?:\/\/[^"]+"/g) || []).filter(s => !s.includes('data:'));
-  if (leftover.length) console.warn('Note — remaining external refs (not blocking, used only in non-demo handlers):\n  ' + leftover.join('\n  '));
+  // 4. Embed the demo photos (otherwise the Multimedia tab is broken offline)
+  let photoCount = 0;
+  if (fs.existsSync('demo')) {
+    for (const fn of fs.readdirSync('demo')) {
+      if (!/\.(jpe?g|png|gif|webp)$/i.test(fn)) continue;
+      const mime = /\.png$/i.test(fn) ? 'image/png' : /\.gif$/i.test(fn) ? 'image/gif'
+        : /\.webp$/i.test(fn) ? 'image/webp' : 'image/jpeg';
+      const b64 = fs.readFileSync('demo/' + fn).toString('base64');
+      const path = 'demo/' + fn;
+      if (html.includes(path)) { html = html.split(path).join(`data:${mime};base64,${b64}`); photoCount++; }
+    }
+  }
+  console.log(`Embedded ${photoCount} demo photo(s).`);
+
+  // 5. Sanity: no remaining external/relative resource that would block offline
+  const leftover = (html.match(/(?:href|src)\s*[:=]\s*["']?(?:https?:\/\/|demo\/|\.\/)[^"')\s]+/g) || [])
+    .filter(s => !s.includes('data:'));
+  if (leftover.length) console.warn('Note — remaining external/relative refs (verify these are demo-unused):\n  ' + leftover.join('\n  '));
 
   fs.writeFileSync('charlie-demo-standalone.html', html, 'utf8');
   const kb = Math.round(Buffer.byteLength(html, 'utf8') / 1024);
