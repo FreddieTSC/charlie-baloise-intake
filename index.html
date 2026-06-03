@@ -5108,7 +5108,7 @@ let demoLsSnapshot = null;
 let demoTicker = null;
 
 // Per-step durations (seconds) — the timed run sums to exactly 360s (6:00)
-const DEMO_SECONDS = [15, 12, 13, 11, 10, 44, 13, 14, 15, 11, 9, 10, 10, 10, 12, 14, 14, 16, 14, 11, 14, 13];
+const DEMO_SECONDS = [15, 12, 13, 11, 10, 44, 13, 14, 15, 11, 9, 10, 10, 10, 11, 12, 14, 14, 16, 14, 11, 14, 13];
 
 // Unpaused milliseconds since the demo started — uses wall-clock timestamps so it
 // stays accurate even when timers are throttled (background tab, slow machine).
@@ -5140,7 +5140,7 @@ function demoBuildChapterTicks() {
   if (!cont) return;
   cont.querySelectorAll('.demo-tick').forEach(t => t.remove());
   const total = DEMO_SECONDS.reduce((a, b) => a + b, 0) || 360;
-  [3, 8, 13, 16].forEach(idx => {
+  [3, 8, 13, 17].forEach(idx => {
     let cum = 0; for (let k = 0; k < idx && k < DEMO_SECONDS.length; k++) cum += DEMO_SECONDS[k];
     const t = document.createElement('span');
     t.className = 'demo-tick';
@@ -5603,10 +5603,17 @@ function buildDemoSteps() {
       await demoSetCaption('A customer writes in', '“Can I get the expert report of my file?” — the kind of question that comes in over and over.');
     }),
     demoStep('reply', async () => {
+      // Keep the incoming email shown; explain Charlie is trained on the recurring ones.
+      document.getElementById('replyDrop').style.display = 'none';
+      document.getElementById('replyMailText').textContent = SAMPLE_REPLY_MAIL;
+      document.getElementById('replyMailPreview').classList.add('visible');
+      await demoSetCaption('Trained on the routine', 'Charlie is trained on the most common recurring emails, so it recognises this one and drafts a reply.');
+    }),
+    demoStep('reply', async () => {
       currentReply = { mailText: SAMPLE_REPLY_MAIL, detectedType: 'verslag', generatedReply: REPLY_TEMPLATES.verslag.text, confidence: 'high' };
       showReplyResult({ type: 'verslag', confidence: 'high', reden: 'demo', antwoord: REPLY_TEMPLATES.verslag.text });
       const r = document.getElementById('replyResult'); if (r) demoSpotlight(r);
-      await demoSetCaption('The answer, instantly', 'Charlie recognises it and drafts the right reply — ready to send.');
+      await demoSetCaption('The answer, instantly', 'The right reply, drafted and ready to send.');
     }),
     // ── ACT 3 · IT GETS BETTER EVERY DAY ───────────────────────────
     demoStep('chapter', async () => {
