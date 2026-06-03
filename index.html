@@ -7297,51 +7297,9 @@ async function typewriterAnimate() {
 
   if (typewriterAbort) { finishTypewriter(); return; }
 
-  // ===== TAB 3: DOCUMENTEN =====
-  await sleep(400);
-  switchToTab(3);
-  await sleep(300);
-
-  const tbody = document.getElementById('docTableBody');
-  const noDocsMsg = document.getElementById('noDocs');
-  const docCountEl = document.getElementById('docCount');
-  tbody.innerHTML = '';
-  if (documents.length > 0) {
-    noDocsMsg.style.display = 'none';
-    if (docCountEl) docCountEl.textContent = `${documents.length} document${documents.length !== 1 ? 'en' : ''}`;
-    for (const [idx, doc] of documents.entries()) {
-      if (typewriterAbort) break;
-      const statusClass = doc.status || 'uploaded';
-      const statusLabel = doc.status === 'parsed' ? 'Verwerkt' : doc.status === 'extracted' ? 'Geextraheerd' : 'Geupload';
-      const badgeType = doc.docType || doc.type || '';
-      const badgeLabel = doc.docType ? doc.docType.charAt(0).toUpperCase() + doc.docType.slice(1) : doc.type.toUpperCase();
-      const badgeClass = badgeType.toLowerCase().replace(/['\s]/g, '');
-      const pages = doc.pages || '';
-      const desc = doc.description || '';
-      const displayName = stripDossierPrefix(doc.name);
-      const hasPdf = doc.source && Object.keys(pdfDataStore).some(k => k.includes(doc.source) || doc.source.includes(k)) || Object.keys(pdfDataStore).length > 0;
-      const tr = document.createElement('tr');
-      tr.className = 'nota-row-appear';
-      if (hasPdf && (doc.type === 'pdf' || doc.fromLLM)) {
-        tr.classList.add('clickable');
-        tr.addEventListener('click', () => openPdfViewer(doc));
-      }
-      const amountStr = doc.amount ? `€ ${Number(doc.amount).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
-      tr.innerHTML = `<td>${idx + 1}</td><td title="${esc(doc.name)}">${esc(displayName)}</td><td><span class="doc-type-badge ${badgeClass}">${esc(badgeLabel)}</span></td><td class="doc-pages">${esc(pages)}</td><td class="doc-desc" title="${esc(desc)}">${esc(desc)}</td><td class="doc-amount">${amountStr}</td><td>${esc(doc.source || '')}</td><td><span class="doc-status-badge ${statusClass}">${statusLabel}</span></td>`;
-      tbody.appendChild(tr);
-      await sleep(200);
-    }
-  }
-
-  if (typewriterAbort) { finishTypewriter(); return; }
-
-  // ===== TAB 8: MULTIMEDIA =====
-  await sleep(400);
-  switchToTab(8);
-  await sleep(300);
-  renderMediaGrid();
-
-  if (typewriterAbort) { finishTypewriter(); return; }
+  // (Documents (Tab 3) and photos (Tab 8) are shown in their own dedicated demo
+  //  slides — demoRevealDocsWithRename / demoRevealRowsSlowly — so the fill skips
+  //  them here to avoid a redundant fast pass.)
 
   // ===== TAB 0: OVERZICHT (Notas + Samenvatting) =====
   await sleep(400);
