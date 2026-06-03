@@ -5076,7 +5076,7 @@ const SAMPLE_DOSSIER = {
   Confidence: {
     Schadebedrag: 'low',
     KapitaalGebouw: 'low',
-    Vrijstelling: 'high',   // was 'medium' (light orange) — de-highlighted so only dark-orange (low) confidence shows
+    Vrijstelling: 'high',   // no highlight (handler is sure)
     Makelaar: 'low'
   }
   // No FotoPages — demo media is injected directly into mediaFiles
@@ -5569,12 +5569,21 @@ function buildDemoSteps() {
       switchToTab(1);
       applyConfidenceHighlights();
       if (!editMode) toggleEditMode();
+      // Beat 1: show the two uncertain fields in LIGHT orange first; they darken on the next click.
+      ['fSchadebedrag', 'fKapitaalGebouw'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('confidence-low'); el.classList.add('confidence-medium'); el.setAttribute('data-confidence', 'medium'); }
+      });
       const lc = document.getElementById('fSchadebedrag');
       if (lc) { lc.scrollIntoView({ block: 'center', behavior: 'smooth' }); demoSpotlight(lc); }
       await demoSetCaption('You stay in control', 'Where Charlie is unsure, the field turns orange. Nothing’s locked — the handler reviews and adjusts anything first.');
     }),
     demoStep('buildex', async () => {
-      // Reviewed file stays on screen (orange confidence fields visible); the send popup comes on the next click.
+      // Click 2: the reviewed fields escalate from light orange (medium) to dark orange (low). The popup comes on the next click.
+      ['fSchadebedrag', 'fKapitaalGebouw'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('confidence-medium'); el.classList.add('confidence-low'); el.setAttribute('data-confidence', 'low'); }
+      });
       await demoSetCaption('One click onward', 'Reviewed and ready. One click sends the finished file to BuildeX II.');
     }),
     demoStep('buildex', async () => {
