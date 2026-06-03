@@ -19,3 +19,9 @@
   for = "/"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Offline standalone demo — force a clean download instead of rendering in-browser
+[[headers]]
+  for = "/charlie-demo-standalone.html"
+  [headers.values]
+    Content-Disposition = "attachment; filename=\"charlie-demo-standalone.html\""
