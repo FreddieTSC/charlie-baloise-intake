@@ -283,6 +283,26 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 
 .dch-hl { color: #3899DD; font-weight: 700; }
 .end-lead { display: inline-block; font-size: 1.55em; font-weight: 700; color: #3899DD; letter-spacing: -0.01em; margin-bottom: 10px; }
+/* ===== Animated demo cursor ===== */
+.demo-cursor {
+  position: fixed; left: 50%; top: 78%;
+  z-index: 10060; pointer-events: none;
+  opacity: 0; margin: -2px 0 0 -2px;
+  transition: left .8s cubic-bezier(.45,.05,.25,1), top .8s cubic-bezier(.45,.05,.25,1), opacity .3s ease;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.4));
+}
+.demo-cursor.show { opacity: 1; }
+.demo-cursor svg { display: block; transform-origin: 4px 3px; }
+.demo-cursor.click svg { animation: demoCursorTap .4s ease; }
+@keyframes demoCursorTap { 0%,100% { transform: scale(1); } 45% { transform: scale(.72); } }
+.demo-cursor.click::after {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--ced-blue, #3899DD);
+  transform: translate(-9px, -9px) scale(.3); opacity: .85;
+  animation: demoCursorRipple .55s ease-out;
+}
+@keyframes demoCursorRipple { to { transform: translate(-9px, -9px) scale(1.7); opacity: 0; } }
 /* staggered entrance */
 @keyframes ccRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .choice-screen.visible .choice-card { animation: ccRise .6s cubic-bezier(.16,.84,.24,1) both; }
@@ -3053,6 +3073,9 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
   <div class="msg-label">26-555513.msg</div>
 </div>
 
+<!-- ===== Animated demo cursor ===== -->
+<div class="demo-cursor" id="demoCursor" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5.5 3.21V20.79c0 .45.54.67.85.35l4.86-4.86 2.41 5.48c.13.3.48.43.78.3l1.85-.78c.3-.13.43-.48.3-.78l-2.41-5.48h6.86c.45 0 .67-.54.35-.85L6.35 2.85c-.31-.31-.85-.09-.85.36z" fill="#1C054F" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+
 <!-- ===== CONCEPT SLIDE: new way of working (demo) ===== -->
 <div class="concept-view" id="conceptView">
   <div class="concept-inner">
@@ -5200,6 +5223,39 @@ function demoClearSpotlight() {
   document.querySelectorAll('.demo-spotlight').forEach(e => e.classList.remove('demo-spotlight'));
 }
 
+// ---- Animated demo cursor ----
+async function demoCursorTo(target, opts) {
+  const cursor = document.getElementById('demoCursor');
+  const el = typeof target === 'string' ? document.getElementById(target) : target;
+  if (!cursor || !el) return;
+  try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {}
+  await new Promise(r => setTimeout(r, 250));
+  const rect = el.getBoundingClientRect();
+  const x = rect.left + (opts && opts.dx != null ? opts.dx : rect.width / 2);
+  const y = rect.top + (opts && opts.dy != null ? opts.dy : rect.height / 2);
+  if (!cursor.classList.contains('show')) {
+    cursor.style.transition = 'none';
+    cursor.style.left = (x - 110) + 'px';
+    cursor.style.top = (y + 80) + 'px';
+    void cursor.offsetWidth;
+    cursor.classList.add('show');
+    cursor.style.transition = '';
+    void cursor.offsetWidth;
+  }
+  cursor.style.left = x + 'px';
+  cursor.style.top = y + 'px';
+  await new Promise(r => setTimeout(r, 820));
+}
+async function demoCursorClick() {
+  const cursor = document.getElementById('demoCursor');
+  if (!cursor) return;
+  cursor.classList.remove('click'); void cursor.offsetWidth;
+  cursor.classList.add('click');
+  await new Promise(r => setTimeout(r, 450));
+  cursor.classList.remove('click');
+}
+function demoCursorHide() { const c = document.getElementById('demoCursor'); if (c) c.classList.remove('show'); }
+
 function updateDemoProgress() {
   const pct = demoState.total ? Math.round(demoState.step / demoState.total * 100) : 0;
   document.getElementById('demoProgressBar').style.width = pct + '%';
@@ -5319,6 +5375,7 @@ function demoChapter(num, title, sub) {
 function demoScene(tag) {
   if (!tag) return;
   demoClearSpotlight(); // never let a spotlight (z-index 10040) bleed across steps/overlays
+  demoCursorHide();
   const chap = document.getElementById('demoChapter');
   const choice = document.getElementById('choiceScreen');
   const reply = document.getElementById('replyView');
@@ -5589,6 +5646,10 @@ function buildDemoSteps() {
       await demoSetCaption('One click onward', 'Reviewed and ready. One click sends the finished file to BuildeX II.');
     }),
     demoStep('buildex', async () => {
+      // Mouse glides to the Push button and clicks before the file is sent.
+      await demoCursorTo('btnPush');
+      await demoCursorClick();
+      demoCursorHide();
       pushToBuildex();
       await demoSetCaption('Done', 'The finished file lands straight in BuildeX II. Done.');
     }),
@@ -5648,7 +5709,11 @@ function buildDemoSteps() {
     demoStep('buildex', async () => {
       closePushModal();
       switchToTab(3);
-      if (!editMode) toggleEditMode();
+      if (!editMode) {
+        await demoCursorTo('btnEdit');
+        await demoCursorClick();
+        toggleEditMode();
+      }
       renderDocTableEditable();
       await new Promise(r => setTimeout(r, 250));
       const rows = Array.from(document.querySelectorAll('#docTableBody tr[data-doc-idx]'));
@@ -5659,6 +5724,8 @@ function buildDemoSteps() {
       const nameInput = polisRow && polisRow.querySelector('input[data-field="name"]');
       if (nameInput) {
         polisRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        await demoCursorTo(nameInput);
+        demoCursorHide();
         demoSpotlight(nameInput);
         const suffix = ' — start polis 25/06/2023';
         const base = nameInput.value.replace(/\s*—\s*(start polis|ingang)\b.*$/i, '').trim();
@@ -5736,6 +5803,7 @@ async function runDemoFilm() {
     const ddb2 = document.querySelector('.choice-demo-btn'); if (ddb2) ddb2.style.display = '';
     demoClearSpotlight();
     document.getElementById('demoChapter').classList.remove('show');
+    demoCursorHide();
     demoShowChoice();
     demoState.running = false;
   }
