@@ -281,6 +281,7 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 }
 .choice-card:hover .cc-arrow { background: var(--cc); color: #fff; transform: translateX(4px); }
 
+.dch-hl { color: #3899DD; font-weight: 700; }
 /* staggered entrance */
 @keyframes ccRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .choice-screen.visible .choice-card { animation: ccRise .6s cubic-bezier(.16,.84,.24,1) both; }
@@ -5305,7 +5306,7 @@ function demoChapter(num, title, sub) {
   if (!el) return;
   document.getElementById('demoChapterNum').textContent = num || '';
   document.getElementById('demoChapterTitle').textContent = title || '';
-  document.getElementById('demoChapterSub').textContent = sub || '';
+  document.getElementById('demoChapterSub').innerHTML = sub || '';
   el.classList.remove('show');
   void el.offsetWidth; // restart the staggered entrance animation
   el.classList.add('show');
@@ -5592,7 +5593,7 @@ function buildDemoSteps() {
     }),
     // ── ACT 2 · CHARLIE ANSWERS THE MAIL ───────────────────────────
     demoStep('chapter', async () => {
-      demoChapter('Function 02', 'Charlie answers the mail', 'The routine questions that flood every team — drafted in one click.');
+      demoChapter('Function 02', 'Charlie answers the mail', 'The <span class="dch-hl">routine</span> questions that flood every team.<br>Drafted in <span class="dch-hl">one click</span>.');
     }),
     demoStep('reply', async () => {
       chooseReply();
