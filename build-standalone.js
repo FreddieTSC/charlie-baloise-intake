@@ -5,7 +5,7 @@
 const fs = require('fs');
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
-const FONT_CSS_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@500;600;700;800&display=swap';
+const FONT_CSS_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
 const WANT_SUBSETS = ['latin', 'latin-ext'];
 
 async function main() {
@@ -40,7 +40,7 @@ async function main() {
         `src:url(data:font/woff2;base64,${b64}) format('woff2');` +
         (f.range ? `unicode-range:${f.range.trim()};` : '') + `}\n`;
     }
-    console.log(`Embedded ${faces.length} @font-face blocks (${WANT_SUBSETS.join('+')}) across Inter + Raleway.`);
+    console.log(`Embedded ${faces.length} @font-face blocks (${WANT_SUBSETS.join('+')}) for Inter.`);
   } catch (e) {
     console.warn('Font embed failed (' + e.message + ') — standalone will fall back to system fonts.');
   }
