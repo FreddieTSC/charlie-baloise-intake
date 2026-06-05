@@ -3209,14 +3209,14 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
   <div class="model-selector" id="modelSelector">
     <label for="modelDropdown">Model</label>
     <select class="model-dropdown" id="modelDropdown">
-      <optgroup label="OpenAI GPT">
-        <option value="gpt-4.1" selected>GPT-4.1</option>
+      <optgroup label="Co-pilot GPT">
+        <option value="gpt-4.1">GPT-4.1</option>
         <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
         <option value="gpt-4.1-nano">GPT-4.1 Nano</option>
-        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o" selected>GPT-4o</option>
         <option value="gpt-4o-mini">GPT-4o Mini</option>
       </optgroup>
-      <optgroup label="OpenAI Reasoning">
+      <optgroup label="Co-pilot Reasoning">
         <option value="o3">o3</option>
         <option value="o4-mini">o4-mini</option>
       </optgroup>
@@ -3235,7 +3235,7 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
   <div class="loading-box">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Analyseren...</div>
-    <div class="loading-model" id="loadingModel">gpt-4.1</div>
+    <div class="loading-model" id="loadingModel">gpt-4o</div>
     <div class="loading-progress"><div class="loading-progress-bar" id="loadingProgressBar"></div></div>
   </div>
 </div>
@@ -4022,7 +4022,7 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
 // ========== CONFIGURATION ==========
 const CONFIG = {
   apiUrl: localStorage.getItem('charlie_api_url') || '',
-  defaultModel: 'gpt-4.1'
+  defaultModel: 'gpt-4o'
 };
 
 async function fileToBase64(file) {
