@@ -9,7 +9,7 @@ Een gescripte, geanimeerde rondleiding ("film") die Charlie toont. Volledig **cl
 **Besturing (presentatie-klikker / toetsenbord):**
 - `→` of `spatie` = volgende · `←` = terug · `F` = fullscreen · `Esc` / `X` = sluiten
 
-**Stijl (look & feel):** een schakelaar in de header naast *Model* wisselt tussen de **nieuwe** stijl (witte splash & tussenbladen · Raleway-titels · Calibri-wordmark "Charlie.") en het **origineel** (beige · Georgia-cursief). Standaard *nieuw*; de keuze wordt onthouden via `localStorage` (`charlie_look`). Technisch additief: `<body data-look="new">` + CSS-overrides, dus volledig terugdraaibaar.
+**Stijl (look & feel):** de demo draait volledig in de **nieuwe** stijl — witte splash, keuzescherm, tussenbladen én tijdslijnslide · Raleway-titels · Calibri-wordmark "Charlie." De oranje/groen-accenten op de tijdslijn blijven (betekenisdragend). Eén vaste stijl, geen toggle: `<body data-look="new">` + CSS-overrides onder `body[data-look="new"]`.
 
 ## Live & download
 
