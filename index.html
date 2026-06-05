@@ -8344,9 +8344,14 @@ function dismissSplash() {
     return;
   }
   splashDismissed = true;             // next click: enter the app
-  document.getElementById('splashScreen').classList.add('hidden');
-  // Show the mode choice screen
-  setTimeout(() => document.getElementById('choiceScreen').classList.add('visible'), 300);
+  // Bring up the choice screen as a SOLID backdrop first (no fade-in), so nothing behind
+  // the splash (the app view) flashes during the transition, then fade the splash over it.
+  const choice = document.getElementById('choiceScreen');
+  choice.style.transition = 'none';
+  choice.classList.add('visible');    // display:flex + opacity:1, instantly
+  void choice.offsetWidth;            // commit the no-transition state
+  choice.style.transition = '';       // restore the fade for later (backToChoice / demoShowChoice)
+  document.getElementById('splashScreen').classList.add('hidden');  // splash fades out, revealing the choice
 }
 
 // ========== MODE SELECTION ==========
