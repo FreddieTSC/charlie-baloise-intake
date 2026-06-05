@@ -9,6 +9,8 @@ Een gescripte, geanimeerde rondleiding ("film") die Charlie toont. Volledig **cl
 **Besturing (presentatie-klikker / toetsenbord):**
 - `→` of `spatie` = volgende · `←` = terug · `F` = fullscreen · `Esc` / `X` = sluiten
 
+**Stijl (look & feel):** een schakelaar in de header naast *Model* wisselt tussen de **nieuwe** stijl (witte splash & tussenbladen · Raleway-titels · Calibri-wordmark "Charlie.") en het **origineel** (beige · Georgia-cursief). Standaard *nieuw*; de keuze wordt onthouden via `localStorage` (`charlie_look`). Technisch additief: `<body data-look="new">` + CSS-overrides, dus volledig terugdraaibaar.
+
 ## Live & download
 
 | | URL |
@@ -18,7 +20,7 @@ Een gescripte, geanimeerde rondleiding ("film") die Charlie toont. Volledig **cl
 
 ## Offline standalone (voor presentaties zonder WiFi)
 
-Eén self-contained HTML-bestand, **nul netwerk-requests**. Inter-font én de 3 demo-foto's zitten als base64 ingebed; de Google Fonts-link, de 3 CDN-scripts (cfb/pdf.js/jszip, alleen voor échte uploads) en alle externe paden zijn eruit.
+Eén self-contained HTML-bestand, **nul netwerk-requests**. **Inter + Raleway** én de 3 demo-foto's zitten als base64 ingebed (Calibri is een systeemfont → rendert native op Windows/Office, valt anders terug op Segoe UI); de Google Fonts-link, de 3 CDN-scripts (cfb/pdf.js/jszip, alleen voor échte uploads) en alle externe paden (incl. de guarded pdf.js-worker-URL) zijn eruit.
 
 **Bouwen / verversen** (na elke wijziging aan `index.html`):
 ```bash

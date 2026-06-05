@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charlie — Dossier Intake</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -448,6 +448,36 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 .demo-chapter.show .dch-title { transform: none; opacity: 1; transition-delay: 0.13s; }
 .demo-chapter.show .dch-rule  { transform: none; opacity: 1; transition-delay: 0.24s; }
 .demo-chapter.show .dch-sub   { transform: none; opacity: 1; transition-delay: 0.32s; }
+
+/* ============================================================
+   LOOK & FEEL — "new" overrides (white + Raleway + Calibri)
+   <body data-look="new"> is the default; the header toggle flips to
+   "original" (the beige + Georgia base above). Fully additive &
+   reversible — removing data-look="new" restores the original look.
+   ============================================================ */
+:root {
+  --font-calibri: 'Calibri', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Raleway', 'Inter', sans-serif;
+}
+/* Splash → white; "Charlie." wordmark + subtitle in Calibri */
+body[data-look="new"] .splash { background: #FFFFFF; }
+body[data-look="new"] .splash-logo {
+  font-family: var(--font-calibri);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+body[data-look="new"] .splash-subtitle,
+body[data-look="new"] .splash-hint { font-family: var(--font-calibri); }
+/* Chapter interstitials (tussenbladen) → white; Raleway title, Calibri subtitle */
+body[data-look="new"] .demo-chapter { background: #FFFFFF; }
+body[data-look="new"] .dch-title {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+body[data-look="new"] .dch-sub { font-family: var(--font-calibri); color: #5A6473; }
 
 /* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
@@ -1564,6 +1594,34 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
   flex-shrink: 0;
 }
 .btn-reset:hover { background: #F0F0F0; border-color: var(--ced-blue); }
+
+/* Look & feel toggle (header, next to Model) */
+.btn-look {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--buildex-border);
+  cursor: pointer;
+  background: var(--bg-white);
+  color: var(--text-body);
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-look::before {
+  content: '';
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #C9CDD6;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.btn-look.is-new { border-color: var(--ced-blue); color: var(--ced-navy); }
+.btn-look.is-new::before { background: var(--ced-blue); }
+.btn-look:hover { border-color: var(--ced-blue); background: #F6FAFE; }
 
 /* ========== EDIT & PUSH BUTTONS ========== */
 .btn-action {
@@ -2782,7 +2840,7 @@ select.dropdown-active {
 }
 </style>
 </head>
-<body>
+<body data-look="new">
 
 <!-- ===== SPLASH SCREEN ===== -->
 <div class="splash" id="splashScreen" onclick="dismissSplash()">
@@ -3222,6 +3280,8 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
       </optgroup>
     </select>
   </div>
+
+  <button class="btn-look" id="btnLook" onclick="toggleLook()" title="Wissel tussen de nieuwe en de originele stijl (lettertype + achtergrond van splash &amp; tussenbladen)">Stijl · Nieuw</button>
 
   <div style="display:flex;gap:8px;align-items:center;">
     <button class="btn-action btn-edit" id="btnEdit" onclick="toggleEditMode()" title="Formulier bewerken">✎ Bewerken</button>
@@ -6033,7 +6093,7 @@ const i18nObserver = (typeof MutationObserver !== 'undefined') ? new MutationObs
   if (!window.CHARLIE_LANG || window.CHARLIE_LANG === 'nl') return;
   for (const m of muts) {
     const el = m.target && m.target.nodeType === 1 ? m.target : (m.target && m.target.parentElement);
-    if (el && !el.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen')) {
+    if (el && !el.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen,#btnLook')) {
       clearTimeout(i18nTimer);
       i18nTimer = setTimeout(() => applyLang(window.CHARLIE_LANG), 80);
       return;
@@ -6052,7 +6112,7 @@ function applyLang(lang) {
       if (!p) return NodeFilter.FILTER_REJECT;
       const tag = p.tagName;
       if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
-      if (p.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen,#modelDropdown')) return NodeFilter.FILTER_REJECT;
+      if (p.closest('#demoOverlay,#tuneView,#langSwitcher,#splashScreen,#modelDropdown,#btnLook')) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     }
   });
@@ -8256,6 +8316,28 @@ function setApiUrl(url) {
 console.log('%c Charlie Dossier Intake v2.2', 'color:#1C054F;font-size:16px;font-weight:bold');
 console.log('%c Real-time SSE streaming enabled', 'color:#3899DD;font-size:12px');
 console.log('%c Backend: Netlify Functions', 'color:#86BC34;font-size:12px');
+
+// ========== LOOK & FEEL TOGGLE (new ↔ original) ==========
+const LOOK_LS_KEY = 'charlie_look';
+function applyLook(look) {
+  const l = (look === 'original') ? 'original' : 'new';
+  document.body.setAttribute('data-look', l);
+  try { localStorage.setItem(LOOK_LS_KEY, l); } catch (e) {}
+  const btn = document.getElementById('btnLook');
+  if (btn) {
+    btn.textContent = (l === 'new') ? 'Stijl · Nieuw' : 'Stijl · Origineel';
+    btn.classList.toggle('is-new', l === 'new');
+  }
+}
+function toggleLook() {
+  const cur = document.body.getAttribute('data-look') === 'original' ? 'original' : 'new';
+  applyLook(cur === 'new' ? 'original' : 'new');
+}
+(function initLook() {
+  let saved = 'new';
+  try { saved = localStorage.getItem(LOOK_LS_KEY) || 'new'; } catch (e) {}
+  applyLook(saved);
+})();
 
 // ========== SPLASH SCREEN ==========
 let splashDismissed = false;
