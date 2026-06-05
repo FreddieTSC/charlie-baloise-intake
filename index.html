@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Charlie — Dossier Intake</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAEEDA'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-family='Calibri,sans-serif' font-size='44' fill='%231C054F'%3EC%3Ctspan fill='%233899DD'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -59,7 +59,7 @@ body {
   pointer-events: none !important;
 }
 .splash-logo {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-style: italic;
   font-weight: 400;
   font-size: clamp(64px, 12vw, 120px);
@@ -144,7 +144,7 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 
 .choice-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .choice-logo {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-style: italic;
   font-weight: 400;
   font-size: clamp(46px, 7vw, 70px);
@@ -249,12 +249,12 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 }
 .choice-card:hover .cc-icon { transform: translateY(-2px) scale(1.06); }
 .cc-index {
-  font-family: Georgia, serif; font-style: italic;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 22px; color: color-mix(in srgb, var(--cc) 48%, transparent);
 }
 .cc-body { display: flex; flex-direction: column; gap: 7px; flex: 1; }
 .cc-title {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 21px; font-weight: 700;
   color: var(--ced-navy);
   letter-spacing: -.01em;
@@ -405,7 +405,7 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 }
 .demo-chapter.show { opacity: 1; visibility: visible; }
 .dch-num {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-weight: 800;
   font-size: 16px;
   letter-spacing: 0.34em;
@@ -413,7 +413,7 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
   margin-bottom: 18px;
 }
 .dch-title {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-style: italic;
   font-weight: 400;
   font-size: clamp(46px, 7vw, 96px);
@@ -450,14 +450,13 @@ body.demo-running .choice-screen { padding-bottom: 300px; }
 .demo-chapter.show .dch-sub   { transform: none; opacity: 1; transition-delay: 0.32s; }
 
 /* ============================================================
-   LOOK & FEEL — "new" overrides (white + Raleway + Calibri)
-   <body data-look="new"> is the default; the header toggle flips to
-   "original" (the beige + Georgia base above). Fully additive &
-   reversible — removing data-look="new" restores the original look.
+   LOOK & FEEL — the permanent look (white + Calibri everywhere).
+   <body data-look="new"> is hardcoded; these rules override the older
+   beige/serif base styling above. No toggle — "new" is the only look.
    ============================================================ */
 :root {
   --font-calibri: 'Calibri', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'Raleway', 'Inter', sans-serif;
+  --font-display: 'Calibri', 'Segoe UI', system-ui, sans-serif;
 }
 /* Splash → white; "Charlie." wordmark + subtitle in Calibri */
 body[data-look="new"] .splash { background: #FFFFFF; }
@@ -469,7 +468,7 @@ body[data-look="new"] .splash-logo {
 }
 body[data-look="new"] .splash-subtitle,
 body[data-look="new"] .splash-hint { font-family: var(--font-calibri); }
-/* Chapter interstitials (tussenbladen) → white; Raleway title, Calibri subtitle */
+/* Chapter interstitials (tussenbladen) → white; Calibri title + subtitle */
 body[data-look="new"] .demo-chapter { background: #FFFFFF; }
 body[data-look="new"] .dch-title {
   font-family: var(--font-display);
@@ -570,7 +569,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
   100% { box-shadow: 0 0 0 0 rgba(127, 194, 240, 0), 0 0 8px rgba(127, 194, 240, 0.9); }
 }
 .demo-caption .dc-title {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -748,7 +747,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
   align-self: start;
 }
 .tune-panel h3 {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--ced-navy);
@@ -989,7 +988,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
 @media (max-height: 760px) { .concept-inner { transform: scale(0.72); transform-origin: center; } }
 
 .concept-title {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 34px;
   font-weight: 800;
   color: var(--ced-navy);
@@ -1017,7 +1016,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
 }
 .ctl.today .ctl-kicker { color: #C2410C; }
 .ctl.charlie .ctl-kicker { color: #1B7A3D; }
-.ctl-title { font-family: 'Raleway','Inter',sans-serif; font-size: 18px; font-weight: 700; color: var(--ced-navy); }
+.ctl-title { font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif; font-size: 18px; font-weight: 700; color: var(--ced-navy); }
 
 .ctl-body { display: grid; grid-template-columns: 104px 1fr; column-gap: 8px; align-items: stretch; }
 .ctl-lanes { position: relative; min-height: 170px; }
@@ -1075,7 +1074,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
 .ctl-endcap {
   flex: 0 0 118px; align-self: center; text-align: center; position: relative; z-index: 2; padding-left: 8px;
 }
-.endcap-num { font-family: 'Raleway','Inter',sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em; line-height: 1; }
+.endcap-num { font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.02em; line-height: 1; }
 .ctl.today .endcap-num { color: #C2410C; }
 .ctl.charlie .endcap-num { color: #1B7A3D; }
 .endcap-sub { font-size: 10.5px; color: #8A7E6B; font-weight: 600; margin-top: 4px; line-height: 1.25; }
@@ -1192,7 +1191,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
 }
 .reply-drop-icon { font-size: 48px; margin-bottom: 16px; }
 .reply-drop-label {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: var(--ced-navy);
@@ -1241,7 +1240,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
   gap: 12px;
 }
 .reply-result-type {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: var(--ced-navy);
@@ -1312,7 +1311,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
 }
 .reply-nomatch.visible { display: block; }
 .reply-nomatch-title {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #9A3412;
@@ -1453,7 +1452,7 @@ body[data-look="new"] .endcap-sub { color: #6E7787; }
   justify-content: space-between;
 }
 .reply-learned-head h3 {
-  font-family: 'Raleway', 'Inter', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-size: 17px;
   font-weight: 700;
   color: var(--ced-navy);
@@ -2324,7 +2323,7 @@ textarea.form-input { resize: vertical; min-height: 60px; }
   flex-shrink: 0;
 }
 .pdf-viewer-title {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
   white-space: nowrap;
@@ -2910,7 +2909,7 @@ select.dropdown-active {
   <div class="reply-header">
     <button class="reply-back" onclick="backToChoice()">← Terug</button>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
-      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="reply-header-title">Reply Generator</span>
     <span class="reply-learned" id="replyLearned" onclick="showLearnedCorrections()" title="Bekijk geleerde correcties">🎓 <span id="replyLearnedCount">0</span> geleerd</span>
@@ -2989,7 +2988,7 @@ select.dropdown-active {
 <div class="tune-view" id="tuneView">
   <div class="tune-header">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
-      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="tune-header-title">Tune Charlie</span>
     <span class="tune-header-sub" id="tunePromptBadge">✦ Managed by the claims handler — no IT needed</span>
@@ -3248,7 +3247,7 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
 <header class="app-header">
   <div class="header-brand">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 38px;">
-      <text x="10" y="80" font-family="Georgia, serif" font-style="italic" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="header-subtitle">DOSSIER INTAKE</span>
   </div>

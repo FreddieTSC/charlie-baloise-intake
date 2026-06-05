@@ -9,7 +9,7 @@ Een gescripte, geanimeerde rondleiding ("film") die Charlie toont. Volledig **cl
 **Besturing (presentatie-klikker / toetsenbord):**
 - `→` of `spatie` = volgende · `←` = terug · `F` = fullscreen · `Esc` / `X` = sluiten
 
-**Stijl (look & feel):** de demo draait volledig in de **nieuwe** stijl — witte splash, keuzescherm, tussenbladen én tijdslijnslide · Raleway-titels · Calibri-wordmark "Charlie." De oranje/groen-accenten op de tijdslijn blijven (betekenisdragend). Eén vaste stijl, geen toggle: `<body data-look="new">` + CSS-overrides onder `body[data-look="new"]`.
+**Stijl (look & feel):** de demo draait volledig in de **nieuwe** stijl — witte splash, keuzescherm, tussenbladen én tijdslijnslide · alle titels én de wordmark "Charlie." in Calibri De oranje/groen-accenten op de tijdslijn blijven (betekenisdragend). Eén vaste stijl, geen toggle: `<body data-look="new">` + CSS-overrides onder `body[data-look="new"]`.
 
 ## Live & download
 
@@ -20,7 +20,7 @@ Een gescripte, geanimeerde rondleiding ("film") die Charlie toont. Volledig **cl
 
 ## Offline standalone (voor presentaties zonder WiFi)
 
-Eén self-contained HTML-bestand, **nul netwerk-requests**. **Inter + Raleway** én de 3 demo-foto's zitten als base64 ingebed (Calibri is een systeemfont → rendert native op Windows/Office, valt anders terug op Segoe UI); de Google Fonts-link, de 3 CDN-scripts (cfb/pdf.js/jszip, alleen voor échte uploads) en alle externe paden (incl. de guarded pdf.js-worker-URL) zijn eruit.
+Eén self-contained HTML-bestand, **nul netwerk-requests**. **Inter** én de 3 demo-foto's zitten als base64 ingebed (titels + wordmark gebruiken **Calibri**, een systeemfont → rendert native op Windows/Office, valt anders terug op Segoe UI); de Google Fonts-link, de 3 CDN-scripts (cfb/pdf.js/jszip, alleen voor échte uploads) en alle externe paden (incl. de guarded pdf.js-worker-URL) zijn eruit.
 
 **Bouwen / verversen** (na elke wijziging aan `index.html`):
 ```bash
