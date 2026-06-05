@@ -490,6 +490,18 @@ body[data-look="new"] .choice-logo {
 body[data-look="new"] .choice-card {
   background: linear-gradient(180deg, #FFFFFF 0%, #F0F4FB 100%);
 }
+/* Concept/timeline slide → white; orange/green stay as semantic accents, all beige/warm tints out */
+body[data-look="new"] .concept-view { background: #FFFFFF; }
+body[data-look="new"] .ctl.today .station > .card,
+body[data-look="new"] .ctl.charlie .station > .card { background: #FFFFFF; }
+body[data-look="new"] .ctl.today .station > .card::after { background: #D7DCE3; }
+body[data-look="new"] .ctl.today .ctl-rail {
+  background: linear-gradient(90deg,#CBD5E1 0%,#CBD5E1 38%,#E3A268 55%,#D9744E 100%);
+}
+body[data-look="new"] .loop-pill { background: #FFFFFF; }
+body[data-look="new"] .concept-subtitle,
+body[data-look="new"] .station > .card .cs,
+body[data-look="new"] .endcap-sub { color: #6E7787; }
 
 /* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
