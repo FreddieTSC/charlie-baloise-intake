@@ -501,6 +501,21 @@ body[data-look="new"] .loop-pill { background: #FFFFFF; }
 body[data-look="new"] .concept-subtitle,
 body[data-look="new"] .station > .card .cs,
 body[data-look="new"] .endcap-sub { color: #6E7787; }
+/* Calibri display text at regular weight — bold (700/800) read far too heavy */
+body[data-look="new"] .splash-logo,
+body[data-look="new"] .choice-logo,
+body[data-look="new"] .dch-title,
+body[data-look="new"] .dch-num,
+body[data-look="new"] .cc-title,
+body[data-look="new"] .concept-title,
+body[data-look="new"] .ctl-title,
+body[data-look="new"] .endcap-num,
+body[data-look="new"] .reply-drop-label,
+body[data-look="new"] .reply-result-type,
+body[data-look="new"] .reply-nomatch-title,
+body[data-look="new"] .reply-learned-head h3 {
+  font-weight: 400;
+}
 
 /* Caption — Ethereal Glass voice-over panel with gradient hairline + glow */
 .demo-caption {
@@ -2909,7 +2924,7 @@ select.dropdown-active {
   <div class="reply-header">
     <button class="reply-back" onclick="backToChoice()">← Terug</button>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
-      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="reply-header-title">Reply Generator</span>
     <span class="reply-learned" id="replyLearned" onclick="showLearnedCorrections()" title="Bekijk geleerde correcties">🎓 <span id="replyLearnedCount">0</span> geleerd</span>
@@ -2988,7 +3003,7 @@ select.dropdown-active {
 <div class="tune-view" id="tuneView">
   <div class="tune-header">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 34px;">
-      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="tune-header-title">Tune Charlie</span>
     <span class="tune-header-sub" id="tunePromptBadge">✦ Managed by the claims handler — no IT needed</span>
@@ -3247,7 +3262,7 @@ CED | Noorderlaan 87 | 2030 Antwerpen</div>
 <header class="app-header">
   <div class="header-brand">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" role="img" aria-label="Charlie" style="height: 38px;">
-      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="700" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
+      <text x="10" y="80" font-family="Calibri, 'Segoe UI', sans-serif" font-style="normal" font-weight="400" font-size="78" fill="#1C054F">Ch<tspan fill="#3899DD">a</tspan>rl<tspan fill="#3899DD">i</tspan>e<tspan fill="#3899DD">.</tspan></text>
     </svg>
     <span class="header-subtitle">DOSSIER INTAKE</span>
   </div>
